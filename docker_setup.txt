@@ -1,0 +1,43 @@
+https://docs.docker.com/docker-for-windows/install/
+https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver15
+
+select
+       count(1) satis_sayisi,
+       round(sum(brut), 2) brut_toplam,
+       round(sum(ODENECEK),2) net_toplam,
+       round(sum(NODENEN),2) nakit,
+       round(sum(KODENEN),2) kredi,
+       round(sum(ODENECEK - ODENEn),2) veresiye
+from Odeme
+where TARIH = '2021-04-18 00:00:00.000';
+
+
+docker pull mcr.microsoft.com/mssql/server:2019-latest
+
+--
+docker run --rm -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrongPassw0rd" -p 1433:1433 --name sql_server -d mcr.microsoft.com/mssql/server:2019-latest
+
+docker cp Farmakom.yedek sql_server:/tmp/Farmakom.yedek
+
+docker cp '.\Farmakom Online! Otomatik Yedek Modülü 20211123-1046.yedek' sql_server:/tmp/Farmakom.yedek
+
+docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "YourStrongPassw0rd" -Q "RESTORE DATABASE ONLINE21 FROM DISK = '/tmp/Farmakom.yedek' WITH MOVE 'ONLINE21' TO '/var/opt/mssql/data/ONLINE21.mdf', MOVE 'ONLINE21_log' TO '/var/opt/mssql/data/ONLINE21_log.mdf'"
+
+docker stop sql_server
+
+--
+
+select
+	TARIH,
+	count(1) satis_sayisi,
+	round(sum(brut), 2) brut_toplam,
+	round(sum(ODENECEK),2) net_toplam,
+	round(sum(NODENEN),2) nakit,
+	round(sum(KODENEN),2) kredi,
+	round(sum(ODENECEK - ODENEN),2) veresiye
+from Odeme
+where TARIH >= '2021-01-01 00:00:00.000'
+group by TARIH;
+
+
+
