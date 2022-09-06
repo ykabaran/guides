@@ -1,0 +1,65 @@
+Create new VPS
+SSH to VPS with Putty
+Login as root with the password sent to your email
+Change the root password
+	passwd
+Create new user:
+	adduser yildiz
+	gpasswd -a yildiz sudo
+Exit:
+	exit
+SSH again and login as yildiz
+Update apt-get:
+	sudo apt-get update
+Install FTP Server
+	sudo apt-get install vsftpd
+Configure FTP server
+	sudo nano /etc/vsftpd.conf
+Uncomment the following line
+	write_enable=YES
+Save and exit
+Restart the FTP Server
+	sudo service vsftpd restart
+Connect to server with FileZilla
+Download JRE
+	sudo apt-get install default-jre
+Copy Tomcat installation and configuration files into /tmp
+Install Tomcat
+	sudo mkdir /etc/tomcat
+	sudo tar xzvf /tmp/apache-tomcat-8.5.15.tar.gz -C /etc/tomcat --strip-components=1
+Give Tomcat installation read and execute permissions
+	sudo chmod -R 755 /etc/tomcat
+Delete unnecessary Tomcat projects
+	sudo rm -R /etc/tomcat/webapps/docs
+	sudo rm -R /etc/tomcat/webapps/examples
+	sudo rm -R /etc/tomcat/webapps/host-manager
+Copy over Tomcat configuration files
+	sudo cp /tmp/conf/server.xml /etc/tomcat/conf
+	sudo cp /tmp/conf/tomcat-users.xml /etc/tomcat/conf
+	sudo cp /tmp/conf/web.xml /etc/tomcat/conf
+Copy the tomcat.service file into system
+	sudo cp /tmp/conf/tomcat.service /etc/systemd/system
+Make sure the tomcat.service file has the right JAVA_HOME
+	sudo update-java-alternatives -l
+Move Tomcat working directory to /var/www with current projects
+	sudo mv /etc/tomcat/webapps /var/www
+Copy manager context.xml file into manager configuration
+	sudo cp /tmp/manager/context.xml /var/www/manager/META-INF
+Rename the manager application to manager323
+	sudo mv /var/www/manager /var/www/manager323
+Copy LinkGetter project into /tmp through FTP
+Move LinkGetter project to Tomcat webapps folder
+	sudo mv /tmp/web /var/www/LinkGetter
+Remove unnecessary files in /tmp
+	sudo rm -R /tmp/conf
+	sudo rm -R /tmp/manager
+	sudo rm -R /tmp/apache-tomcat-8.5.15.tar.gz
+Reload system daemon
+	sudo systemctl daemon-reload
+Start Tomcat
+	sudo systemctl start tomcat
+Open port 80
+	sudo ufw allow 80
+Enable Tomcat service to start at boot
+	sudo systemctl enable tomcat
+Test that Tomcat and LinkGetter are working

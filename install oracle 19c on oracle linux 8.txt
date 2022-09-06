@@ -1,0 +1,186 @@
+install oracle linux 8
+
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+
+follow this guide:
+https://oracle-base.com/articles/19c/oracle-db-19c-installation-on-oracle-linux-8
+
+/etc/hosts
+192.168.182.131 ol8_orcl19c_1.localdomain ol8_orcl19c_1
+
+/etc/hostname
+ol8_orcl19c_1.localdomain
+
+dnf install -y oracle-database-preinstall-19c
+yum update -y
+passwd oracle
+
+/etc/selinux/config
+SELINUX=permissive
+
+reboot
+
+mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
+mkdir -p /u02/oradata
+mkdir -p /u03/fra
+mkdir -p /u03/log_archive
+chown -R oracle:oinstall /u01 /u02 /u03
+chmod -R 775 /u01 /u02 /u03
+
+mkdir /home/oracle/scripts
+cat > /home/oracle/scripts/setEnv.sh <<EOF
+# Oracle Settings
+export TMP=/tmp
+export TMPDIR=\$TMP
+
+export ORACLE_HOSTNAME=ol8_orcl19c_1.localdomain
+export ORACLE_UNQNAME=orcl19c1
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=\$ORACLE_BASE/product/19.0.0/dbhome_1
+export ORA_INVENTORY=/u01/app/oraInventory
+export ORACLE_SID=orcl19c1
+export DATA_DIR=/u02/oradata
+
+export PATH=/usr/sbin:/usr/local/bin:\$PATH
+export PATH=\$ORACLE_HOME/bin:\$PATH
+
+export LD_LIBRARY_PATH=\$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=\$ORACLE_HOME/jlib:\$ORACLE_HOME/rdbms/jlib
+
+export P_FILE=\$ORACLE_HOME/dbs/init\$ORACLE_SID.ora
+export SP_FILE=\$ORACLE_HOME/dbs/spfile\$ORACLE_SIDd.ora
+export ALERT_LOG=\$ORACLE_BASE/diag/rdbms/\$ORACLE_UNQNAME/\$ORACLE_SID/trace/alert_\$ORACLE_SID.log
+export CONTROL_FILES=\$DATA_DIR/\$ORACLE_UNQNAME/CONTROL0d.CTL
+EOF
+
+echo ". /home/oracle/scripts/setEnv.sh" >> /home/oracle/.bash_profile
+
+cat > /home/oracle/scripts/start_all.sh <<EOF
+#!/bin/bash
+. /home/oracle/scripts/setEnv.sh
+
+export ORAENV_ASK=NO
+. oraenv
+export ORAENV_ASK=YES
+
+dbstart \$ORACLE_HOME
+EOF
+
+
+cat > /home/oracle/scripts/stop_all.sh <<EOF
+#!/bin/bash
+. /home/oracle/scripts/setEnv.sh
+
+export ORAENV_ASK=NO
+. oraenv
+export ORAENV_ASK=YES
+
+dbshut \$ORACLE_HOME
+EOF
+
+chown -R oracle:oinstall /home/oracle/scripts
+chmod u+x /home/oracle/scripts/*.sh
+
+/lib/systemd/system/dbora.service
+[Unit]
+Description=The Oracle Database Service
+After=syslog.target network.target
+
+[Service]
+# systemd ignores PAM limits, so set any necessary limits in the service.
+# Not really a bug, but a feature.
+# https://bugzilla.redhat.com/show_bug.cgi?id=754285
+LimitMEMLOCK=infinity
+LimitNOFILE=65535
+
+#Type=simple
+# idle: similar to simple, the actual execution of the service binary is delayed
+#       until all jobs are finished, which avoids mixing the status output with shell output of services.
+RemainAfterExit=yes
+User=oracle
+Group=oinstall
+Restart=no
+ExecStart=/bin/bash -c '/home/oracle/scripts/start_all.sh'
+ExecStop=/bin/bash -c '/home/oracle/scripts/stop_all.sh'
+
+[Install]
+WantedBy=multi-user.target
+
+systemctl daemon-reload
+systemctl start dbora.service
+systemctl enable dbora.service
+systemctl status dbora.service
+
+
+su - oracle
+cd $ORACLE_HOME
+unzip -oq /path/to/software/LINUX.X64_193000_db_home.zip
+
+export CV_ASSUME_DISTID=OEL7.6
+./runInstaller
+	software only
+	single instance
+	enterprise edition
+	/u02/oradata
+	/u01/app/oraInventory
+	automatically run, use root
+	fix and check again
+	ignore all
+
+su -
+/u01/app/oraInventory/orainstRoot.sh
+/u01/app/oracle/product/19.0.0/dbhome_1/root.sh
+
+su - oracle
+lsnrctl start
+dbca
+	advanced
+	single instance
+	general purpose
+	global name and SID: orcl19c1
+	don't create as container
+	use following for the database storage attributes
+	browse to /u02/oradata
+	don't use OMF
+	specify FRA
+	browse to /u03/archive_logs
+	50GB (about half as big as the db)
+	enable archiving
+	don't create new listener
+	don't vault
+	don't label security
+	memory -> use automatic mem management
+	sizing -> nothing
+	character sets -> UTF8
+	connection mode -> dedicated
+	samples schemas -> no
+	don't configure enterprise manager to port 5500
+	don't register to cloud
+	same password to rule them all
+	create database
+	install
+
+/etc/oratab
+orcl19c1:/u01/app/oracle/product/19.0.0/dbhome_1:Y
+
+sqlplus / as sysdba
+alter system set db_create_file_dest='/u02/oradata';
+exit;
+
+reboot;
+
+extend max string size:
+systemctl stop dbora.service
+su - oracle
+sqlplus / as sysdba
+startup upgrade
+alter system set MAX_STRING_SIZE = EXTENDED;
+@/u01/app/oracle/product/19.3.0/dbhome_1/rdbms/admin/utl32k.sql
+shutdown immediate;
+systemctl start dbora.service
+
+create_tablespaces.sql
+crete_users.sql
+create_db_admin.sql
+create_app_log.sql

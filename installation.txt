@@ -1,0 +1,20 @@
+
+no email is ok
+create and configure
+server class
+single instance
+advanced install
+standard edition 2
+virtual account
+D:\oracle
+general purpose
+
+no container
+global identifier: burak1.qbity.app
+SID: instance1
+
+automatic memory management
+utf-8 charset
+install sample schemas
+
+file system

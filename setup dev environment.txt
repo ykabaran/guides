@@ -1,0 +1,155 @@
+
+Install Java
+Set JAVA_HOME
+	C:\Program Files\Java\jdk1.8.0_181
+Add Java to PATH
+	C:\Program Files\Java\jdk1.8.0_181\bin
+
+Download Maven and Unpack
+Set M2_HOME
+	D:\apache-maven-3.5.4
+Set MAVEN_HOME
+	D:\apache-maven-3.5.4
+Add Maven to PATH
+	D:\apache-maven-3.5.4\bin
+
+Install Tomcat
+	add .keystore file
+	double check conf\tomcat-users.xml
+		roles="manager-gui,manager-script" (manager-script only required for development)
+	add SSL Connector to conf\server.xml
+	add server="Apache-Coyote/1.1" to all Connectors in conf\server.xml (development only)
+	remove access logs from conf\server.xml
+	add compiler tags to conf\web.xml
+	rename /webapps/manager app (don't do this in development environment otherwise NetBeans cannot deploy)
+	add ojdbc7.jar to \lib
+
+Install Netbeans
+	download and install without bundled jre or tomcat
+	Change Java Location
+		this is automatically detected from JAVA_HOME
+		C:\Program Files\NetBeans 8.2\etc\netbeans.conf
+			netbeans_jdkhome="C:\Program Files\Java\jdk1.8.0_181"
+	Setup Tomcat
+		Tool -> Servers -> Add Server
+		Tomcat Home is D:\Tomcat 8.5
+		don't use private configuration folder
+		provide the manager-script user info or create a new one
+	Set Maven Location
+		Tools -> Options -> Java -> Maven
+			set Maven Home
+			D:\apache-maven-3.5.4
+
+Install Git
+	download and install Git with command line support
+	to use credentials manager do
+		git config --global credential.helper wincred
+		Check credentials manager if passwords are asked repeatedly
+	use git for versioning
+		git tag -a v2.0 -m "version 2.0"
+		git push --tags
+		to delete a tag
+			git tag -d v2.0
+			git push origin :refs/tags/v2.0
+
+Install Node.js
+	Download and install node
+	check path to make sure node is added to path
+		D:\nodejs
+		C:\Users\user\AppData\Roaming\npm
+	Install gulp
+		npm install -g gulp
+	Install http-server
+		npm install -g http-server
+	Go to project folder and initialize a node project
+		npm init
+	Add required modules to dependencies list
+		npm install/update
+	to reinstall everything simply remove /node_modules then npm install
+
+Install Yarn
+	Download and install Yarn
+	check path to make sure Yarn was added
+		D:\Yarn\bin
+		C:\Users\user\AppData\Local\Yarn\bin
+	Works just like npm
+
+Setup Remote Maven Repo
+	Create an Ubuntu Droplet
+	Install Oracle JRE
+		sudo add-apt-repository ppa:webupd8team/java
+		sudo apt-get-update
+		sudo apt-get install oracle-java8-installer
+		sudo apt-get install oracle-java8-set-default
+		java -version
+	Install Artifactory
+		echo "deb https://jfrog.bintray.com/artifactory-debs {distribution} {components}" | sudo tee -a /etc/apt/sources.list
+		Note: If you are unsure, components should be "main." To determine your distribution, run lsb_release -c
+		Example: echo "deb https://jfrog.bintray.com/artifactory-debs xenial main" | sudo tee -a /etc/apt/sources.list
+		curl https://bintray.com/user/downloadSubjectPublicKey?username=jfrog | sudo apt-key add -
+		sudo apt-get update
+		sudo apt-get install jfrog-artifactory-oss
+		Further Configurations
+			usermod -aG sudo artifactory
+			nano /var/opt/jfrog/artifactory/tomcat/conf/server.xml
+				change port to 80
+			nano /opt/jfrog/artifactory/bin/artifactory.default
+			nano /etc/opt/jfrog/artifactory/default
+				(do these on both files)
+				change ARTIFACTORY_USER to root
+				add START_TMO=180
+		To Start/Stop manually
+			/opt/jfrog/artifactory/bin/artifactoryManage.sh start
+			/opt/jfrog/artifactory/bin/artifactoryManage.sh stop
+		systemctl start artifactory.service
+		systemctl enable artifactory.service
+		systemctl daemon-reload
+	Configure Artifactory
+		http://maven.yildizkabaran.com/artifactory/
+		Create a contributers group
+		Create a contribute permission (any * repository, delete/deploy/annotate/read)
+		Create a user account and add to a group
+		Login with the user and get encrypted password
+	Add Artifactory to Maven settings.xml
+  		<servers>
+			<server>
+				<id>maven.yildizkabaran.com</id>
+				<username>yildizkabaran</username>
+				<password></password>
+				<filePermissions>664</filePermissions>
+				<directoryPermissions>775</directoryPermissions>
+				<configuration></configuration>
+		    </server>
+		</servers>
+	Deploy jar file to Artifactory
+		mvn deploy:deploy-file "-DgroupId=com.oracle" "-DartifactId=ojdbc7" "-Dversion=12.1.0" "-Dpackaging=jar" "-Dfile=D:\Tomcat 8.5\lib\ojdbc7.jar" "-DrepositoryId=maven.yildizkabaran.com" "-Durl=http://maven.yildizkabaran.com/artifactory/libs-release-local"
+	Add Private Repo to Project pom.xml
+		<project>
+			...
+			<repositories>
+				<repository>
+					<id>maven.yildizkabaran.com</id>
+					<url>http://maven.yildizkabaran.com/artifactory/libs-release-local</url>
+				</repository>
+			</repositories>
+			...
+		</project>
+	Add Distribution info to pom.xml
+		<project>
+			...
+			<distributionManagement>
+				<repository>
+					<id>maven.yildizkabaran.com</id>
+					<name>maven.yildizkabaran.com</name>
+					<url>http://maven.yildizkabaran.com/artifactory/libs-release-local/</url>
+				</repository>
+				<snapshotRepository>
+					<id>maven.yildizkabaran.com</id>
+					<name>maven.yildizkabaran.com</name>
+					<url>http://maven.yildizkabaran.com/artifactory/libs-snapshot-local/</url>
+				</snapshotRepository>
+			</distributionManagement>
+			...
+		</project>
+	Deploy Project to remote repository
+		mvn deploy

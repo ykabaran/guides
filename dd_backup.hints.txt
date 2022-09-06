@@ -1,0 +1,6 @@
+ssh root@hlsegitim.qbity.app "dd if=/dev/vda | gzip -1 -" | dd of=/ubackup/hlsegitim.qbity.app.image.gz status=progress
+cat /yildiz/hlsegitim.qbity.app.image.gz | gunzip | dd of=/dev/sdb status=progress
+/etc/systemd/system/multi-user.target.wants/sshd.service
+
+xfs_repair /dev/sdb1
+alter database recover

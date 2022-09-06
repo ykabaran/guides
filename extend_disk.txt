@@ -1,0 +1,7 @@
+
+fdisk /dev/sda
+ d(elete) partition 2
+ n(ew) partition 2
+pvresize /dev/sda2 +100%FREE
+lvextend /dev/mapper/centos-root -l +100%FREE
+xfs_growfs /

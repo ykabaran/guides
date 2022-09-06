@@ -1,0 +1,99 @@
+systemctl disable/stop firewalld
+vi /etc/selinux/config
+	SELINUX=disabled
+setenforce 0
+yum group install "Server with GUI"
+yum group install "Development Tools"
+ln -sf /lib/systemd/system/runlevel5.target /etc/systemd/system/default.target
+yum install tiger*
+
+
+add new disk
+fdisk -l
+fdisk /dev/sdb
+	n(ew)
+	primary
+	t(ype)
+	8e (Linux LVM)
+	w(rite)
+fdisk -l
+pvcreate /dev/sdb1
+vgcreate vg_{{name}} /dev/sdb1
+lvcreate -n lv_{{name}} -l +100%FREE vg_{{name}}
+mkfs.xfs /dev/mapper/vg_{{name}}-lv_{{name}}
+mkdir /u01
+mount /dev/mapper/vg_{{name}}-lv_{{name}} /u01
+vi /etc/fstab
+	yazarsin sen
+# buyutmek icin
+xfs_growfs -n /dev/vg_test/lv_test
+
+swap alanina disk eklemek icin
+fdisk -l
+fdisk /dev/sdc
+	n(ew)
+	primary
+	t(ype)
+	8e (Linux LVM)
+	w(rite)
+pvcreate /dev/sdc1
+vgextend cl /dev/sdc1
+lvextend /dev/mapper/cl-swap -l +100%FREE
+swapoff /dev/mapper/cl-swap
+mkswap /dev/mapper/cl-swap
+swapon -a
+#grub'i degistirmek icin
+/etc/default/grub
+grub2-mkconfig –o /boot/grub2/grub.cfg
+
+#to remove old swap
+/etc/default/grub
+grub2-mkconfig –o /boot/grub2/grub.cfg
+
+network config icin:
+nmtui
+systemctl restart NetworkManager
+vi /etc/hosts
+	add ip address for machine host name (hostnamectl)
+
+// ntp'yi calistir, sart
+systemctl start chronyd
+systemctl enable chronyd
+
+perl
+compat-libcap1
+compat-libstdc++-33
+ksh
+libaio-devel
+sysstat
+
+
+groupadd --gid 54321 oinstall
+groupadd --gid 54322 dba
+groupadd --gid 54323 asmdba
+groupadd --gid 54324 asmoper
+groupadd --gid 54325 asmadmin
+
+
+groupadd --gid 54326 oper
+groupadd --gid 54327 backupdba
+groupadd --gid 54328 dgdba
+groupadd --gid 54329 kmdba
+useradd --uid 54321 --gid oinstall --groups dba,oper,asmdba,asmoper,backupdba,dgdba,kmdba oracle
+passwd oracle
+
+dnf install libnsl
+dnf install make
+
+# login with oracle
+ssh -X {{hostname}}
+cd /u01/app/oracle/database
+./runInstall
+
+# to disable subcription manager
+/etc/yum/pluginconf.d/subscription-manager.conf
+
+# for epel repos
+dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+# for using the iso as a repo
+https://www.thegeekdiary.com/centos-rhel-7-how-to-setup-yum-repository-using-locally-mounted-dvd/

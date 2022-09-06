@@ -1,0 +1,86 @@
+
+Oracle Linux 
+
+add ip to eternet:
+nmcli device status
+nmcli con mod ens160 ipv4.addresses 192.168.1.236/24
+nmcli con mod ens160 ipv4.gateway 192.168.1.110
+nmcli con mod ens160 ipv4.method manual
+nmcli con mod ens160 ipv4.dns "212.175.119.222,95.0.194.245"
+nmcli con up ens160
+more /etc/resolv.conf
+
+Downloading the Oracle Linux Yum Server Repository Files
+cd /etc/yum.repos.d
+wget http://yum.oracle.com/public-yum-ol7.repo
+
+Downloading  zip files in oracle linux 7
+wget  http://212.175.119.210/ftp/oracle-xe.rpm.zip
+
+
+command prompha Sqlplus eklemek 
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+export PATH=$ORACLE_HOME/bin:$PATH
+
+vi  /etc/profile   dosyasının sonuna aşağıdakileri ekleyelim. Başlangıçta set etmesi için...
+en alta gidip bir satır açalım ve sağ click ile içine paste edelim..
+export ORACLE_SID=XE
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/xe
+export ORACLE_TERM=xterm
+export NLS_LANG=AMERICAN_TURKEY.utf8
+export TNS_ADMIN=$ORACLE_HOME/network/admin
+export ORA_NLS33=$ORACLE_HOME/ocommon/nls/admin/data
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib
+export PATH=$ORACLE_HOME/bin:$PATH
+
+
+System'i restart et ki yukarıdakiler yüklensin...
+
+Apex'i yüklemeden önce bunları kontrol edip yap...
+select banner  from v$version  where banner like 'Oracle Database%';
+select comp_name, version, status from dba_registry where comp_id = 'XDB';
+show parameter memory_target;
+select tablespace_name,  file_name,  (maxbytes - bytes) / 1024/1024 as "Available Space MB",  autoextensible from dba_data_files where tablespace_name in ('SYSAUX', 'SYSTEM');
+
+alter database datafile '/u01/app/oracle/oradata/XE/system.dbf'  resize 1G;
+alter database datafile '/u01/app/oracle/oradata/XE/sysaux.dbf'  resize 4G; 
+
+
+wget  http://212.175.119.210/ftp/apex_5.1.2.zip 
+
+/u01/app/oracle/ altında bir folder oluştur. apex.5.1.2 
+Folder içine apex_5.1.2.zip kopyalayıp aç...  apex diye bir folder oluşturacak.
+Tüm okuma ve yazma izinlerini ver.
+
+$ sqlplus /nolog
+SQL> CONNECT SYS@xe as SYSDBA
+Enter password: SYS_password
+
+@apexins.sql tablespace_apex tablespace_files tablespace_temp images
+@apexins.sql SYSAUX SYSAUX TEMP /i/
+
+@apex_epg_config.sql APEX_HOME 
+@apex_epg_config.sql /u01/app/oracle/apex
+
+Upgrade the Oracle Application Express password by running apxchpwd.sql:
+@apxchpwd.sql
+
+
+Apex'i networke açmak için de aşağıdaki kumutu çalıştırmak gerekli. sqlplus da.
+SQL>  exec dbms_xdb.setListenerLocalAccess (l_access => FALSE);
+
+
+alter user apex_public_user account unlock;
+alter user  APEX_INSTANCE_ADMIN_USER  account unlock;
+
+select username, default_tablespace, temporary_tablespace  from dba_users;
+select substr(tablespace_name,1,30) tablespace_name,  substr(file_name,1,30) file_name,  (maxbytes - bytes) / 1024/1024 as "Available Space MB",  autoextensible from dba_data_files where tablespace_name in ('SYSAUX', 'SYSTEM');
+select account_status from dba_users where username = 'APEX_PUBLIC_USER';
+alter user apex_public_user account unlock;
+alter user  APEX_INSTANCE_ADMIN_USER  account unlock;
+select account_status from dba_users where username = 'ANONYMOUS';
+select default_tablespace   from dba_users   where username = 'FLOWS_FILES';
+select username, account_status  from dba_users;
+SELECT STATUS FROM DBA_REGISTRY WHERE COMP_ID = 'APEX';

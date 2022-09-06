@@ -1,0 +1,69 @@
+./orapki wallet create -wallet /opt/oracle/product/18c/dbhome_1/wallet/root -pwd u2R6PNwx5Z8Vi1jS
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/root -pwd u2R6PNwx5Z8Vi1jS -dn "CN=root_ca,C=CY" -keysize 2048 -self_signed -validity 3650
+./orapki wallet export -wallet /opt/oracle/product/18c/dbhome_1/wallet/root -pwd u2R6PNwx5Z8Vi1jS -dn "CN=root_ca,C=CY" -cert /opt/oracle/product/18c/dbhome_1/wallet/root-certificate.crt
+
+./orapki wallet create -wallet /opt/oracle/product/18c/dbhome_1/wallet/server1 -pwd D0GY0x5kNYf7khrF -auto_login
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/server1 -pwd D0GY0x5kNYf7khrF -dn "CN=oradb1.localdomain,C=CY" -keysize 2048
+./orapki wallet export -wallet /opt/oracle/product/18c/dbhome_1/wallet/server1 -dn "CN=oradb1.localdomain,C=CY" -request /opt/oracle/product/18c/dbhome_1/wallet/server1-request.csr
+./orapki cert create -wallet /opt/oracle/product/18c/dbhome_1/wallet/root -pwd u2R6PNwx5Z8Vi1jS -request /opt/oracle/product/18c/dbhome_1/wallet/server1-request.csr -cert /opt/oracle/product/18c/dbhome_1/wallet/server1-certificate.crt -validity 3650
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/server1 -pwd D0GY0x5kNYf7khrF -trusted_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/root-certificate.crt
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/server1 -pwd D0GY0x5kNYf7khrF -user_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/server1-certificate.crt
+
+./orapki wallet create -wallet /opt/oracle/product/18c/dbhome_1/wallet/client1 -pwd u3hYMiTO4mXur603 -auto_login
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/client1 -pwd u3hYMiTO4mXur603 -dn "CN=oracli1.localdomain,C=CY" -keysize 2048
+./orapki wallet export -wallet /opt/oracle/product/18c/dbhome_1/wallet/client1 -dn "CN=oracli1.localdomain,C=CY" -request /opt/oracle/product/18c/dbhome_1/wallet/client1-request.csr
+./orapki cert create -wallet /opt/oracle/product/18c/dbhome_1/wallet/root -pwd u2R6PNwx5Z8Vi1jS -request /opt/oracle/product/18c/dbhome_1/wallet/client1-request.csr -cert /opt/oracle/product/18c/dbhome_1/wallet/client1-certificate.crt -validity 3650
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/client1 -pwd u3hYMiTO4mXur603 -trusted_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/root-certificate.crt
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/client1 -pwd u3hYMiTO4mXur603 -user_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/client1-certificate.crt
+
+./orapki wallet create -wallet /opt/oracle/product/18c/dbhome_1/wallet/server2 -pwd KEdFH7PD9uM5yytS -auto_login
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/server2 -pwd KEdFH7PD9uM5yytS -dn "CN=oradb2.localdomain,C=CY" -keysize 2048
+./orapki wallet export -wallet /opt/oracle/product/18c/dbhome_1/wallet/server2 -dn "CN=oradb2.localdomain,C=CY" -request /opt/oracle/product/18c/dbhome_1/wallet/server2-request.csr
+./orapki cert create -wallet /opt/oracle/product/18c/dbhome_1/wallet/root -pwd u2R6PNwx5Z8Vi1jS -request /opt/oracle/product/18c/dbhome_1/wallet/server2-request.csr -cert /opt/oracle/product/18c/dbhome_1/wallet/server2-certificate.crt -validity 3650
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/server2 -pwd KEdFH7PD9uM5yytS -trusted_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/root-certificate.crt
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/server2 -pwd KEdFH7PD9uM5yytS -user_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/server2-certificate.crt
+
+./orapki wallet create -wallet /opt/oracle/product/18c/dbhome_1/wallet/client2 -pwd 3oZqBj6wfoX0gzHC -auto_login
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/client2 -pwd 3oZqBj6wfoX0gzHC -dn "CN=oracli2.localdomain,C=CY" -keysize 2048
+./orapki wallet export -wallet /opt/oracle/product/18c/dbhome_1/wallet/client2 -dn "CN=oracli2.localdomain,C=CY" -request /opt/oracle/product/18c/dbhome_1/wallet/client2-request.csr
+./orapki cert create -wallet /opt/oracle/product/18c/dbhome_1/wallet/root -pwd u2R6PNwx5Z8Vi1jS -request /opt/oracle/product/18c/dbhome_1/wallet/client2-request.csr -cert /opt/oracle/product/18c/dbhome_1/wallet/client2-certificate.crt -validity 3650
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/client2 -pwd 3oZqBj6wfoX0gzHC -trusted_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/root-certificate.crt
+./orapki wallet add -wallet /opt/oracle/product/18c/dbhome_1/wallet/client2 -pwd 3oZqBj6wfoX0gzHC -user_cert -cert /opt/oracle/product/18c/dbhome_1/wallet/client2-certificate.crt
+
+./orapki wallet display -wallet /opt/oracle/product/18c/dbhome_1/wallet/server2 -pwd KEdFH7PD9uM5yytS
+./orapki cert display -cert /opt/oracle/product/18c/dbhome_1/wallet/server1-certificate.crt -complete
+
+$ORACLE_HOME/network/admin/sqlnet.ora:
+
+WALLET_LOCATION =
+   (SOURCE =
+     (METHOD = FILE)
+     (METHOD_DATA =
+       (DIRECTORY = /opt/oracle/product/18c/dbhome_1/wallet/server1)
+     )
+   )
+
+SQLNET.AUTHENTICATION_SERVICES = (TCPS,NTS)
+SSL_CLIENT_AUTHENTICATION = TRUE
+
+
+$ORACLE_HOME/network/admin/listener.ora:
+
+SSL_CLIENT_AUTHENTICATION = TRUE
+
+WALLET_LOCATION =
+  (SOURCE =
+    (METHOD = FILE)
+    (METHOD_DATA =
+      (DIRECTORY = /opt/oracle/product/18c/dbhome_1/wallet/server1)
+    )
+  )
+
+LISTENER =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = oradb1.localdomain)(PORT = 1521))
+      (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1521))
+      (ADDRESS = (PROTOCOL = TCPS)(HOST = oradb1.localdomain)(PORT = 2484))
+    )
+  )

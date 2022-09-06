@@ -1,0 +1,5 @@
+
+vi /etc/oratab
+	Y yap bunu
+	
+https://grepora.com/2017/11/22/how-to-setup-automatic-startup-and-shutdown-of-an-oracle-database-on-linux-not-using-oracle-restart/

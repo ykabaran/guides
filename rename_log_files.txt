@@ -1,0 +1,29 @@
+SELECT * FROM v$tempfile;
+
+ALTER DATABASE RENAME FILE '/u01/app/oracle/product/12.2.0/dbhome_1/dbs/C:ORACLEORADATABURAK1TEMP01.DBF'
+TO '/u01/data_file/TEMP01.DBF';
+
+select * from v$logfile;
+select * from v$log;
+
+alter database add logfile group 4 '/u01/data_file/REDO01.LOG' size 200M;
+alter database add logfile group 5 '/u01/data_file/REDO02.LOG' size 200M;
+alter database add logfile group 6 '/u01/data_file/REDO03.LOG' size 200M;
+
+alter database drop logfile group 1;
+alter database drop logfile group 2;
+alter database drop logfile group 3;
+
+alter system switch logfile;
+
+
+
+mount mode
+alter database datafile '/u01/data_file/undotbs01.dbf' offline drop;
+alter database open
+create undo tablespace undotbs2 datafile '/u01/data_file/undotbs02.dbf' size 1G;
+alter system set undo_tablespace=undotbs2 scope=spfile;
+drop tablespace undotbs1 including contents and datafiles;
+drop rollback segment "_SYSSMU1_3766953279$";
+select segment_name,status,tablespace_name from dba_rollback_segs;
+*._offline_rollback_segments=('','') // NEEDS RECOVERY

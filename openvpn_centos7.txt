@@ -1,0 +1,126 @@
+firewall-cmd --permanent --add-port=22/tcp
+firewall-cmd --permanent --add-port=443/tcp
+yum update -y
+yum install epel-release
+yum update -y
+yum install openvpn easy-rsa -y
+ln -s /usr/share/easy-rsa/3.0.7 /etc/easy-rsa
+cd /etc/easy-rsa
+vi vars
+
+export EASYRSA="$PWD"
+export EASYRSA_PKI="$EASYRSA/pki"
+export EASYRSA_DN="cn_only"
+export EASYRSA_REQ_COUNTRY="CY"
+export EASYRSA_REQ_PROVINCE="Nicosia"
+export EASYRSA_REQ_CITY="Nicosia"
+export EASYRSA_REQ_ORG="HighLevelSoftware"
+export EASYRSA_REQ_EMAIL="yildiz@highlevelsoftware.com"
+export EASYRSA_REQ_OU="HighLevelSoftware"
+export EASYRSA_KEY_SIZE=2048
+export EASYRSA_ALGO=rsa
+export EASYRSA_CA_EXPIRE=7500
+export EASYRSA_CERT_EXPIRE=365
+export EASYRSA_NS_SUPPORT="no"
+export EASYRSA_NS_COMMENT="HighLevelSoftware CERTIFICATE AUTHORITY"
+export EASYRSA_EXT_DIR="$EASYRSA/x509-types"
+export EASYRSA_SSL_CONF="$EASYRSA/openssl-easyrsa.cnf"
+export EASYRSA_DIGEST="sha256"
+
+chmod +x vars
+./easyrsa init-pki
+./easyrsa build-ca
+	Eas67WpdcX5ZnqvE
+	AEPkrtBGOc9gRO14ya0ZFSf98JrLl1c5
+
+./easyrsa gen-req srv3.yildizkabaran.com nopass
+./easyrsa sign-req server srv3.yildizkabaran.com
+openssl verify -CAfile pki/ca.crt pki/issued/srv3.yildizkabaran.com.crt
+
+./easyrsa gen-req burak.ovpn.office.yildizkabaran.com nopass
+./easyrsa sign-req client burak.ovpn.office.yildizkabaran.com
+openssl verify -CAfile pki/ca.crt pki/issued/burak.ovpn.office.yildizkabaran.com.crt
+
+./easyrsa gen-dh
+
+cp pki/ca.crt /etc/openvpn/server/
+cp pki/dh.pem /etc/openvpn/server/
+cp pki/issued/srv3.yildizkabaran.com.crt /etc/openvpn/server/
+cp pki/private/srv3.yildizkabaran.com.key /etc/openvpn/server/
+cp pki/issued/client01.srv3.yildizkabaran.com.crt /etc/openvpn/client/
+cp pki/private/client01.srv3.yildizkabaran.com.key /etc/openvpn/client/
+
+cp pki/private/soumaya.ovpn.office.yildizkabaran.com.key /etc/openvpn/client/
+
+cd /etc/openvpn
+openvpn --genkey --secret ta.key
+
+vi server.conf
+	port 443
+	proto tcp
+	ca server/ca.crt
+	cert server/srv3.yildizkabaran.com.crt
+	key server/srv3.yildizkabaran.com.key
+	dh server/dh.pem
+	push "redirect-gateway def1 bypass-dhcp"
+	push "dhcp-option DNS 8.8.8.8"
+	push "dhcp-option DNS 8.8.4.4"
+	tls-auth ta.key 0
+	key-direction 0	# add this right below the above line
+	cipher AES-256-CBC
+	auth SHA256 # add this right below the above line
+	user nobody
+	group nobody
+	explicit-exit-notify 0
+vi client.conf
+	proto tcp
+	remote srv3.yildizkabaran.com 443
+	user nobody
+	group nobody
+	#ca ca.crt
+	#cert client.crt
+	#key client.key
+	#tls-auth ta.key 1
+	key-direction 1 # add this right below the above line
+	cipher AES-256-CBC
+	auth SHA256 # add this right below the above line
+vi make-client-conf.sh
+
+#!/bin/bash
+# First argument: Client identifier
+
+cat client.conf \
+    <(echo -e '<ca>') \
+    server/ca.crt \
+    <(echo -e '</ca>\n<cert>') \
+    client/${1}.crt \
+    <(echo -e '</cert>\n<key>') \
+    client/${1}.key \
+    <(echo -e '</key>\n<tls-auth>') \
+    ta.key \
+    <(echo -e '</tls-auth>') \
+    > client/${1}.ovpn
+
+chmod +x make-client.sh
+./make-client.sh burak.ovpn.office.yildizkabaran.com
+
+echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf
+systemctl restart network.service
+firewall-cmd --permanent --add-service=openvpn
+firewall-cmd --permanent --zone=trusted --add-service=openvpn
+firewall-cmd --permanent --zone=trusted --add-interface=tun0
+firewall-cmd --permanent --add-masquerade
+firewall-cmd --reload
+
+systemctl -f enable openvpn@server.service
+systemctl start openvpn@server.service
+
+firewall-cmd --permanent --direct --add-rule ipv4 nat PREROUTING 0 -d 192.168.11.0/24 -j NETMAP --to 192.168.1.0/24
+
+// windows port forward
+netsh interface portproxy add v4tov4 listenaddress=192.168.1.237 listenport=1521 connectaddress=192.168.13.10 connectport=1521
+netsh interface portproxy delete v4tov4 listenaddress=127.0.0.1 listenport=1521
+./sudppipe.exe 192.168.13.10 1194 8000
+
+// linux port forward
+firewall-cmd --permanent --add-forward-port=port=8080:proto=tcp:toport=22

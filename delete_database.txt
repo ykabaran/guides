@@ -1,0 +1,5 @@
+dbca
+
+delete database
+enter sys password
+finish!
