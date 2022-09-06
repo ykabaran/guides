@@ -1,0 +1,37 @@
+# to list partitions
+fdisk -l
+
+# create a pv for each disk partition
+# then create a vg and add partitions to it
+# then create lvs on those vg as partitions
+
+# to add new disk
+fdisk /dev/xxx
+	n
+	p,1,xx,xx
+	t,8e
+	w
+
+pvcreate /dev/xxxp1
+
+# list all physical volumns, volume groups, or logical volumes
+pvs
+vgs
+lvs
+
+# to see more size info on vgs and lvs
+vgdisplay
+lvdisplay
+
+# see which pvs belong to which vgs
+pvscan
+
+# create vg
+vgcreate vg_name /dev/xxxp1
+
+# add another pv to existing vg
+vgextend vg_name /dev/xxxp1
+
+# create lv
+lvcreate -n lv_name -L 10G vg_name
+lvcreate -n lv_name -l 100%FREE vg_name

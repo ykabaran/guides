@@ -1,25 +1,83 @@
-install oracle linux 8
+# install oracle linux 8
+	network
+	network time
+	use entire disk: 40GB
+	no root
+	yildiz : 123456, admin
+	accept license
+	login once
+
+# connect with solar putty yildiz_temp 
 
 sudo visudo
 yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
 
-follow this guide:
-https://oracle-base.com/articles/19c/oracle-db-19c-installation-on-oracle-linux-8
+# setup sftp with solar putty
+transfer db_home.zip
 
-/etc/hosts
-192.168.182.131 ol8_orcl19c_1.localdomain ol8_orcl19c_1
+# increase size of /dev/shm
+nano /etc/fstab
+none		/dev/shm 		tempfs	defaults,size=8G	0 0
+mount -o remount /dev/shm
 
-/etc/hostname
-ol8_orcl19c_1.localdomain
+#follow this guide:
+	https://oracle-base.com/articles/19c/oracle-db-19c-installation-on-oracle-linux-8
+
+nano /etc/hosts
+192.168.xxx.xxx {host_name}.localdomain {host_name}
+
+nano /etc/hostname
+{host_name}.localdomain
 
 dnf install -y oracle-database-preinstall-19c
 yum update -y
+
 passwd oracle
 
-/etc/selinux/config
+nano /etc/selinux/config
 SELINUX=permissive
 
+firewall-cmd --permanent --zone=public --add-port=1521/tcp
+firewall-cmd --reload
+
 reboot
+
+shutdown -h now
+
+# add two disks to vm
+	160GB
+	250GB
+
+# familiarize with fdisk_how_to.txt
+fdisk -l
+fdisk /dev/xxx
+	n
+	p,1,xx,xx
+	t,8e
+	w
+pvcreate /dev/xxxp1
+# do these for both disks
+pvs
+vgcreate vg_oracle /dev/xxxp1
+vgcreate vg_oracle_backup /dev/xxxp1
+vgs
+pvscan
+lvcreate -n lv_oracle -L 40G vg_oracle
+lvcreate -n lv_oracle_data -L 100G vg_oracle
+lvcreate -n lv_oracle_export -L 80G vg_oracle_backup
+lvcreate -n lv_oracle_fra -L 80G vg_oracle_backup
+lvcreate -n lv_oracle_archive -L 80G vg_oracle_backup
+lvs
+lvdisplay
+mkfs.xfs /dev/mapper/vg_oracle-lv_oracle
+mkfs.xfs /dev/mapper/vg_oracle-lv_oracle_data
+mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_export
+mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_fra
+mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_archive
+
+mkdir /udata
+mount /dev/mapper/vg_data-lv_data /udata
 
 mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
 mkdir -p /u02/oradata
