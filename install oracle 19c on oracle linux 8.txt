@@ -16,6 +16,36 @@ passwd
 # setup sftp with solar putty
 transfer db_home.zip
 
+# add disks to vm
+# familiarize with fdisk_how_to.txt
+fdisk -l
+fdisk /dev/xxx
+	n
+	p,1,xx,xx
+	t,8e
+	w
+pvcreate /dev/xxxp1
+pvs
+vgcreate vg_oracle /dev/xxxp1
+vgcreate vg_oracle_backup /dev/xxxp1
+vgs
+pvscan
+lvcreate -n lv_oracle -L 40G vg_oracle
+lvcreate -n lv_oracle_data -L 100G vg_oracle
+lvcreate -n lv_oracle_export -L 80G vg_oracle_backup
+lvcreate -n lv_oracle_fra -L 80G vg_oracle_backup
+lvcreate -n lv_oracle_archive -L 80G vg_oracle_backup
+lvs
+lvdisplay
+mkfs.xfs /dev/mapper/vg_oracle-lv_oracle
+mkfs.xfs /dev/mapper/vg_oracle-lv_oracle_data
+mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_export
+mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_fra
+mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_archive
+
+mkdir /udata
+mount /dev/mapper/vg_data-lv_data /udata
+
 # increase size of /dev/shm
 nano /etc/fstab
 none		/dev/shm 		tempfs	defaults,size=8G	0 0
@@ -42,42 +72,6 @@ firewall-cmd --permanent --zone=public --add-port=1521/tcp
 firewall-cmd --reload
 
 reboot
-
-shutdown -h now
-
-# add two disks to vm
-	160GB
-	250GB
-
-# familiarize with fdisk_how_to.txt
-fdisk -l
-fdisk /dev/xxx
-	n
-	p,1,xx,xx
-	t,8e
-	w
-pvcreate /dev/xxxp1
-# do these for both disks
-pvs
-vgcreate vg_oracle /dev/xxxp1
-vgcreate vg_oracle_backup /dev/xxxp1
-vgs
-pvscan
-lvcreate -n lv_oracle -L 40G vg_oracle
-lvcreate -n lv_oracle_data -L 100G vg_oracle
-lvcreate -n lv_oracle_export -L 80G vg_oracle_backup
-lvcreate -n lv_oracle_fra -L 80G vg_oracle_backup
-lvcreate -n lv_oracle_archive -L 80G vg_oracle_backup
-lvs
-lvdisplay
-mkfs.xfs /dev/mapper/vg_oracle-lv_oracle
-mkfs.xfs /dev/mapper/vg_oracle-lv_oracle_data
-mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_export
-mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_fra
-mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_archive
-
-mkdir /udata
-mount /dev/mapper/vg_data-lv_data /udata
 
 mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
 mkdir -p /u02/oradata
