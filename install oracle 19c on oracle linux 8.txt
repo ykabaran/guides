@@ -73,6 +73,8 @@ firewall-cmd --reload
 
 reboot
 
+##### hls-lsports, done up to here except lv creation
+
 mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
 mkdir -p /u02/oradata
 mkdir -p /u03/fra
