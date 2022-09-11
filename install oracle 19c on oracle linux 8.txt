@@ -27,42 +27,63 @@ fdisk /dev/xxx
 pvcreate /dev/xxxp1
 pvs
 vgcreate vg_oracle /dev/xxxp1
-vgcreate vg_oracle_backup /dev/xxxp1
 vgs
 pvscan
-lvcreate -n lv_oracle -L 40G vg_oracle
-lvcreate -n lv_oracle_data -L 100G vg_oracle
-lvcreate -n lv_oracle_export -L 80G vg_oracle_backup
-lvcreate -n lv_oracle_fra -L 80G vg_oracle_backup
-lvcreate -n lv_oracle_archive -L 80G vg_oracle_backup
+lvcreate -n lv_swap -L {RAM_SIZE}G vg_oracle
+lvcreate -n lv_oracle -L 20G vg_oracle
+lvcreate -n lv_oracle_data -L {DATA_SIZE}G vg_oracle
+lvcreate -n lv_oracle_fra -L {2*DATA_SIZE}G vg_oracle
+lvcreate -n lv_oracle_backup -L {2*DATA_SIZE}G vg_oracle
 lvs
 lvdisplay
-mkfs.xfs /dev/mapper/vg_oracle-lv_oracle
-mkfs.xfs /dev/mapper/vg_oracle-lv_oracle_data
-mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_export
-mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_fra
-mkfs.xfs /dev/mapper/vg_oracle_backup-lv_oracle_archive
+mkfs.xfs /dev/vg_oracle/lv_oracle
+mkfs.xfs /dev/vg_oracle/lv_oracle_data
+mkfs.xfs /dev/vg_oracle/lv_oracle_fra
+mkfs.xfs /dev/vg_oracle/lv_oracle_backup
 
-mkdir /udata
-mount /dev/mapper/vg_data-lv_data /udata
+mkdir /uora
+mkdir /uoradata
+mkdir /uorafra
+mkdir /uorabackup
+
+# mount them in fstab
+/dev/mapper/vg_oracle-lv_oracle	/uora	xfs	defaults	0 0
+/dev/mapper/vg_oracle-lv_oracle_data	/uoradata	xfs	defaults	0 0
+/dev/mapper/vg_oracle-lv_oracle_fra	/uorafra	xfs	defaults	0 0
+/dev/mapper/vg_oracle-lv_oracle_backup	/uorabackup	xfs	defaults	0 0
+
+# increase swap to RAM size
+mkswap /dev/vg_oracle/lv_swap
+swapoff /dev/ol/swap
+swapon /dev/vg_oracle/lv_swap
+vi /etc/fstab
+	change /ol/swap to /vg_oracle/lv_swap
+vi /etc/default/grub
+	change /ol/swap references to vg_oracle/lv_swap
+grub2-mkconfig > /boot/grub2/grub.cfg
 
 # increase size of /dev/shm
 nano /etc/fstab
-none		/dev/shm 		tempfs	defaults,size=8G	0 0
+none		/dev/shm 		tempfs	defaults,size={RAM_SIZE}G	0 0
 mount -o remount /dev/shm
+
+reboot
 
 #follow this guide:
 	https://oracle-base.com/articles/19c/oracle-db-19c-installation-on-oracle-linux-8
 
+# set hostname
 nano /etc/hosts
 192.168.xxx.xxx {host_name}.localdomain {host_name}
 
 nano /etc/hostname
 {host_name}.localdomain
 
+# install prereqs and update
 dnf install -y oracle-database-preinstall-19c
 yum update -y
 
+# setup misc
 passwd oracle
 
 nano /etc/selinux/config
@@ -75,26 +96,29 @@ reboot
 
 ##### hls-lsports, done up to here except lv creation
 
-mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
-mkdir -p /u02/oradata
-mkdir -p /u03/fra
-mkdir -p /u03/log_archive
-chown -R oracle:oinstall /u01 /u02 /u03
-chmod -R 775 /u01 /u02 /u03
+# transfer permissions to oracle
+chown -R oracle:oinstall /uora /uoradata /uorafra /uorabackup
+chmod -R 775 /uora /uoradata /uorafra /uorabackup
 
+# create the folders and scripts as oracle
+mkdir -p /uora/app/oracle/product/19.0.0/dbhome_1
+mkdir /uorabackup/rman
+mkdir /uorabackup/logs
 mkdir /home/oracle/scripts
+
 cat > /home/oracle/scripts/setEnv.sh <<EOF
 # Oracle Settings
 export TMP=/tmp
 export TMPDIR=\$TMP
 
-export ORACLE_HOSTNAME=ol8_orcl19c_1.localdomain
-export ORACLE_UNQNAME=orcl19c1
-export ORACLE_BASE=/u01/app/oracle
+export ORACLE_SID={host_name}
+export ORACLE_HOSTNAME=\$ORACLE_SID.localdomain
+export ORACLE_UNQNAME=\$ORACLE_SID
+export ORACLE_BASE=/uora/app/oracle
 export ORACLE_HOME=\$ORACLE_BASE/product/19.0.0/dbhome_1
-export ORA_INVENTORY=/u01/app/oraInventory
-export ORACLE_SID=orcl19c1
-export DATA_DIR=/u02/oradata
+export ORA_INVENTORY=/uora/app/oraInventory
+export DATA_DIR=/uoradata
+export BACKUP_DIR=/uorabackup
 
 export PATH=/usr/sbin:/usr/local/bin:\$PATH
 export PATH=\$ORACLE_HOME/bin:\$PATH
@@ -105,7 +129,8 @@ export CLASSPATH=\$ORACLE_HOME/jlib:\$ORACLE_HOME/rdbms/jlib
 export P_FILE=\$ORACLE_HOME/dbs/init\$ORACLE_SID.ora
 export SP_FILE=\$ORACLE_HOME/dbs/spfile\$ORACLE_SIDd.ora
 export ALERT_LOG=\$ORACLE_BASE/diag/rdbms/\$ORACLE_UNQNAME/\$ORACLE_SID/trace/alert_\$ORACLE_SID.log
-export CONTROL_FILES=\$DATA_DIR/\$ORACLE_UNQNAME/CONTROL0d.CTL
+export CONTROL_FILE=\$DATA_DIR/\$ORACLE_UNQNAME/CONTROL0d.CTL
+export RMAN_LOGS=/uorabackup/logs
 EOF
 
 echo ". /home/oracle/scripts/setEnv.sh" >> /home/oracle/.bash_profile
@@ -121,7 +146,6 @@ export ORAENV_ASK=YES
 dbstart \$ORACLE_HOME
 EOF
 
-
 cat > /home/oracle/scripts/stop_all.sh <<EOF
 #!/bin/bash
 . /home/oracle/scripts/setEnv.sh
@@ -133,10 +157,140 @@ export ORAENV_ASK=YES
 dbshut \$ORACLE_HOME
 EOF
 
-chown -R oracle:oinstall /home/oracle/scripts
+cat > /home/oracle/scripts/level0.rmn <<EOF
+run {
+	allocate channel ch1 device type disk;
+	crosscheck backup;
+	crosscheck archivelog all;
+	delete noprompt expired archivelog all;
+	delete noprompt obsolete;
+	BACKUP as compressed backupset INCREMENTAL LEVEL 0 TAG=LEVEL_0 DATABASE PLUS ARCHIVELOG;
+	backup current controlfile format '/uorabackup/rman/cnt_%u_%d_%T_%s_%p.bck';
+	backup spfile format '/uorabackup/rman/spf_%u_%d_%T_%s_%p.bck';
+	crosscheck backup;
+	crosscheck archivelog all;
+	delete noprompt expired archivelog all;
+	delete noprompt obsolete;
+}
+EOF
+
+cat > /home/oracle/scripts/level1.rmn <<EOF
+run {
+	allocate channel ch1 device type disk;
+	crosscheck backup;
+	crosscheck archivelog all;
+	delete noprompt expired archivelog all;
+	delete noprompt obsolete;
+	BACKUP as compressed backupset INCREMENTAL LEVEL 1 TAG=LEVEL_1 DATABASE PLUS ARCHIVELOG;
+	backup current controlfile format '/uorabackup/rman/cnt_%u_%d_%T_%s_%p.bck';
+	backup spfile format '/uorabackup/rman/spf_%u_%d_%T_%s_%p.bck';
+	crosscheck backup;
+	crosscheck archivelog all;
+	delete noprompt expired archivelog all;
+	delete noprompt obsolete;
+}
+EOF
+
+cat > /home/oracle/scripts/rman_level0.sh <<EOF
+#!/bin/bash
+. /home/oracle/scripts/setEnv.sh
+logfile="\$RMAN_LOGS/rman_\$(date +'%Y%m%d_%H%M%S').log"
+rman target / nocatalog @/home/oracle/scripts/level0.rmn log="\$logfile" >>/dev/null
+EOF
+
+cat > /home/oracle/scripts/rman_level1.sh <<EOF
+#!/bin/bash
+. /home/oracle/scripts/setEnv.sh
+logfile="\$RMAN_LOGS/rman_\$(date +'%Y%m%d_%H%M%S').log"
+rman target / nocatalog @/home/oracle/scripts/level1.rmn log="\$logfile" >>/dev/null
+EOF
+
 chmod u+x /home/oracle/scripts/*.sh
 
-/lib/systemd/system/dbora.service
+# login to oracle with gui
+cd $ORACLE_HOME
+unzip -oq /path/to/software/LINUX.X64_193000_db_home.zip
+
+export CV_ASSUME_DISTID=OEL7.6
+./runInstaller
+	software only
+	single instance
+	enterprise edition
+	/uora/app/oracle
+	manually run root scripts
+	install
+
+# when prompted run the scripts as root from ssh
+/uora/app/oraInventory/orainstRoot.sh
+/uora/app/oracle/product/19.0.0/dbhome_1/root.sh
+
+# continue as oracle user
+lsnrctl start
+dbca
+	advanced
+	single instance
+	general purpose
+	global name and SID: {host_name}
+	don't create as container
+	use following for the database storage attributes
+	set to /uoradata
+	don't use OMF
+	specify FRA as to /uorafra
+	160GB (about twice as big as the data)
+	enable archiving
+	don't create new listener
+	don't vault
+	don't label security
+	memory -> use automatic shared memory management, 80%
+	sizing -> nothing
+	character sets -> UTF8
+	connection mode -> dedicated
+	samples schemas -> no
+	don't configure enterprise manager
+	don't register to cloud
+	same password to rule them all
+	create database
+	install
+
+# add database to startup configuration
+nano /etc/oratab
+{oracle_sid}:{oracle_home}:Y
+
+sqlplus / as sysdba
+show parameter target; # for memory parameters
+show parameter db_recory_file_dest; # for fra parameters
+alter system set db_create_file_dest='/uoradata';
+exit;
+
+reboot
+
+# extend max string size
+su - oracle
+sqlplus / as sysdba
+shutdown immediate;
+startup upgrade;
+alter system set MAX_STRING_SIZE = EXTENDED;
+@/uora/app/oracle/product/19.0.0/dbhome_1/rdbms/admin/utl32k.sql
+shutdown immediate;
+
+# configure rman
+rman target /
+
+# display and change rman configuration
+show all;
+
+CONFIGURE RETENTION POLICY TO REDUNDANCY 2;
+CONFIGURE CONTROLFILE AUTOBACKUP ON;
+CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DISK;
+CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/uorabackup/rman/backup_%u_%d_%T_%s_%p.bck' maxpiecesize 8 G;
+
+# as oracle add rman scripts to crontab
+crontab -e
+5 5 * * 0 /home/oracle/scripts/rman_level0.sh
+5 5 * * 1-6 /home/oracle/scripts/rman_level1.sh
+
+# as root create the service
+cat > /lib/systemd/system/dbora.service <<EOF
 [Unit]
 Description=The Oracle Database Service
 After=syslog.target network.target
@@ -160,81 +314,20 @@ ExecStop=/bin/bash -c '/home/oracle/scripts/stop_all.sh'
 
 [Install]
 WantedBy=multi-user.target
+EOF
 
 systemctl daemon-reload
-systemctl start dbora.service
-systemctl enable dbora.service
-systemctl status dbora.service
+# to start/stop/autostart service use the commands below
+systemctl start dbora
+systemctl stop dbora
+systemctl enable dbora
+systemctl disable dbora
+systemctl status dbora
 
-
-su - oracle
-cd $ORACLE_HOME
-unzip -oq /path/to/software/LINUX.X64_193000_db_home.zip
-
-export CV_ASSUME_DISTID=OEL7.6
-./runInstaller
-	software only
-	single instance
-	enterprise edition
-	/u02/oradata
-	/u01/app/oraInventory
-	automatically run, use root
-	fix and check again
-	ignore all
-
-su -
-/u01/app/oraInventory/orainstRoot.sh
-/u01/app/oracle/product/19.0.0/dbhome_1/root.sh
-
-su - oracle
-lsnrctl start
-dbca
-	advanced
-	single instance
-	general purpose
-	global name and SID: orcl19c1
-	don't create as container
-	use following for the database storage attributes
-	browse to /u02/oradata
-	don't use OMF
-	specify FRA
-	browse to /u03/archive_logs
-	50GB (about half as big as the db)
-	enable archiving
-	don't create new listener
-	don't vault
-	don't label security
-	memory -> use automatic mem management
-	sizing -> nothing
-	character sets -> UTF8
-	connection mode -> dedicated
-	samples schemas -> no
-	don't configure enterprise manager to port 5500
-	don't register to cloud
-	same password to rule them all
-	create database
-	install
-
-/etc/oratab
-orcl19c1:/u01/app/oracle/product/19.0.0/dbhome_1:Y
-
-sqlplus / as sysdba
-alter system set db_create_file_dest='/u02/oradata';
-exit;
-
-reboot;
-
-extend max string size:
-systemctl stop dbora.service
-su - oracle
-sqlplus / as sysdba
-startup upgrade
-alter system set MAX_STRING_SIZE = EXTENDED;
-@/u01/app/oracle/product/19.3.0/dbhome_1/rdbms/admin/utl32k.sql
-shutdown immediate;
-systemctl start dbora.service
+reboot
 
 create_tablespaces.sql
 crete_users.sql
 create_db_admin.sql
 create_app_log.sql
+create_app_core.sql

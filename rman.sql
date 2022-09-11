@@ -11,7 +11,6 @@ backup spfile format '/ubackup/rman_backup/spf_1_%d_%T_%s_%p.bck';
 crosscheck archivelog all;
 }
 
-
 oradim -NEW -SID instance1
 set ORACLE_SID=instance1
 

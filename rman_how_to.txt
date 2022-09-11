@@ -1,0 +1,25 @@
+rman target /
+
+# display and change rman configuration
+show all;
+
+CONFIGURE RETENTION POLICY TO REDUNDANCY 2;
+CONFIGURE CONTROLFILE AUTOBACKUP ON;
+CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DISK;
+CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/uorabackup/rman/backup_%u_%d_%T_%s_%p' maxpiecesize 8 G;
+
+# show obsolete backups
+report obsolete;
+
+# regular backup
+backup TAG=FULL database plus archivelog;
+backup AS COMPRESSED BACKUPSET TAG=FULL full database plus archivelog format '/uorabackup/rman/backup_%u_%d_%T_%s_%p';
+
+# incremental backup
+BACKUP INCREMENTAL LEVEL 0 TAG=LEVEL_0 DATABASE PLUS ARCHIVELOG;
+BACKUP INCREMENTAL LEVEL 1 TAG=LEVEL_1 DATABASE PLUS ARCHIVELOG;
+
+crosscheck backup;
+crosscheck archivelog all;
+delete noprompt expired archivelog all;
+delete noprompt obsolete;

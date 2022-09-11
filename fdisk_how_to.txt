@@ -25,6 +25,8 @@ lvdisplay
 
 # see which pvs belong to which vgs
 pvscan
+vgscan
+lvscan
 
 # create vg
 vgcreate vg_name /dev/xxxp1
@@ -35,3 +37,39 @@ vgextend vg_name /dev/xxxp1
 # create lv
 lvcreate -n lv_name -L 10G vg_name
 lvcreate -n lv_name -l 100%FREE vg_name
+
+# format lv
+mkfs.xfs /dev/vg_name/lv_name
+mkswap /dev/vg_name/lv_name
+
+# change swap
+swapoff /dev/rhel_oracle0/swap
+swapon /dev/vg_swap/lv_swap
+vi /etc/fstab
+	remove old swap
+	add new swap
+
+# delete
+lvremove /dev/vg_name/lv_name
+vgremove vg_name
+pvremove /dev/xxxp1
+
+# extend pv
+# inactivate lvs
+lvchange -a n /dev/vg_name/lv_name
+# recreate partition
+fdisk /dev/xxx
+	p
+	d
+	n,p,1,x,x # don't overwrite
+	t,8e
+	w
+partprobe
+pvresize /dev/xxxp1
+# activate lvs
+lvchange -a y /dev/vg_name/lv_name  
+
+# extend lv
+lvresize -L +{size}G /dev/vg_name/lv_name
+xfs_growfs /dev/vg_name/lv_name
+xfs_info /dev/vg_name/lv_name
