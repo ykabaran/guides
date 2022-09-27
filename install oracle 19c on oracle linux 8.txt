@@ -159,14 +159,14 @@ EOF
 
 cat > /home/oracle/scripts/level0.rmn <<EOF
 run {
-	allocate channel ch1 device type disk;
+	allocate channel ch1 device type disk FORMAT '/uorabackup/rman/backup0_%u_%d_%T_%s_%p.bkp' maxpiecesize 8 G;
 	crosscheck backup;
 	crosscheck archivelog all;
 	delete noprompt expired archivelog all;
 	delete noprompt obsolete;
 	BACKUP as compressed backupset INCREMENTAL LEVEL 0 TAG=LEVEL_0 DATABASE PLUS ARCHIVELOG;
-	backup current controlfile format '/uorabackup/rman/cnt_%u_%d_%T_%s_%p.bck';
-	backup spfile format '/uorabackup/rman/spf_%u_%d_%T_%s_%p.bck';
+	backup current controlfile format '/uorabackup/rman/cnt_%u_%d_%T_%s_%p.bkp';
+	backup spfile format '/uorabackup/rman/spf_%u_%d_%T_%s_%p.bkp';
 	crosscheck backup;
 	crosscheck archivelog all;
 	delete noprompt expired archivelog all;
@@ -176,14 +176,14 @@ EOF
 
 cat > /home/oracle/scripts/level1.rmn <<EOF
 run {
-	allocate channel ch1 device type disk;
+	allocate channel ch1 device type disk FORMAT '/uorabackup/rman/backup1_%u_%d_%T_%s_%p.bkp' maxpiecesize 8 G;
 	crosscheck backup;
 	crosscheck archivelog all;
 	delete noprompt expired archivelog all;
 	delete noprompt obsolete;
 	BACKUP as compressed backupset INCREMENTAL LEVEL 1 TAG=LEVEL_1 DATABASE PLUS ARCHIVELOG;
-	backup current controlfile format '/uorabackup/rman/cnt_%u_%d_%T_%s_%p.bck';
-	backup spfile format '/uorabackup/rman/spf_%u_%d_%T_%s_%p.bck';
+	backup current controlfile format '/uorabackup/rman/cnt_%u_%d_%T_%s_%p.bkp';
+	backup spfile format '/uorabackup/rman/spf_%u_%d_%T_%s_%p.bkp';
 	crosscheck backup;
 	crosscheck archivelog all;
 	delete noprompt expired archivelog all;
@@ -257,9 +257,12 @@ nano /etc/oratab
 {oracle_sid}:{oracle_home}:Y
 
 sqlplus / as sysdba
+# maybe startup mount
 show parameter target; # for memory parameters
 show parameter db_recory_file_dest; # for fra parameters
 alter system set db_create_file_dest='/uoradata';
+alter system set db_flashback_retention_target = 2880; # 2 days
+alter database flashback on;
 exit;
 
 reboot
@@ -282,12 +285,12 @@ show all;
 CONFIGURE RETENTION POLICY TO REDUNDANCY 2;
 CONFIGURE CONTROLFILE AUTOBACKUP ON;
 CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DISK;
-CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/uorabackup/rman/backup_%u_%d_%T_%s_%p.bck' maxpiecesize 8 G;
 
 # as oracle add rman scripts to crontab
 crontab -e
-5 5 * * 0 /home/oracle/scripts/rman_level0.sh
-5 5 * * 1-6 /home/oracle/scripts/rman_level1.sh
+5 5 * * 0,2,4,6 /home/oracle/scripts/rman_level1.sh
+5 4 * * 1,3,5 /home/oracle/scripts/rman_level0.sh
+5 16 * * * /home/oracle/scripts/rman_level1.sh
 
 # as root create the service
 cat > /lib/systemd/system/dbora.service <<EOF

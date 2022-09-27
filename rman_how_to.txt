@@ -2,11 +2,13 @@ rman target /
 
 # display and change rman configuration
 show all;
+list backup;
+
 
 CONFIGURE RETENTION POLICY TO REDUNDANCY 2;
 CONFIGURE CONTROLFILE AUTOBACKUP ON;
 CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DISK;
-CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/uorabackup/rman/backup_%u_%d_%T_%s_%p' maxpiecesize 8 G;
+CONFIGURE CHANNEL DEVICE TYPE DISK FORMAT '/uorabackup/rman/backup_%u_%d_%T_%s_%p.bck' maxpiecesize 8 G;
 
 # show obsolete backups
 report obsolete;
@@ -23,3 +25,4 @@ crosscheck backup;
 crosscheck archivelog all;
 delete noprompt expired archivelog all;
 delete noprompt obsolete;
+
