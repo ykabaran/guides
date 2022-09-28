@@ -56,11 +56,14 @@ mkdir /uorabackup
 mkswap /dev/vg_oracle/lv_swap
 swapoff /dev/ol/swap
 swapon /dev/vg_oracle/lv_swap
-vi /etc/fstab
+nano /etc/fstab
 	change /ol/swap to /vg_oracle/lv_swap
-vi /etc/default/grub
+nano /etc/default/grub
 	change /ol/swap references to vg_oracle/lv_swap
 grub2-mkconfig > /boot/grub2/grub.cfg
+lvremove /dev/ol/swap
+lvresize -l +100%FREE /dev/ol/root
+xfs_growfs /dev/ol/root
 
 # increase size of /dev/shm
 nano /etc/fstab
@@ -94,7 +97,6 @@ firewall-cmd --reload
 
 reboot
 
-##### hls-lsports, done up to here except lv creation
 
 # transfer permissions to oracle
 chown -R oracle:oinstall /uora /uoradata /uorafra /uorabackup
@@ -111,8 +113,8 @@ cat > /home/oracle/scripts/setEnv.sh <<EOF
 export TMP=/tmp
 export TMPDIR=\$TMP
 
-export ORACLE_SID={host_name}
-export ORACLE_HOSTNAME=\$ORACLE_SID.localdomain
+export ORACLE_SID={oracle_sid}
+export ORACLE_HOSTNAME={host_name}.localdomain
 export ORACLE_UNQNAME=\$ORACLE_SID
 export ORACLE_BASE=/uora/app/oracle
 export ORACLE_HOME=\$ORACLE_BASE/product/19.0.0/dbhome_1
@@ -252,6 +254,8 @@ dbca
 	create database
 	install
 
+# can exit gui
+
 # add database to startup configuration
 nano /etc/oratab
 {oracle_sid}:{oracle_home}:Y
@@ -334,3 +338,7 @@ crete_users.sql
 create_db_admin.sql
 create_app_log.sql
 create_app_core.sql
+create...sql
+
+# as oracle 
+. /home/oracle/scripts/rman_level0.sh

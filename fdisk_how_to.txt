@@ -45,7 +45,7 @@ mkswap /dev/vg_name/lv_name
 # change swap
 swapoff /dev/rhel_oracle0/swap
 swapon /dev/vg_swap/lv_swap
-vi /etc/fstab
+nano /etc/fstab
 	remove old swap
 	add new swap
 
