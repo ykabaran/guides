@@ -73,3 +73,5 @@ lvchange -a y /dev/vg_name/lv_name
 lvresize -L +{size}G /dev/vg_name/lv_name
 xfs_growfs /dev/vg_name/lv_name
 xfs_info /dev/vg_name/lv_name
+# or for root lvm after lvresize
+resize2fs /dev/vg_name/lv_name

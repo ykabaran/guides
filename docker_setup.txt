@@ -21,7 +21,7 @@ docker cp Farmakom.yedek sql_server:/tmp/Farmakom.yedek
 
 docker cp '.\Farmakom Online! Otomatik Yedek Modülü 20211123-1046.yedek' sql_server:/tmp/Farmakom.yedek
 
-docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "YourStrongPassw0rd" -Q "RESTORE DATABASE ONLINE21 FROM DISK = '/tmp/Farmakom.yedek' WITH MOVE 'ONLINE21' TO '/var/opt/mssql/data/ONLINE21.mdf', MOVE 'ONLINE21_log' TO '/var/opt/mssql/data/ONLINE21_log.mdf'"
+docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "YourStrongPassw0rd" -Q "RESTORE DATABASE ONLINE23 FROM DISK = '/tmp/Farmakom.yedek' WITH MOVE 'ONLINE23' TO '/var/opt/mssql/data/ONLINE23.mdf', MOVE 'ONLINE23_log' TO '/var/opt/mssql/data/ONLINE23_log.mdf'"
 
 docker stop sql_server
 
