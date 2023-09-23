@@ -72,7 +72,7 @@ mount -o remount /dev/shm
 
 reboot
 
-#follow this guide:
+# follow this guide:
 	https://oracle-base.com/articles/19c/oracle-db-19c-installation-on-oracle-linux-8
 
 # set hostname
@@ -289,12 +289,12 @@ show all;
 
 CONFIGURE RETENTION POLICY TO REDUNDANCY 2;
 CONFIGURE CONTROLFILE AUTOBACKUP ON;
-CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 2 TIMES TO DISK;
+CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 1 TIMES TO DISK;
 
 # as oracle add rman scripts to crontab
 crontab -e
-5 5 * * 0,2,4,6 /home/oracle/scripts/rman_level1.sh
 5 4 * * 1,3,5 /home/oracle/scripts/rman_level0.sh
+5 5 * * 0,2,4,6 /home/oracle/scripts/rman_level1.sh
 5 16 * * * /home/oracle/scripts/rman_level1.sh
 
 # as root create the service
@@ -343,3 +343,6 @@ create...sql
 
 # as oracle 
 . /home/oracle/scripts/rman_level0.sh
+
+
+pm2 environment variable UV_THREADPOOL_SIZE=10

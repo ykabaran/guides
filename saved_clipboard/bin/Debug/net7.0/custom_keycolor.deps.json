@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "custom_keycolor/1.0.0": {
+        "runtime": {
+          "custom_keycolor.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "custom_keycolor/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

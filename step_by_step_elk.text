@@ -1,0 +1,142 @@
+# install ubuntu 22.04
+	use entire disk: 40GB
+	yildiz : 123456, admin
+
+# connect with solar putty yildiz_temp 
+
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+
+# install docker as root
+apt-get update
+apt-get install ca-certificates curl gnupg
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+chmod a+r /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update
+
+apt-cache madison docker-ce | awk '{ print $3 }'
+
+VERSION_STRING=5:24.0.5-1~ubuntu.22.04~jammy
+apt-get install docker-ce=$VERSION_STRING docker-ce-cli=$VERSION_STRING containerd.io docker-buildx-plugin docker-compose-plugin
+
+docker run hello-world
+docker ps -a
+docker images
+docker rm hello-world
+
+# install elastic
+docker pull docker.elastic.co/elasticsearch/elasticsearch:8.9.1
+docker network create elastic
+
+nano /etc/sysctl.conf
+	vm.max_map_count=262144
+sysctl -p
+
+docker run --name es01 --net elastic -p 9200:9200 -p 9300:9300 -it -m 2GB docker.elastic.co/elasticsearch/elasticsearch:8.9.1
+
+
+# take note #
+Password for the elastic user (reset with `bin/elasticsearch-reset-password -u elastic`):
+  kN5dHBdfrbWeXL-Zu*qU
+
+HTTP CA certificate SHA-256 fingerprint:
+  eb3adb7aa89580b2dcfff365c595fb5f7a4d3f2238b50d8f33eaef85d10523ec
+
+Configure Kibana to use this cluster:
+Run Kibana and click the configuration link in the terminal when Kibana starts.
+Copy the following enrollment token and paste it into Kibana in your browser (valid for the next 30 minutes):
+  eyJ2ZXIiOiI4LjkuMSIsImFkciI6WyIxNzIuMTguMC4yOjkyMDAiXSwiZmdyIjoiZWIzYWRiN2FhODk1ODBiMmRjZmZmMzY1YzU5NWZiNWY3YTRkM2YyMjM4YjUwZDhmMzNlYWVmODVkMTA1MjNlYyIsImtleSI6ImtHekxYWW9CU3N1cndNU3RLRXc4OkZ1a0FqY21DVGlDZ3Z1OHcwOEtRcEEifQ==
+
+Configure other nodes to join this cluster:
+Copy the following enrollment token and start new Elasticsearch nodes with `bin/elasticsearch --enrollment-token <token>` (valid for the next 30 minutes):
+  eyJ2ZXIiOiI4LjkuMSIsImFkciI6WyIxNzIuMTguMC4yOjkyMDAiXSwiZmdyIjoiZWIzYWRiN2FhODk1ODBiMmRjZmZmMzY1YzU5NWZiNWY3YTRkM2YyMjM4YjUwZDhmMzNlYWVmODVkMTA1MjNlYyIsImtleSI6ImttekxYWW9CU3N1cndNU3RLRXhBOnhsRnF1RlBqVDEteV9LVHZtbU5ZWEEifQ==
+
+
+docker start es01
+docker cp es01:/usr/share/elasticsearch/config/certs/http_ca.crt .
+
+# test elastic
+export ELASTIC_PASSWORD="kN5dHBdfrbWeXL-Zu*qU"
+curl -k -u elastic:$ELASTIC_PASSWORD https://localhost:9200
+curl --cacert http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200
+
+# install kibana
+
+docker pull docker.elastic.co/kibana/kibana:8.9.1
+docker run --name kib01 --net elastic -p 5601:5601 docker.elastic.co/kibana/kibana:8.9.1
+docker start kib01
+
+http://192.168.182.129:5601/
+
+docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+# enter token into chrome
+
+docker exec -it kib01 /usr/share/kibana/bin/kibana-verification-code
+# enter into chrome
+
+# add run on boot
+docker update --restart unless-stopped es01
+docker update --restart unless-stopped kib01
+
+# to full delete
+docker network rm elastic
+docker rm es01
+docker rm kib01
+
+# create metricbeat users
+kibana -> Management -> Roles/Users
+https://www.elastic.co/guide/en/beats/metricbeat/current/privileges-to-setup-beats.html
+	+ add auto_configure index privilage to writer
+# make 1 user with all 4 roles
+metricbeat01 / rFqe@!t@73N^Ubyg
+
+# install metricbeat
+curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-8.9.1-amd64.deb
+sudo dpkg -i metricbeat-8.9.1-amd64.deb
+
+metricbeat keystore create
+metricbeat keystore add ES_PWD
+metricbeat keystore add ES_CA_FINGERPRINT
+
+nano /etc/metricbeat/metricbeat.yml
+	password: "${ES_PWD}"
+	protocol: "https"
+	ssl.enabled: true
+	ssl.ca_trusted_fingerprint: "${ES_CA_FINGERPRINT}"
+metricbeat modules list
+metricbeat modules enable docker
+metricbeat setup -e
+
+# remove extra metricbeat user privilages
+nano /etc/metricbeat/metricbeat.yml
+	setup.ilm.check_exists: false
+
+metricbeat -e --strict-perms=false
+
+# if made a mistake
+metricbeat keystore list
+metricbeat keystore remove ES_CA_FINGERPRINT
+
+systemctl stop metricbeat
+systemctl start metricbeat
+systemctl enable metricbeat
+
+# install apm server
+curl -L -O https://artifacts.elastic.co/downloads/apm-server/apm-server-8.9.1-amd64.deb
+sudo dpkg -i apm-server-8.9.1-amd64.deb
+
+# add integration in kibana
+secret token: 52AkdEM7eL5OZ5NCXbKuyVvs2ZwbrNFc
+
+# create apm user
+https://www.elastic.co/guide/en/apm/guide/8.9/privileges-to-publish-events.html
+apm_server01 / proX%9YLlKPJ$Huf
+
+cd /etc/apm-server
+nano 

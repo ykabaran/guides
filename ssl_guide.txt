@@ -1,0 +1,6 @@
+# generate key and csr
+openssl req -newkey rsa:2048 -keyout private.key -out request.csr
+
+openssl pkcs12 -export -in certificate.pem -inkey private.key -out certificate.p12 -name "certificate"
+
+keytool -importkeystore -srckeystore certificate.p12 -srcstoretype pkcs12 -destkeystore keystore.jks
