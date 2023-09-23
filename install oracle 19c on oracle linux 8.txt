@@ -10,7 +10,7 @@
 # connect with solar putty yildiz_temp 
 
 sudo visudo
-yildiz ALL=(ALL) NOPASSWD:ALL
+yildiz ALL=(ALL) NOPASSWD: ALL
 passwd
 
 # setup sftp with solar putty
@@ -266,6 +266,7 @@ show parameter target; # for memory parameters
 show parameter db_recory_file_dest; # for fra parameters
 alter system set db_create_file_dest='/uoradata';
 alter system set db_flashback_retention_target = 2880; # 2 days
+alter system set undo_retention = 2880; # 2 days
 alter database flashback on;
 exit;
 
