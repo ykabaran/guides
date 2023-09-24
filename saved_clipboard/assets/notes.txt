@@ -1,0 +1,3 @@
+regular lightsync set to fixed 160,0,200
+M1 G1-G5 mapped to F18-F22
+M2 G1 mapped to powershell.exe with argument C:/dev/bin/start_clipboard.ps1
