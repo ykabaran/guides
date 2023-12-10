@@ -1,0 +1,36 @@
+create pfile='/home/oracle/pfile.ora' from spfile;
+
+ANALYZE INDEX LSPORTS_MAIN.IND_FIXTURE_INPLAY_BET_FIXTURE VALIDATE STRUCTURE ONLINE;
+
+STARTUP NOMOUNT;
+RESTORE CONTROLFILE FROM AUTOBACKUP; 
+RESTORE DATABASE;
+RECOVER DATABASE;
+ALTER DATABASE OPEN RESETLOGS;
+
+shutdown immediate
+startup mount
+run
+{
+set until time="to_date('29112023 01:00:00','ddmmyyyy hh24:mi:ss')";
+restore database;
+recover database;
+}
+alter database open resetlogs;
+
+
+list backup;
+ find one full with control file and spfile
+TAG20231129T041625
+/uorabackup/rman/cnt_p92clo8p_EVAN_20231129_3881_1.bck
+
+STARTUP NOMOUNT;
+RESTORE CONTROLFILE FROM '/uorabackup/rman/cnt_p92clo8p_EVAN_20231129_3881_1.bck';
+ALTER DATABASE MOUNT;
+
+run {
+set until time="to_date('20231129 05:00:00','yyyymmdd hh24:mi:ss')";
+RESTORE DATABASE from tag "LEVEL_0";
+recover database;
+}
+ALTER DATABASE OPEN RESETLOGS;

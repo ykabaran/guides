@@ -1,0 +1,50 @@
+
+local.public
+	ca_public_key
+	public_key
+	private_key (enc with local.hardcoded_key)
+	master_key (enc with local.private_key)
+local.private (enc with local.master_key)
+	endpoint_id
+	app_id
+	admin_key
+	manager_hosts: { endpoint, secrets, app }
+
+endpoint.service.public
+	adjustment variables
+endpoint.service.private (enc with local.master_key)
+	encryption_keys: { app_data, user_profile_data, user_password_data }
+
+
+init.param
+	endpoint_id, app_id, host, ca_public_key, public_key, private_key, manager_hosts
+
+endpoint
+	/endpoint/local/init: conditions={APP_ENV="init"} input={init.param} return={admin_key}
+	/endpoint/local/display: conditions={source="localhost"} credentials={admin_key} return={local.all}
+	/endpoint/local/update: credentials={admin/endpoint} return={enc_private}
+
+endpoint_manager
+	/create_endpoint: input:{init.param} credentials={admin/endpoint/session:CREATE_ENDPOINT} return={admin_key}
+	/get_config: credentials={endpoint} return={endpoint.service.public, endpoint.service.enc_private}
+
+secrets_manager
+	/get_keys: credentials={endpoint} return={keys}
+
+app_manager
+	/get_localization: credentials={endpoint} return={strings}
+	/get_roles_and_permissions: credentials={} return={}
+
+
+authentication_methods
+	admin
+		aes with admin_key
+	endpoint
+		ssl client auth
+		aes with rotating key
+	session
+		jwt cookie enc with rotating aes key, sign with rotating rsa key
+		x-update-token header, one-time-use
+authorization_methods
+	admin
+	endpoint
