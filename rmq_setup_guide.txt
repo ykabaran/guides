@@ -1,0 +1,36 @@
+sudo . install_rmq.sh
+
+systemctl rabbitmq-server start
+systemctl rabbitmq-server enable
+
+rabbitmq-diagnostics status
+
+rabbitmqctl add_vhost lsinplay --description "LS Inplay Replica" 
+rabbitmqctl add_vhost lsprematch --description "LS Prematch Replica" 
+rabbitmqctl add_user ls_inplay_prod "Me5sK68hfFq@c$HX"
+rabbitmqctl add_user ls_inplay_cons01 "TP1Ffp2KdXv6ka86"
+rabbitmqctl add_user ls_inplay_cons02 "TIaeBmmR2BrI6wFm"
+rabbitmqctl add_user ls_prematch_prod "Eh^ULotLC8t&X#1M"
+rabbitmqctl add_user ls_prematch_cons01 "7n9Gv36UlaGdQ9Om"
+rabbitmqctl add_user ls_prematch_cons02 "0ujhlIzu2Lph8PXw"
+
+rabbitmqctl change_password ls_inplay_cons01 "TP1Ffp2KdXv6ka86"
+rabbitmqctl change_password ls_inplay_cons02 "TIaeBmmR2BrI6wFm"
+rabbitmqctl change_password ls_prematch_cons01 "7n9Gv36UlaGdQ9Om"
+rabbitmqctl change_password ls_prematch_cons02 "0ujhlIzu2Lph8PXw"
+
+rabbitmqctl set_permissions -p lsinplay ls_inplay_prod ".*" ".*" ".*"
+rabbitmqctl set_permissions -p lsinplay ls_inplay_cons01 "" "" ".*"
+rabbitmqctl set_permissions -p lsinplay ls_inplay_cons02 "" "" ".*"
+rabbitmqctl set_permissions -p lsprematch ls_prematch_prod ".*" ".*" ".*"
+rabbitmqctl set_permissions -p lsprematch ls_prematch_cons01 "" "" ".*"
+rabbitmqctl set_permissions -p lsprematch ls_prematch_cons02 "" "" ".*"
+
+rabbitmqctl list_queues -p lsinplay arguments messages consumers
+rabbitmqctl list_queues -p lsprematch arguments messages consumers
+
+rabbitmqctl purge_queue -p lsinplay _queue_
+rabbitmqctl purge_queue -p lsprematch _queue_
+
+rabbitmqctl delete_queue -p lsinplay _queue_
+rabbitmqctl delete_queue -p lsprematch _queue_

@@ -23,6 +23,10 @@ docker cp '.\Farmakom Online! Otomatik Yedek Modülü 20211123-1046.yedek' sql_s
 
 docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "YourStrongPassw0rd" -Q "RESTORE DATABASE ONLINE23 FROM DISK = '/tmp/Farmakom.yedek' WITH MOVE 'ONLINE23' TO '/var/opt/mssql/data/ONLINE23.mdf', MOVE 'ONLINE23_log' TO '/var/opt/mssql/data/ONLINE23_log.mdf'"
 
+docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "YourStrongPassw0rd" -Q "BACKUP DATABASE ONLINE23 TO DISK = '/tmp/Farmakom3.yedek' WITH NOFORMAT, NOINIT, NAME = 'Farmakom-Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
+
+docker cp sql_server:/tmp/Farmakom3.yedek Farmakom3.yedek
+
 docker stop sql_server
 
 --
@@ -41,3 +45,20 @@ group by TARIH;
 
 
 
+delete from EmanetIlac where TARIH < '2019-01-01 00:00:0.000';
+delete from GIRIS1 where Irstar < '2019-01-01 00:00:0.000';
+delete from GIRIS1 where FATTAR < '2019-01-01 00:00:0.000';
+delete from GIRIS2 where TARIH < '2019-01-01 00:00:0.000';
+delete from GIRISV where FATTAR < '2019-01-01 00:00:0.000';
+delete from Hareket where TARIH < '2019-01-01 00:00:0.000';
+delete from Hareket where SONTARIH < '2019-01-01 00:00:0.000';
+delete from IPTALRECETE2 where TARIH < '2019-01-01 00:00:0.000';
+delete from Islem where TARIH < '2019-01-01 00:00:0.000';
+delete from ODEME where TARIH < '2019-01-01 00:00:0.000';
+delete from Recete1 where RTARIHI < '2019-01-01 00:00:0.000';
+delete from Recete1 where ATARIHI < '2019-01-01 00:00:0.000';
+delete from Recete1 where KAYITTAR < '2019-01-01 00:00:0.000';
+delete from Recete2 where TARIH < '2019-01-01 00:00:0.000';
+delete from Takas1 where IRSTAR < '2019-01-01 00:00:0.000';
+delete from Takas1 where ISLEMTARIHI < '2019-01-01 00:00:0.000';
+delete from Takas2 where ISLEMTARIHI < '2019-01-01 00:00:0.000';

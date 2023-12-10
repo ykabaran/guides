@@ -37,8 +37,8 @@ chmod +x vars
 ./easyrsa sign-req server srv3.yildizkabaran.com
 openssl verify -CAfile pki/ca.crt pki/issued/srv3.yildizkabaran.com.crt
 
-./easyrsa gen-req burak.ovpn.office.yildizkabaran.com nopass
-./easyrsa sign-req client burak.ovpn.office.yildizkabaran.com
+./easyrsa gen-req yildiz.client.vpn.highlevelsoftware.com nopass
+./easyrsa sign-req client yildiz.client.vpn.highlevelsoftware.com
 openssl verify -CAfile pki/ca.crt pki/issued/burak.ovpn.office.yildizkabaran.com.crt
 
 ./easyrsa gen-dh
