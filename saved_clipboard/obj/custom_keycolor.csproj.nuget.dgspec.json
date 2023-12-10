@@ -1,24 +1,29 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\yildiz\\Documents\\projects\\saved_clipboard\\custom_keycolor.csproj": {}
+    "C:\\Users\\user\\Documents\\projects\\guides\\saved_clipboard\\custom_keycolor.csproj": {}
   },
   "projects": {
-    "C:\\Users\\yildiz\\Documents\\projects\\saved_clipboard\\custom_keycolor.csproj": {
+    "C:\\Users\\user\\Documents\\projects\\guides\\saved_clipboard\\custom_keycolor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\yildiz\\Documents\\projects\\saved_clipboard\\custom_keycolor.csproj",
+        "projectUniqueName": "C:\\Users\\user\\Documents\\projects\\guides\\saved_clipboard\\custom_keycolor.csproj",
         "projectName": "custom_keycolor",
-        "projectPath": "C:\\Users\\yildiz\\Documents\\projects\\saved_clipboard\\custom_keycolor.csproj",
-        "packagesPath": "C:\\Users\\yildiz\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\yildiz\\Documents\\projects\\saved_clipboard\\obj\\",
+        "projectPath": "C:\\Users\\user\\Documents\\projects\\guides\\saved_clipboard\\custom_keycolor.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\user\\Documents\\projects\\guides\\saved_clipboard\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\yildiz\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0-windows"
         ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
         "frameworks": {
           "net7.0-windows7.0": {
             "targetAlias": "net7.0-windows",
@@ -53,7 +58,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

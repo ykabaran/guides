@@ -1,0 +1,57 @@
+adriana.qbity.app's children
+	pfsense
+		achilles.qbity.app / 10.13.2.1
+		pfsense community
+		2-core
+		2gb ram
+		20gb storage
+
+	oracle
+		lorena.qbity.app / 10.13.2.20
+		oracle linux
+		6-core
+		16gb ram
+		600gb storage
+			40gb root
+			20gb swap
+			40gb oracle
+			80gb data
+			160gb fra
+			240gb backup
+			20gb free
+
+	nginx
+		scout.qbity.app / 10.13.2.21
+		ubuntu server
+		4-core
+		8gb ram
+		100gb storage
+			40gb root
+			60gb data
+
+	elastic/kibana
+		sasha.qbity.app / 10.13.2.22
+		ubuntu server
+		4-core
+		8gb ram
+		300gb storage
+			40gb root
+			260gb data
+
+	nodejs/express
+		kyle.qbity.app / 10.13.2.23
+		ubuntu server
+		4-core
+		8gb ram
+		100gb storage
+			40gb root
+			60gb data
+
+	nodejs/express
+		kenny.qbity.app / 10.13.2.23
+		ubuntu server
+		4-core
+		8gb ram
+		100gb storage
+			40gb root
+			60gb data

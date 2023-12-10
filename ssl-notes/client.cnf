@@ -1,0 +1,25 @@
+# OpenSSL configuration file.
+ 
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = CY
+ST = Nicosia
+L = Nicosia
+O = High Level Software Ltd
+CN = client01.localdomain.com
+
+[alt_names]
+DNS.1 = client02.localdomain.com
+DNS.2 = client03.localdomain.com
+DNS.3 = client04.localdomain.com
+
+[v3_req]
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment, dataEncipherment
+extendedKeyUsage = clientAuth,msSmartcardLogin
+nsCertType = client
+subjectAltName = @alt_names

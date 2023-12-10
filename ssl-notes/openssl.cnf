@@ -1,0 +1,24 @@
+# OpenSSL configuration file.
+ 
+[req]
+distinguished_name = req_distinguished_name
+prompt = no
+
+[req_distinguished_name]
+C = CY
+ST = Nicosia
+L = Nicosia
+O = High Level Software Ltd
+OU =
+CN = server01.localdomain.com
+
+[alt_names]
+DNS.1 = server02.localdomain.com
+DNS.2 = server03.localdomain.com
+DNS.3 = server04.localdomain.com
+
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+nsCertType = server
+subjectAltName = @alt_names
