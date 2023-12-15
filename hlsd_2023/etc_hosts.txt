@@ -1,0 +1,26 @@
+#Achilles PFSense
+10.13.2.1 achilles.qbity.app
+
+#Adriana VM Host
+192.168.1.254 adriana.qbity.app
+
+#Caesar HLSD CA
+10.13.2.9 caesar.hlsd.com
+
+#Heimdall HLSD VPN	
+10.13.2.20 heimdall.hlsd.com
+
+#Lorena HLSD DB
+10.13.2.30 lorena.hlsd.com
+
+#Yasin PC	 
+10.13.2.12 yasin.localdomain.com
+
+#Yildiz PC 
+10.13.2.11 yildiz.localdomain.com
+
+#Zafer PC	 
+10.13.2.13 zafer.localdomain.com
+
+#SSL Test Server on Yildiz PC
+10.13.2.11 server01.localdomain.com

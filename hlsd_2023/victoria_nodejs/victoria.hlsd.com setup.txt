@@ -1,0 +1,69 @@
+# set ip or add mac to pfsense
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@victoria.hlsd.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+hostnamectl set-hostname victoria.hlsd.com
+nano /etc/hosts
+
+apt update
+apt upgrade
+reboot
+
+ufw enable
+ufw allow ssh
+
+cd /root
+mkdir pki
+cd pki
+mkdir server client
+cd server
+nano openssl.conf
+# copy victoria.hlsd.com-openssl.conf file here
+
+openssl genrsa -out server.key.pem 4096
+openssl req -config openssl.conf -new -sha256 -key server.key.pem -out server.csr
+
+# copy the csr to ca.web.hlsd.com /root/inter_ca_vpn/csr/victoria.hlsd.com.csr
+openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/victoria.hlsd.com.csr -out issued/victoria.hlsd.com.cert.pem
+# copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, issued/victoria.hlsd.com.cert.pem into /root/pki/server
+
+cd /root/pki/client
+cp /root/pki/server/inter_ca.cert.pem ./
+cp /root/pki/server/ca.cert.pem ./
+
+# copy these files
+nano web-client-openssl.conf
+nano web-make-client-csr.sh
+
+chmod u+x web-make-client-csr.sh
+
+# make client csrs
+./web-make-client-csr.sh yildiz01.web.hlsd.com
+./web-make-client-csr.sh yildiz02.web.hlsd.com
+./web-make-client-csr.sh yildiz03.web.hlsd.com
+./web-make-client-csr.sh zafer01.web.hlsd.com
+./web-make-client-csr.sh zafer02.web.hlsd.com
+./web-make-client-csr.sh zafer03.web.hlsd.com
+
+# get csrs signed with ca.web.hlsd.com /root/inter_ca_web/csr/
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz01.web.hlsd.com.csr -out issued/yildiz01.web.hlsd.com.cert.pem
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz02.web.hlsd.com.csr -out issued/yildiz02.web.hlsd.com.cert.pem
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz03.web.hlsd.com.csr -out issued/yildiz03.web.hlsd.com.cert.pem
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/zafer01.web.hlsd.com.csr -out issued/zafer01.web.hlsd.com.cert.pem
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/zafer02.web.hlsd.com.csr -out issued/zafer02.web.hlsd.com.cert.pem
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/zafer03.web.hlsd.com.csr -out issued/zafer03.web.hlsd.com.cert.pem
+
+# revoke some just in case
+openssl ca -config openssl.conf -revoke issued/yildiz03.web.hlsd.com.cert.pem
+openssl ca -config openssl.conf -revoke issued/zafer03.web.hlsd.com.cert.pem
+mv issued/yildiz03.web.hlsd.com.cert.pem revoked/20231215_yildiz03.web.hlsd.com.cert.pem
+mv issued/zafer03.web.hlsd.com.cert.pem revoked/20231215_zafer03.web.hlsd.com.cert.pem
+openssl ca -config openssl.conf -gencrl -out crl.pem
+
+# copy the signed certs back together with crl
+
+install nodejs

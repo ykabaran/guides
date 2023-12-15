@@ -1,16 +1,17 @@
 # set ip or add mac to pfsense
-
-# add id_rsa
-# connect ssh with id_rsa
-
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@heimdall.hlsd.com
 sudo visudo
-yildiz ALL=(ALL) NOPASSWD: ALL
-
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
 sudo su -
-passwd yildiz
 
-hostnamectl set-hostname heimdall.hlsd.com
+hostnamectl set-hostname caesar.hlsd.com
 nano /etc/hosts
+
+apt update
+apt upgrade
+reboot
 
 ufw enable
 ufw allow ssh
@@ -22,31 +23,35 @@ mkdir pki
 cd pki
 mkdir server client
 cd server
-# nano openssl.conf (copy heimdall.vpn.hlsd.com-openssl.conf file here)
+nano openssl.conf
+# copy heimdall.hlsd.com-openssl.conf file here
 
 openssl genrsa -out server.key.pem 4096
 openssl req -config openssl.conf -new -sha256 -key server.key.pem -out server.csr
 
-# copy the csr to ca.vpn.hlsd.com /root/inter_ca_vpn/csr/heimdall.vpn.hlsd.com.csr
-openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/heimdall.vpn.hlsd.com.csr -out issued/heimdall.vpn.hlsd.com.cert.pem
-# copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, certs/heimdall.vpn.hlsd.com.cert.pem into /root/pki/server
+# copy the csr to ca.vpn.hlsd.com /root/inter_ca_vpn/csr/heimdall.hlsd.com.csr
+openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/heimdall.hlsd.com.csr -out issued/heimdall.hlsd.com.cert.pem
+# copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, issued/heimdall.hlsd.com.cert.pem into /root/pki/server
 
 cd /etc/openvpn
 cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf ./
 cp /root/pki/server/server.key.pem ./
 cp /root/pki/server/ca.cert.pem ./
 cp /root/pki/server/inter_ca.cert.pem ./
-cp /root/pki/server/crl.pem ./
-cp /root/pki/server/heimdall.vpn.hlsd.com.cert.pem ./server.cert.pem
+cp /root/pki/server/inter_ca.crl.pem ./crl.pem
+cp /root/pki/server/server.cert.pem ./
 mkdir ccd
 
 openssl dhparam -out dh.pem 2048
 openvpn --genkey secret ta.key
-cat server.cert.pem inter_ca.cert.pem > server-chained.cert.pem
+cat inter_ca.cert.pem ca.cert.pem > ca-chained.cert.pem
 
 nano server.conf
 	port 13020
-	# set ca,cert,key,dh,tls-auth paths
+	# set ca,cert,key,dh paths
+
+	# comment tls-auth and add
+	tls-crypt ta.key
 
 	# uncomment
 	topology subnet
@@ -54,11 +59,9 @@ nano server.conf
 	server 10.13.20.0 255.255.255.0
 	push "route 10.13.2.0 255.255.255.0"
 
-	# uncomment
+	# uncomment, don't use compression
 	client-config-dir ccd 
 	client-to-client
-	compress lz4-v2
-	push "compress lz4-v2"
 	user nobody
 	group nogroup
 
@@ -66,6 +69,8 @@ nano server.conf
 	crlverify crl.pem
 	# change
 	cipher AES-256-CBC
+	# add
+	auth SHA256
 
 # add NAT rule to gateway
 
@@ -94,7 +99,8 @@ nano /etc/ufw/before.rules
 ufw reload
 
 cd /root/pki/client
-cp /root/pki/server/ca-chain.cert.pem ./
+cp /root/pki/server/inter_ca.cert.pem ./
+cp /root/pki/server/ca.cert.pem ./
 cp /etc/openvpn/ta.key ./
 
 # copy these files
@@ -103,10 +109,10 @@ nano vpn-client.conf
 nano vpn-make-client-csr.sh
 nano vpn-make-client-ovpn.sh
 
-chmod +x vpn-make-client-csr.sh
-chmod +x vpn-make-client-ovpn.sh
+chmod u+x vpn-make-client-csr.sh
+chmod u+x vpn-make-client-ovpn.sh
 
-# for each client
+# make client csrs
 ./vpn-make-client-csr.sh yildiz01.vpn.hlsd.com
 ./vpn-make-client-csr.sh yildiz02.vpn.hlsd.com
 ./vpn-make-client-csr.sh yildiz03.vpn.hlsd.com
@@ -128,10 +134,11 @@ openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sh
 
 # revoke one just in case
 openssl ca -config openssl.conf -revoke issued/yildiz03.vpn.hlsd.com.cert.pem
+mv issued/yildiz03.vpn.hlsd.com.cert.pem revoked/20231213_yildiz03.vpn.hlsd.com.cert.pem
 openssl ca -config openssl.conf -gencrl -out crl.pem
 
 # copy the signed certs back together with crl
-# for each client
+# make client ovpns
 ./vpn-make-client-ovpn.sh yildiz01.vpn.hlsd.com
 ./vpn-make-client-ovpn.sh yildiz02.vpn.hlsd.com
 ./vpn-make-client-ovpn.sh yildiz03.vpn.hlsd.com
@@ -142,7 +149,7 @@ openssl ca -config openssl.conf -gencrl -out crl.pem
 ./vpn-make-client-ovpn.sh yasin01.vpn.hlsd.com
 
 cd /etc/openvpn/ccd
-# for each client
+# set client ips
 echo "ifconfig-push 10.13.20.11 255.255.255.0" > yildiz01.vpn.hlsd.com
 echo "ifconfig-push 10.13.20.12 255.255.255.0" > yildiz02.vpn.hlsd.com
 echo "ifconfig-push 10.13.20.13 255.255.255.0" > yildiz03.vpn.hlsd.com

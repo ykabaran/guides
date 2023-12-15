@@ -1,0 +1,10 @@
+lorena_ssl =
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCPS)(HOST = lorena.hlsd.com)(PORT = 2484))
+    )
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = lorena)
+    )
+  )

@@ -1,0 +1,327 @@
+# Install Oracle Linux 8
+# partition 20Gib /, 20Gib /home, 18Gib swap
+# set hostname, setup network, set timezone
+# set ip or add mac to pfsense
+# create yildiz user, no root
+# install, reboot, accept liceense, no location services, no accounts
+# update, reboot
+
+# add id_rsa
+# connect ssh with id_rsa
+ssh-copy-id -i id_rsa yildiz@lorena.hlsd.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+# assign and divide the second disk, leave 40G empty in vg
+fdisk -l
+fdisk /dev/sdb
+	n
+	p,1,xx,xx
+	t,8e
+	w
+pvcreate /dev/sdb1
+pvs
+vgcreate vg_oracle /dev/sdb1
+vgs
+pvscan
+lvcreate -n lv_oracle -L 40G vg_oracle
+lvcreate -n lv_oracle_data -L 120G vg_oracle
+lvcreate -n lv_oracle_fra -L 200G vg_oracle
+lvcreate -n lv_oracle_backup -L 200G vg_oracle
+lvs
+lvdisplay
+mkfs.xfs /dev/vg_oracle/lv_oracle
+mkfs.xfs /dev/vg_oracle/lv_oracle_data
+mkfs.xfs /dev/vg_oracle/lv_oracle_fra
+mkfs.xfs /dev/vg_oracle/lv_oracle_backup
+
+mkdir /uora
+mkdir /uoradata
+mkdir /uorafra
+mkdir /uorabackup
+
+# mount them in fstab
+nano /etc/fstab
+/dev/vg_oracle/lv_oracle	/uora	xfs	defaults	0 0
+/dev/vg_oracle/lv_oracle_data	/uoradata	xfs	defaults	0 0
+/dev/vg_oracle/lv_oracle_fra	/uorafra	xfs	defaults	0 0
+/dev/vg_oracle/lv_oracle_backup	/uorabackup	xfs	defaults	0 0
+
+# increase size of /dev/shm to RAM size, if less
+nano /etc/fstab
+none		/dev/shm		tempfs	defaults,size=16G	0 0
+systemctl daemon-reload
+mount -o remount /dev/shm
+df -h
+
+# increase swap to RAM size, if less
+lvcreate -n lv_swap -L 16G vg_oracle
+mkswap /dev/vg_oracle/lv_swap
+swapoff /dev/ol/swap
+swapon /dev/vg_oracle/lv_swap
+nano /etc/fstab
+	change /ol/swap to /vg_oracle/lv_swap
+nano /etc/default/grub
+	change /ol/swap references to vg_oracle/lv_swap
+grub2-mkconfig > /boot/grub2/grub.cfg
+lvremove /dev/ol/swap
+swapon -s
+
+# resize root to fill available space, optional
+lvresize -l +100%FREE /dev/ol/root
+# only one of these works but i don't know which one
+resize2fs /dev/ol/root
+xfs_growfs /dev/ol/root
+
+reboot
+
+# set hostname and hosts
+nano /etc/hostname
+lorena.hlsd.com
+nano /etc/hosts
+10.13.2.30 lorena.hlsd.com lorena
+
+# install prereqs and update
+dnf install -y oracle-database-preinstall-19c
+yum update -y
+
+# setup misc
+passwd oracle
+# set to 123456
+
+nano /etc/selinux/config
+SELINUX=permissive
+
+firewall-cmd --permanent --zone=public --add-port=1521/tcp
+firewall-cmd --permanent --zone=public --add-port=2484/tcp
+firewall-cmd --reload
+firewall-cmd --list-all
+
+reboot
+
+# transfer permissions to oracle
+chown -R oracle:oinstall /uora /uoradata /uorafra /uorabackup
+chmod -R 775 /uora /uoradata /uorafra /uorabackup
+
+# create the folders and scripts as oracle
+mkdir -p /uora/app/oracle/product/19.0.0/dbhome_1
+mkdir /uorabackup/rman
+mkdir /uorabackup/logs
+mkdir /home/oracle/scripts
+
+# copy contents of lorena_oracle to /home/oracle
+chown -R oracle:oinstall /home/oracle/scripts
+
+chmod u+x /home/oracle/scripts/*.sh
+echo ". /home/oracle/scripts/setEnv.sh" >> /home/oracle/.bash_profile
+
+# transfer LINUX.X64_193000_db_home.zip to /home/oracle/ with oracle:oinstall permissions
+
+# login to oracle with gui
+cd $ORACLE_HOME
+unzip -oq /home/oracle/LINUX.X64_193000_db_home.zip
+
+export CV_ASSUME_DISTID=OEL7.6
+./runInstaller
+	software only
+	single instance
+	enterprise edition
+	/uora/app/oracle
+	manually run root scripts
+	install
+
+# when prompted run the scripts as root from ssh
+/uora/app/oraInventory/orainstRoot.sh
+/uora/app/oracle/product/19.0.0/dbhome_1/root.sh
+
+# continue as oracle user
+lsnrctl start
+dbca
+	advanced
+	single instance
+	general purpose
+	global name and SID: lorena
+	don't create as container
+	use following for the database storage attributes
+	set to /uoradata
+	don't use OMF
+	specify FRA as to /uorafra
+	180GB (about twice as big as the data)
+	enable archiving
+	don't create new listener
+	don't vault
+	don't label security
+	memory -> use automatic shared memory management, 80%
+	sizing -> nothing
+	character sets -> UTF8 (national set as well)
+	connection mode -> dedicated
+	samples schemas -> no
+	don't configure enterprise manager
+	don't register to cloud
+	same password to rule them all
+	create database
+	install
+
+# can exit gui
+reboot
+
+sudo su -
+passwd oracle
+# something strong
+
+su - oracle
+
+sqlplus / as sysdba
+startup mount
+show parameter target; # for memory parameters
+show parameter db_recory_file_dest; # for fra parameters
+alter system set db_create_file_dest='/uoradata';
+alter system set db_flashback_retention_target = 2880; # 2 days
+alter system set undo_retention = 2880; # 2 days
+
+alter database open;
+alter database flashback on;
+
+shutdown immediate;
+exit
+sqlplus / as sysdba
+
+startup upgrade;
+alter system set MAX_STRING_SIZE = EXTENDED;
+@/uora/app/oracle/product/19.0.0/dbhome_1/rdbms/admin/utl32k.sql
+shutdown immediate;
+exit
+
+# configure rman
+rman target /
+startup mount;
+
+# display and change rman configuration
+show all;
+
+CONFIGURE RETENTION POLICY TO REDUNDANCY 1;
+CONFIGURE CONTROLFILE AUTOBACKUP ON;
+CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 1 TIMES TO DISK;
+
+# add database to startup configuration
+nano /etc/oratab
+lorena:/uora/app/oracle/product/19.0.0/dbhome_1:Y
+
+# as root create the service
+nano /lib/systemd/system/dbora.service
+# copy dbora.service into this file
+
+systemctl daemon-reload
+# to start/stop/autostart service use the commands below
+systemctl start dbora
+systemctl stop dbora
+systemctl enable dbora
+systemctl disable dbora
+systemctl status dbora
+
+reboot
+
+# TODO
+
+create_tablespaces.sql
+crete_users.sql
+create_db_admin.sql
+create_app_log.sql
+create_app_core.sql
+create...sql
+
+# as oracle 
+. /home/oracle/scripts/rman_level0.sh
+
+# as oracle add rman scripts to crontab
+crontab -e
+5 4 * * 1,3,5 /home/oracle/scripts/rman_level0.sh
+5 4 * * 0,2,4,6 /home/oracle/scripts/rman_level1.sh
+5 16 * * * /home/oracle/scripts/rman_level1.sh
+
+
+# END TODO
+
+# as root
+cd /root
+mkdir pki
+cd pki
+mkdir server client
+cd server
+nano openssl.conf
+# copy lorena.hlsd.com-openssl.conf file here
+
+openssl genrsa -out server.key.pem 4096
+openssl req -config openssl.conf -new -sha256 -key server.key.pem -out server.csr
+
+# copy the csr to ca.db.hlsd.com /root/inter_ca_db/csr/lorena.hlsd.com.csr
+openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/lorena.hlsd.com.csr -out issued/lorena.hlsd.com.cert.pem
+# copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, issued/lorena.hlsd.com.cert.pem into /root/pki/server
+
+# create server certificate and p12 package
+cd /root/pki/server
+cat inter_ca.cert.pem ca.cert.pem > ca-chained.cert.pem
+
+openssl pkcs12 -export -out wallet.p12 -inkey server.key.pem -in server.cert.pem -certfile ca-chained.cert.pem
+openssl pkcs12 -export -out wallet.p12 -inkey wallet.key.pem -in wallet.cert.pem -chain -CAfile ca-chain.cert.pem
+
+# copy wallet source p12
+mkdir /uora/app/wallet
+cp /root/pki/server/wallet.p12 /uora/app/wallet/ewallet.p12
+chown -R oracle:oinstall /uora/app/wallet
+
+su - oracle
+cd /uora/app/wallet
+orapki wallet display -wallet /uora/app/wallet/
+orapki wallet create -wallet /uora/app/wallet/ -auto_login_local
+orapki wallet display -wallet /uora/app/wallet/
+
+cd $ORACLE_HOME/network/admin
+nano sqlnet.ora
+# copy contents of oracle/sqlnet.ora
+nano listener.ora
+# copy contents of oracle/listener.ora
+lsnrctl stop
+
+# change database to IPC
+sqlplus / as sysdba
+alter system set local_listener='(ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1))' SCOPE=BOTH;
+alter system register;
+exit
+
+lsnrctl start
+
+# return to root
+# create client ssl certificates
+cd /root/pki/client
+cp /root/pki/server/inter_ca.cert.pem ./
+cp /root/pki/server/ca.cert.pem ./
+
+# copy these files
+nano db-client-openssl.conf
+nano db-make-client-csr.sh
+
+chmod u+x db-make-client-csr.sh
+
+# make client csrs
+./db-make-client-csr.sh yildiz01.db.hlsd.com
+./db-make-client-csr.sh yildiz02.db.hlsd.com
+
+# get csrs signed with ca.db.hlsd.com /root/inter_ca_db/csr/
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz01.db.hlsd.com.csr -out issued/yildiz01.db.hlsd.com.cert.pem
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz02.db.hlsd.com.csr -out issued/yildiz02.db.hlsd.com.cert.pem
+
+# copy the signed certs back, then make pkcs12s
+cat inter_ca.cert.pem ca.cert.pem > ca-chained.cert.pem
+openssl pkcs12 -export -out yildiz01.db.hlsd.com.wallet.p12 -inkey yildiz01.db.hlsd.com.key.pem -in yildiz01.db.hlsd.com.cert.pem -certfile ca-chained.cert.pem
+openssl pkcs12 -export -out yildiz02.db.hlsd.comwallet.p12 -inkey yildiz02.db.hlsd.com.key.pem -in yildiz02.db.hlsd.com.cert.pem -certfile ca-chained.cert.pem
+
+# copy the pkcs to client, rename to ewallet.p12
+# client must have oracle client (not instant) for orapki
+orapki wallet display -wallet C:\dev\oracle_wallet\yildiz01_db_hlsd_com
+orapki wallet create -wallet C:\dev\oracle_wallet\yildiz01_db_hlsd_com -auto_login_local
+orapki wallet display -wallet C:\dev\oracle_wallet\yildiz01_db_hlsd_com
+
+# NOT WORKING YET!
