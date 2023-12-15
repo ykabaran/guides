@@ -45,12 +45,12 @@ host 192.168.1.254 adriana.qbity.app
 		packages nodejs
 
 	vm 10.13.2.32 john.hlsd.com
-		hardware 2vCPUs, 8GB RAM, 60GB disk
+		hardware 2vCPUs, 8GB RAM, 40GB disk
 		os ubuntu server 22.04
 		networks lan
 		packages nginx
 
-	vm 10.13.2.32 elk.hlsd.com
-	vm 10.13.2.36 archive01.hlsd.com
+	vm 10.13.2.33 elk.hlsd.com
+	vm 10.13.2.34 archive01.hlsd.com
 
 

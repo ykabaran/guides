@@ -9,6 +9,8 @@ sudo su -
 hostnamectl set-hostname caesar.hlsd.com
 nano /etc/hosts
 
+timedatectl set-timezone Europe/Nicosia
+
 apt update
 apt upgrade
 reboot

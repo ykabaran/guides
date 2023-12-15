@@ -1,0 +1,36 @@
+# set ip or add mac to pfsense
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@john.hlsd.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+hostnamectl set-hostname john.hlsd.com
+nano /etc/hosts
+
+timedatectl set-timezone Europe/Nicosia
+
+apt update
+apt upgrade
+reboot
+
+ufw enable
+ufw allow ssh
+
+cd /root
+mkdir pki
+cd pki
+mkdir server
+cd server
+nano openssl.conf
+# copy john.hlsd.com-openssl.conf file here
+
+openssl genrsa -out server.key.pem 4096
+openssl req -config openssl.conf -new -sha256 -key server.key.pem -out server.csr
+
+# copy the csr to ca.web.hlsd.com /root/inter_ca_vpn/csr/john.hlsd.com.csr
+openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/john.hlsd.com.csr -out issued/john.hlsd.com.cert.pem
+# copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, issued/john.hlsd.com.cert.pem into /root/pki/server
+
+install nginx
