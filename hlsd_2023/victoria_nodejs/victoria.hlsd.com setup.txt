@@ -68,4 +68,49 @@ openssl ca -config openssl.conf -gencrl -out crl.pem
 
 # copy the signed certs back together with crl
 
-install nodejs
+# install nvm, check repo for latest version https://github.com/nvm-sh/nvm
+add user unodejs
+su - unodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source .bashrc
+nvm -v
+nvm ls-remote
+nvm install 20.10.0
+node -v
+npm -v
+
+# install global packages
+npm i -g pm2
+npm i -g npm-check-updates
+# update npm is patch available
+
+# make app folders
+# copy app files (package.json, pm2.config.psj, app.json, run.js)
+# start app with pm2
+# save pm2 state
+# enable pm2 on startup
+
+# updating nodejs
+nvm install 20.xx.x
+nvm ls
+nvm use 20.xx.x
+
+pm2 -v
+ncu -v
+# re-install global packages if necessary
+
+# updating global packages
+ncu -g
+# update corepack, pm2, ncu, vs
+
+database: each server and client individually self-signed and added to each other
+vpn: vpn_ca per server -> server/client.crt
+root_ca
+	code_ca
+	web_ca
+web_server: 
+	root_web_chained_ca -> server.crt
+web_server_client:
+	root_web_chained_ca -> client.crt
+nginx_server:
+	hlsi.dev globally signed crt

@@ -8,15 +8,13 @@ local.config
 	public: {
 		app_id,
 		local_id,
-		ssl_public_key,
-		ssl_ca,
 		master_key // hex_shuffle(hash(local_id + env_id))
 	},
 	private: { // encrypted with master_key
 		admin_key,
-		ssl_private_key,
-		db_connection_info,
-		api_access_info // endpoint_manager only
+		ssl_identities, // [ ca_chain, crt, key, passphrase ]
+		db_connection_info, // endpoint_manager only
+		app_manager_access_info 
 	}
 }
 
@@ -131,3 +129,26 @@ app init cycle
 	await and stop database pools
 	notify manager/notify
 
+
+env
+	local.key.p1
+
+local public
+	app config (setup + params)
+	local.key.p2
+
+local private
+	admin key
+	ssl credentials (ca-chain, crt, key, passphrase)
+	app manager access info (url, ssl_credentials_name, shared_key)
+	app manager vault key
+
+app manager public
+	app config // overrides
+app manager vault
+	database connections
+	api access info
+
+
+
+admin key usage: localhost only

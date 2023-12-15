@@ -1,0 +1,383 @@
+
+default_table
+	id
+	create_date
+
+partitioned_table
+	partition_date
+
+changing_table
+	sync_date
+	change_date
+	change_tick
+
+data_change_log: partitioned_table(1d,7d,30d,90d,180d,360d)
+	table_name
+	data_id
+	data_snapshot
+
+app_permission: changing_table, change_log_table(360d)
+	name
+
+app_role: changing_table, change_log_table(360d)
+	name
+	role_index
+
+app_role_permission: changing_table, change_log_table(360d)
+	role_id
+	permission_id
+	permission_params
+
+app_endpoint: changing_table, change_log_table(360d)
+	name,
+	has_direct_access, // false is dbless_endpoint
+	user_id, // if endpoint needs outside access, e.g. dbless_endpoint
+	public_config: { public_key, app_key, ... }
+	private_config: { admin_key, private_key }
+
+app_endpoint_access: changing_table, change_log_table(360d)
+	client_id
+	server_id
+	server_url
+	server_public_config: { public_key }
+	server_private_config: { private_key, roles, shared_secret }
+	client_public_config: { public_key }
+	client_private_config: { private_key, shared_secret }
+
+app_endpoint_diagnostics: partitioned_table(1d)
+	endpoint_id
+	diagnostics_data
+
+app_device: changing_table, partitioned_table(30d), change_log_table(30d)
+	id
+	addresses
+	users
+	descriptions
+
+app_user: changing_table, change_log_table(360d)
+	email
+	password // encrypted with app_key
+	2fa
+	login_methods
+	status
+
+app_session: changing_table, partitioned_table(30d), change_log_table(7d)
+	refresh_keys: { // encrypted with app_key
+		current: { value: "", status: "switching" },
+		next: { value: "", status: "pending" }
+	},
+	update_tokens: { // encrypted with app_key
+		value: { status, valid_until }
+	},
+	2fa: { status, valid_until },
+	captcha: { status, valid_until },
+	device_id,
+	user_id,
+	roles,
+	status
+
+app_auth_key: partitioned_table(1d)
+	id,
+	uses,
+	key_type, // session_token, auth_token
+	shared_secret,
+	encryption_key,
+	public_key,
+	private_key,
+	endpoint_id, // if auth_token
+	roles, // key role subset
+	start_date,
+	end_date,
+	expire_date,
+	status
+
+
+
+admin_key
+	header x-message-signature
+	header x-admin
+	body: {
+		payload: base64-message
+	}
+
+shared_secret
+	header x-message-signature
+	header x-client-id / x-enpoint-server-id
+	header x-encryption-level: "none/client_only/server_only/full"
+	body: {
+		payload: base64-message // possibly public_key encrypted, possibly private_key signed
+	}
+
+session_token
+	header x-update-token // optional
+	cookie session_id // user_server/user only
+	cookie refresh_token // user_server/user only
+	cookie device_id
+	cookie session_token : {
+		key_id,
+		token: { // encryped with auth_key.encryption_key, decrypted with auth_key.private_key
+			session_id,
+			device_id,
+			user_id,
+			roles,
+			access_params,
+			valid_until
+		},
+		signature // signed with auth_key.shared_secret
+	}
+
+auth_token
+	body: {
+		auth_token: {
+			key_id,
+			token: { // encryped with auth_key.encryption_key, decrypted with auth_key.private_key
+				endpoint_id,
+				session_id,
+				device_id,
+				user_id,
+				permission,
+				valid_until,
+				create_sesion // if we want future requests without the token
+			},
+			signature // signed with auth_key.shared_secret
+		}
+	}
+
+auth_session
+	// use auth_token to create auth_session in memory
+	cookie session_id
+
+
+
+
+
+requests:
+endpoint_server/admin/add_client // admin_key
+										 /link_clients // admin_key
+										 /update_client // admin_key
+							 /client/update_config // shared_secret, P:update_endpoint_client_config
+							 				/get_client_roles // shared_secret, P:get_endpoint_client_roles
+
+other_server/admin/add_endpoint_server // admin_key
+other_server/manage_endpoint/make_client_config // shared_secret
+														/make_server_config // shared_secret
+														/get_client_roles // shared_secret
+														/get_diagnostics // shared_secret
+																						 // auth_token, P:get_endpoint_diagnostics
+
+other_server/service/method // shared_secret 
+														// session
+
+keys_server/client/get_active_keys // shared_secret, P:get_auth_keys
+																	 // session, P:get_auth_keys
+
+user_server/admin/create_root // admin_key
+					 /user/login
+					 			/logout
+					 			/refresh
+					 /session/get_update_token
+					 				 /verify_captcha
+					 				 /verify_2fa
+
+dbless_server/user/auth // auth_token -> auth_session
+						 /service/method // auth_session
+						 								 // auth_token (directly)
+
+
+admin_role
+	any
+
+endpoint_server_role
+	get_auth_keys(auth_signing)
+
+endpoint_client_role
+	update_endpoint_client_config
+	get_endpoint_client_roles(self_only)
+
+endpoint_manager_client_role
+	get_endpoint_client_roles(any)
+
+user_server_role
+	get_auth_keys(session_signing, auth_signing)
+
+dbless_server_role
+	get_auth_keys(auth_verifying for self)
+
+
+system_jobs:
+endpoint_server/update_shared_secrets
+endpoint_server/get_diagnostics
+keys_server/update_auth_keys
+dbless_server/keep_session_alive
+
+endpoints:
+endpoint_server
+keys_server
+user_server
+other_server
+dbless_server
+
+endpoint_access:
+endpoint_server
+	keys_server
+	user_server
+	other_server
+keys_server
+	user_server: select session signing keys
+	other_server: select session authentication keys
+	dbless_server?: select auth_token authentication keys, through user session
+
+
+db_users:
+db_admin // only used with binaries
+	select/insert/update/delete app_endpoint
+	select/insert/update/delete role/permission/role_permission
+endpoint_server // tracks and links other endpoints
+	select/update app_endpoint
+	select/insert/update app_endpoint_access
+keys_server // 
+	select app_endpoint
+	select app_endpoint_access
+	select app_role/app_permission/app_role_permission
+	select/insert/update auth_key
+user_server
+	select endpoint
+	select endpoint_access
+	select role/permission/role_permission
+	select/insert/update app_device
+	select/insert/update app_user
+	select/insert/update app_session
+other_server
+	select endpoint
+	select endpoint_access
+	select role/permission/role_permission
+
+
+
+
+bin/import_constants with db_role_admin
+	insert/update/delete
+	{ strings, permissions, roles, role_permissions }
+bin/create/update_endpoint with db_role_admin
+	input { id, name }
+	generate and insert into endpoint
+	return { enc_app_key, admin_key } // save both
+
+start endpoint_server with db_role select/update endpoint select/insert/update endpoint_access
+start user_server with db_role read endpoint/endpoint_access
+start another_server with db_role read endpoint/endpoint_access
+
+bin/create_endpoint_access endpoint_server.admin_key, endpoint_client.admin_key
+	request to endpoint_server/admin/add_client
+	hmac signed with admin_key
+	{
+		client_id,
+		client_url, // for server to reach
+		server_url, // for client to reach server
+		roles: [], // for server to know what the client can do
+		client_command: { // hmac signed with endpoint_client.admin_key
+			server_id,
+			action: "join",
+			valid_until
+		}
+	}
+		request to client_url/admin/add_endpoint_server
+		signed with endpoint_server.private_key
+		encrypted with endpoint_client.public_key
+		{
+			client_command,
+			shared_secret
+		}
+		hmac signed with shared_secret
+		{
+			client_public_config: { public_key }, // generated
+			client_private_config: { private_key, shared_secret } // encrypted with app_key
+		}
+	insert into endpoint_access
+		{
+			id, // uuid.v1
+			client_id,
+			server_id,
+			client_url,
+			server_url,
+			server_public_config: { public_key } // generate
+			server_private_config: { private_key, roles, shared_secret } // generate and from admin request
+			client_public_config: { public_key } // from endpoint_client
+			client_private_config: { private_key, shared_secret } // from endpoint_client
+		}
+
+bin/link_endpoint_access endpoint_server.admin_key
+	request to endpoint_server/admin/link_clients
+	hmac signed with admin_key
+	{
+		client_id,
+		server_id,
+		client_url,
+		server_url,
+		roles: []
+	}
+		request to client_url/manage_endpoint/make_client_config
+		hmac signed with shared_secret
+		encrypted with server.public_key
+		{
+			server_id,
+			shared_secret
+		}
+		hmac signed with shared_secret
+		{
+			client_public_config: { public_key }, // generated
+			client_private_config: { private_key, shared_secret } // encrypted with app_key
+		}
+		request to server_url/manage_endpoint/make_server_config
+		hmac signed with shared_secret
+		encrypted with endpoint_client.public_key
+		{
+			client_id,
+			roles: [],
+			shared_secret
+		}
+		hmac signed with shared_secret
+		{
+			server_public_config: { public_key }, // generated
+			server_private_config: { private_key, roles, shared_secret } // encrypted with app_key
+		}
+	insert into endpoint_access
+		{
+			id, // uuid.v1
+			client_id,
+			server_id,
+			client_url,
+			server_url,
+			server_public_config: { public_key } // from server
+			server_private_config: { private_key, roles, shared_secret } // from server
+			client_public_config: { public_key } // from client
+			client_private_config: { private_key, shared_secret } // from client
+		}
+
+system_job endpoint_server/update_shared_secrets
+	request to client_url/manage_endpoint/make_client_config
+	request to server_url/manage_endpoint/make_server_config or if self handle internally
+	update endpoint_access
+
+bin/update_endpoint_access endpoint_server.admin_key
+	request endpoint_server/admin/update_client
+	hmac signed with admin_key
+	{
+		server_id, // might be self
+		client_id,
+		client_url,
+		server_url,
+		roles: [],
+		reset_secret: true
+	}
+		request to client_url/manage_endpoint/get_client_config
+		request to server_url/manage_endpoint/get_server_config or if self handle internally
+	update endpoint_access
+
+all with hmac authentication from clients to endpoint_server, not all clients have the same role
+	endpoint_server/client/update_config
+		{ client_public_config, client_private_config	}
+	endpoint_server/client/get_client_roles
+		{ server_id, client_id }
+		caller might have permissin for own client_id only
+		request to server/manage_endpoint/get_client_roles
