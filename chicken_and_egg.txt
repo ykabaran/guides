@@ -152,3 +152,50 @@ app manager vault
 
 
 admin key usage: localhost only
+
+
+user_request
+	device_cookie
+		device_id
+	session_cookie
+		key_id
+		encrypted_data
+			user_id
+			device_id
+			session_id
+			instance_id // changes 10 min
+		validity_interval
+		signature
+
+	update_token_header
+		token_id // one time use
+	request_header
+		request_id // time sensitive (+-10min)
+
+	body
+		role_token
+			role_id
+			role_data
+			session_id
+			instance_id
+			signature
+		request_data
+
+
+/user/refresh
+	set device_cookie
+	set session_cookie
+	return role_tokens
+/user/login
+	set session_cookie
+	return role_tokens
+/user/logout
+	set session_cookie
+	return role_tokens
+/user/get_update_tokens
+	return update_tokens
+
+client_request
+	body
+		client_token
+			
