@@ -5,11 +5,15 @@ select * from v$logfile;
 select * from DBA_DATA_FILES;
 select * from SYS.DBA_TABLESPACES;
 
-alter database datafile '/uoradata/LORENA/system01.dbf' size 2G autoextend off;
-alter database datafile '/uoradata/LORENA/sysaux01.dbf' size 4G autoextend off;
+alter database datafile '/uoradata/LORENA/system01.dbf' resize 2G;
+alter database datafile '/uoradata/LORENA/system01.dbf' autoextend off;
+alter database datafile '/uoradata/LORENA/sysaux01.dbf' resize 4G;
+alter database datafile '/uoradata/LORENA/sysaux01.dbf' autoextend off;
 ALTER TABLESPACE sysaux
      ADD DATAFILE '/uoradata/LORENA/sysaux02.dbf' size 4G autoextend off;
-alter database datafile '/uoradata/LORENA/users01.dbf' size 4G autoextend off;
+
+alter database datafile '/uoradata/LORENA/users01.dbf' resize 1G;
+alter database datafile '/uoradata/LORENA/users01.dbf' autoextend off;
 alter database datafile '/uoradata/LORENA/undotbs01.dbf' resize 4G;
 alter database datafile '/uoradata/LORENA/undotbs01.dbf' autoextend off;
 ALTER TABLESPACE undotbs1

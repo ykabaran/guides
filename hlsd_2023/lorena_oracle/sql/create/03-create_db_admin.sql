@@ -1,4 +1,4 @@
-alter session set current_schema=db_Admin;
+alter session set current_schema=db_admin;
 
 -- select * from dba_part_tables where owner = 'DB_ADMIN';
 -- select * from dba_part_indexes where owner = 'DB_ADMIN';
@@ -43,6 +43,37 @@ interval (numtodsinterval(7,'day'))
   (to_date('2022-01-01','YYYY-MM-DD'))
 );
 /
+
+create view VIEW_TABLESPACE_STATUS
+AS select
+   fs.tablespace_name                          "Tablespace",
+   (df.totalspace - fs.freespace)              "Used MB",
+   fs.freespace                                "Free MB",
+   df.totalspace                               "Total MB",
+   df.MaxSpace                               "Max MB",
+   round(100 * (fs.freespace / df.totalspace)) "Curr Pct. Free",
+   round(100 * ((df.MaxSpace - (df.totalspace - fs.freespace)) / df.MaxSpace)) "Max Pct. Free"
+from
+   (select
+      tablespace_name,
+      round(sum(bytes) / 1048576) TotalSpace,
+      round(sum(decode(nvl(maxbytes,0),0, bytes,maxbytes)) / 1048576) MaxSpace
+   from
+      sys.dba_data_files
+   group by
+      tablespace_name
+   ) df,
+   (select
+      tablespace_name,
+      round(sum(bytes) / 1048576) FreeSpace
+   from
+      sys.dba_free_space
+   group by
+      tablespace_name
+   ) fs
+where
+   df.tablespace_name = fs.tablespace_name;
+
 
 create PACKAGE pkg_log
 AS
