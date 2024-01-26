@@ -1,0 +1,72 @@
+# set ip or add mac to pfsense
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@bunny.hlsd.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+hostnamectl set-hostname bunny.hlsd.com
+nano /etc/hosts
+
+timedatectl set-timezone Europe/Nicosia
+
+apt update
+apt upgrade
+reboot
+
+ufw enable
+ufw allow ssh
+
+# as root
+sudo /root
+nona install_rmq.sh
+# copy the contents
+chmod 744 install_rmq.sh
+. install_rmq.sh
+
+systemctl start rabbitmq-server start
+systemctl start rabbitmq-server enable
+
+rabbitmq-diagnostics status
+
+rabbitmqctl add_vhost lsinplay --description "LS Inplay Replica" 
+rabbitmqctl add_user ls_inplay_prod ""
+rabbitmqctl add_user ls_inplay_cons ""
+rabbitmqctl set_permissions -p lsinplay ls_inplay_prod ".*" ".*" ".*"
+rabbitmqctl set_permissions -p lsinplay ls_inplay_cons "" "" ".*"
+
+rabbitmqctl add_vhost lsprematch --description "LS Prematch Replica" 
+rabbitmqctl add_user ls_prematch_prod ""
+rabbitmqctl add_user ls_prematch_cons ""
+rabbitmqctl set_permissions -p lsprematch ls_prematch_prod ".*" ".*" ".*"
+rabbitmqctl set_permissions -p lsprematch ls_prematch_cons "" "" ".*"
+
+rabbitmqctl add_vhost pa_greyhounds --description "PA Greyhounds Replica" 
+rabbitmqctl add_user pa_greyhounds_prod ""
+rabbitmqctl add_user pa_greyhounds_cons ""
+rabbitmqctl set_permissions -p pa_greyhounds pa_greyhounds_prod ".*" ".*" ".*"
+rabbitmqctl set_permissions -p pa_greyhounds pa_greyhounds_cons "" "" ".*"
+
+rabbitmqctl add_vhost pa_horses --description "PA Horses Replica" 
+rabbitmqctl add_user pa_horses_prod ""
+rabbitmqctl add_user pa_horses_cons ""
+rabbitmqctl set_permissions -p pa_horses pa_horses_prod ".*" ".*" ".*"
+rabbitmqctl set_permissions -p pa_horses pa_horses_cons "" "" ".*"
+
+# rabbitmqctl change_password ls_inplay_prod ""
+
+rabbitmqctl list_queues -p lsinplay arguments messages consumers
+rabbitmqctl list_queues -p lsprematch arguments messages consumers
+rabbitmqctl list_queues -p pa_greyhounds arguments messages consumers
+rabbitmqctl list_queues -p pa_horses arguments messages consumers
+
+rabbitmqctl purge_queue -p lsinplay _queue_
+rabbitmqctl purge_queue -p lsprematch _queue_
+rabbitmqctl purge_queue -p pa_greyhounds _queue_
+rabbitmqctl purge_queue -p pa_horses _queue_
+
+rabbitmqctl delete_queue -p lsinplay _queue_
+rabbitmqctl delete_queue -p lsprematch _queue_
+rabbitmqctl delete_queue -p pa_greyhounds _queue_
+rabbitmqctl delete_queue -p pa_horses _queue_

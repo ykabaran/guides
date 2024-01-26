@@ -1,29 +1,36 @@
 #Adriana VM Host
-192.168.1.254 adriana.qbity.app
+192.168.1.254
+10.13.40.10 adriana.qbity.app
 
 #Achilles PFSense
 10.13.2.1 achilles.qbity.app
 
 #Caesar HLSD CA
-10.13.2.9 caesar.hlsd.com
+10.13.40.9 caesar.hlsd.com
 
 #Yildiz PC 
-10.13.2.11 yildiz.localdomain.com
+10.13.30.11 yildiz.hlsd.com
 
 #Yasin PC	 
-10.13.2.12 yasin.localdomain.com
+10.13.30.12 yasin.hlsd.com
 
 #Zafer PC	 
-10.13.2.13 zafer.localdomain.com
+10.13.30.13 zafer.hlsd.com
 
 #Heimdall HLSD VPN	
-10.13.2.20 heimdall.hlsd.com
+10.13.40.20 heimdall.hlsd.com
 
 #Lorena HLSD DB
-10.13.2.30 lorena.hlsd.com
+10.13.40.30 lorena.hlsd.com
 
 #Victoria HLSD NodeJs
-10.13.2.31 victoria.hlsd.com
+10.13.40.31 victoria.hlsd.com
 
 #John HLSD Nginx
-10.13.2.32 john.hlsd.com
+10.13.40.32 john.hlsd.com
+
+#Nancy HLSD TrueNAS
+10.13.40.33 nancy.hlsd.com
+
+#Bunny HLSD RammitMQ
+10.13.40.34 bunny.hlsd.com

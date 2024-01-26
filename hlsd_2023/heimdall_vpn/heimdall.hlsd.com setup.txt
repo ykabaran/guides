@@ -58,8 +58,10 @@ nano server.conf
 	# uncomment
 	topology subnet
 
-	server 10.13.20.0 255.255.255.0
+	server 10.13.25.0 255.255.255.0
 	push "route 10.13.2.0 255.255.255.0"
+	push "route 10.13.30.0 255.255.255.0"
+	push "route 10.13.40.0 255.255.255.0"
 
 	# uncomment, don't use compression
 	client-config-dir ccd 
@@ -93,7 +95,7 @@ nano /etc/ufw/before.rules
 	:POSTROUTING ACCEPT [0:0]
 	 
 	# Forward traffic from tun0 through ens160.
-	-A POSTROUTING -s 10.13.20.0/24 -o ens160 -j MASQUERADE
+	-A POSTROUTING -s 10.13.25.0/24 -o ens160 -j MASQUERADE
 	 
 	# don't delete the 'COMMIT' line or these nat table rules won't be processed
 	COMMIT
@@ -152,14 +154,14 @@ openssl ca -config openssl.conf -gencrl -out crl.pem
 
 cd /etc/openvpn/ccd
 # set client ips
-echo "ifconfig-push 10.13.20.11 255.255.255.0" > yildiz01.vpn.hlsd.com
-echo "ifconfig-push 10.13.20.12 255.255.255.0" > yildiz02.vpn.hlsd.com
-echo "ifconfig-push 10.13.20.13 255.255.255.0" > yildiz03.vpn.hlsd.com
-echo "ifconfig-push 10.13.20.21 255.255.255.0" > aykut01.vpn.hlsd.com
-echo "ifconfig-push 10.13.20.22 255.255.255.0" > aykut02.vpn.hlsd.com
-echo "ifconfig-push 10.13.20.23 255.255.255.0" > aykut03.vpn.hlsd.com
-echo "ifconfig-push 10.13.20.31 255.255.255.0" > zafer01.vpn.hlsd.com
-echo "ifconfig-push 10.13.20.41 255.255.255.0" > yasin01.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.11 255.255.255.0" > yildiz01.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.12 255.255.255.0" > yildiz02.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.13 255.255.255.0" > yildiz03.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.21 255.255.255.0" > aykut01.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.22 255.255.255.0" > aykut02.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.23 255.255.255.0" > aykut03.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.31 255.255.255.0" > zafer01.vpn.hlsd.com
+echo "ifconfig-push 10.13.25.41 255.255.255.0" > yasin01.vpn.hlsd.com
 
 systemctl start openvpn@server
 systemctl enable openvpn@server
