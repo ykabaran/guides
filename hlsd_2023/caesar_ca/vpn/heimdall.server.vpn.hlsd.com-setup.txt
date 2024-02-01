@@ -1,0 +1,113 @@
+# create VPN CA
+cd /root/pki
+mkdir ca_hlsd_vpn
+cd ca_hlsd_vpn 
+mkdir certs private csr newcerts issued revoked crl
+chmod 700 private
+touch index.txt
+echo 1000 > serial
+echo 1000 > crlnumber
+nano openssl.conf
+# copy vpn/ca.vpn.hlsd.com-openssl.conf file here
+
+openssl genrsa -aes256 -out private/ca.key 4096
+chmod 600 private/ca.key
+openssl req -config openssl.conf -key private/ca.key -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.crt
+
+# verify
+openssl x509 -noout -text -in certs/ca.crt
+
+# generate empty crl
+openssl ca -config openssl.conf -gencrl -out crl.pem
+
+mkdir server
+cd server
+nano openssl.conf
+# copy vpn/heimdall.server.vpn.hlsd.com-openssl.conf file here
+
+openssl genrsa -aes256 -out private.key 4096
+chmod 600 private.key
+openssl req -config openssl.conf -new -sha256 -key private.key -out server.csr
+
+cd /root/pki/ca_hlsd_vpn
+cp server/server.csr csr/heimdall.server.vpn.hlsd.com.csr
+openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/heimdall.server.vpn.hlsd.com.csr -out issued/heimdall.server.vpn.hlsd.com.crt
+cp certs/ca.crt server/ca.crt
+cp issued/heimdall.server.vpn.hlsd.com.crt server/server.crt
+cd server
+openssl pkcs12 -export -out server.p12 -inkey private.key -in server.crt -certfile ca.crt
+
+# import ca.crt, crl.pem, and server.p12 into Achilles PFSense
+# create the OpenVpn Server
+Remote Accesss SSL/TLS
+tun, UDP IPv4, port 10194 on WAN
+use and generate tls, key usage mode is both enc and auth, direction 0
+choose the imported certificates/crls, no OCSP, 2048bit DH, AES-256-GCM with CBC fallback, SHA-256
+tunnel network 10.13.25.0/24
+access to 10.13.30.0/24,10.13.40.0/24
+allow inter client communication
+topology subnet
+
+# Configure Firewall
+create alias for DEV_VPN set to 10.13.25.0/24
+add allow rules for DEV_VPN, DEV and SERV subnets, block from firewall https access
+add allow rule for WAN address 10194
+
+# copy the generated ta.key back to server/ta.key
+chmod 600 server/ta.key
+
+cd /root/pki/ca_hlsd_vpn
+mkdir client
+cp certs/ca.crt client/
+cp server/ta.key client/
+cd client
+mkdir issued
+# copy vpn/[make-vpn-client.sh, vpn-client.conf, client.vpn.hlsd.com-openssl.conf] here
+chmod u+x make-vpn-client.sh
+
+# make clients
+./make-vpn-client.sh yildiz01.client.vpn.hlsd.com
+./make-vpn-client.sh yildiz02.client.vpn.hlsd.com
+./make-vpn-client.sh yildiz03.client.vpn.hlsd.com
+
+# to revoke a certificate
+cd /root/pki/ca_hlsd_vpn
+openssl ca -config openssl.conf -revoke issued/yildiz03.client.vpn.hlsd.com.crt
+mv issued/yildiz03.client.vpn.hlsd.com.crt revoked/202401271756_yildiz03.client.vpn.hlsd.com.crt
+cd client
+rm -rf yildiz03.client.vpn.hlsd.com
+rm issued/yildiz03.client.vpn.hlsd.com.*
+
+# make more clients
+./make-vpn-client.sh yildiz03.client.vpn.hlsd.com
+./make-vpn-client.sh aykut01.client.vpn.hlsd.com
+./make-vpn-client.sh aykut02.client.vpn.hlsd.com
+./make-vpn-client.sh aykut03.client.vpn.hlsd.com
+./make-vpn-client.sh zafer01.client.vpn.hlsd.com
+./make-vpn-client.sh zafer02.client.vpn.hlsd.com
+./make-vpn-client.sh yasin01.client.vpn.hlsd.com
+./make-vpn-client.sh yasin02.client.vpn.hlsd.com
+./make-vpn-client.sh muhammed01.client.vpn.hlsd.com
+./make-vpn-client.sh muhammed02.client.vpn.hlsd.com
+
+# generate crl
+openssl ca -config openssl.conf -gencrl -out crl.pem
+# add crl to firewall
+
+# add Client Specific Overrides to Firewall
+yildiz01.client.vpn.hlsd.com, ifconfig-push 10.13.25.11 255.255.255.0
+yildiz02.client.vpn.hlsd.com, ifconfig-push 10.13.25.12 255.255.255.0
+yildiz03.client.vpn.hlsd.com, ifconfig-push 10.13.25.13 255.255.255.0
+aykut01.client.vpn.hlsd.com, ifconfig-push 10.13.25.21 255.255.255.0
+aykut02.client.vpn.hlsd.com, ifconfig-push 10.13.25.22 255.255.255.0
+aykut03.client.vpn.hlsd.com, ifconfig-push 10.13.25.23 255.255.255.0
+zafer01.client.vpn.hlsd.com, ifconfig-push 10.13.25.31 255.255.255.0
+zafer02.client.vpn.hlsd.com, ifconfig-push 10.13.25.32 255.255.255.0
+yasin01.client.vpn.hlsd.com, ifconfig-push 10.13.25.41 255.255.255.0
+yasin02.client.vpn.hlsd.com, ifconfig-push 10.13.25.42 255.255.255.0
+muhammed01.client.vpn.hlsd.com, ifconfig-push 10.13.25.51 255.255.255.0
+muhammed02.client.vpn.hlsd.com, ifconfig-push 10.13.25.52 255.255.255.0
+
+# backup ca
+cd /root/pki
+7z a -p ca_hlsd_vpn_date.7z ca_hlsd_vpn

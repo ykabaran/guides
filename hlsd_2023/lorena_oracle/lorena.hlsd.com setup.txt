@@ -226,9 +226,9 @@ reboot
 create_tablespaces.sql
 crete_users.sql
 create_db_admin.sql
-# done up to here, rest is pending
-create_app_log.sql
 create_app_core.sql
+# TODO done up to here, rest is pending
+create_app_log.sql
 create...sql
 
 # as oracle 
@@ -263,7 +263,6 @@ cd /root/pki/server
 cat inter_ca.cert.pem ca.cert.pem > ca-chained.cert.pem
 
 openssl pkcs12 -export -out wallet.p12 -inkey server.key.pem -in server.cert.pem -certfile ca-chained.cert.pem
-openssl pkcs12 -export -out wallet.p12 -inkey wallet.key.pem -in wallet.cert.pem -chain -CAfile ca-chain.cert.pem
 
 # copy wallet source p12
 mkdir /uora/app/wallet

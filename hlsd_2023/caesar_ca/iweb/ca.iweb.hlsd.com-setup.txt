@@ -1,0 +1,50 @@
+# create CA
+cd /root/pki
+mkdir ca_hlsd_iweb
+cd ca_hlsd_iweb 
+mkdir certs private csr newcerts issued revoked crl
+chmod 700 private
+touch index.txt
+echo 1000 > serial
+echo 1000 > crlnumber
+mkdir server client server/issued client/issued
+
+# copy iweb/ca.iweb.hlsd.com-openssl.conf file here
+nano openssl.conf
+# copy iweb/make-identity.sh
+nano make-identity.sh
+
+{
+openssl genrsa -aes256 -out private/ca.key 4096
+chmod 600 private/ca.key
+openssl req -config openssl.conf -key private/ca.key -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.crt
+cp certs/ca.crt server/
+cp certs/ca.crt client/
+chmod u+x make-identity.sh
+}
+
+# verify
+openssl x509 -noout -text -in certs/ca.crt
+
+# make servers
+./make-identity.sh yildiz server iweb.hlsd.com
+./make-identity.sh zafer server iweb.hlsd.com
+./make-identity.sh yasin server iweb.hlsd.com
+./make-identity.sh muhammed server iweb.hlsd.com
+./make-identity.sh victoria server iweb.hlsd.com
+./make-identity.sh bunny server iweb.hlsd.com
+
+# make clients
+./make-identity.sh yildiz client iweb.hlsd.com
+./make-identity.sh zafer client iweb.hlsd.com
+./make-identity.sh yasin client iweb.hlsd.com
+./make-identity.sh muhammed client iweb.hlsd.com
+./make-identity.sh victoria client iweb.hlsd.com
+./make-identity.sh john client iweb.hlsd.com
+
+# generate crl
+openssl ca -config openssl.conf -gencrl -out crl.pem
+
+# backup ca
+cd /root/pki
+7z a -p ca_hlsd_iweb.7z ca_hlsd_iweb

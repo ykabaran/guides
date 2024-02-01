@@ -39,6 +39,3 @@ grant connect to app_log_reader;
 grant connect to app_log_writer;
 grant connect to app_core_reader;
 grant connect to app_core_writer;
-
-create user app_test_user01 identified by "";
-grant app_core_reader to app_test_user01;

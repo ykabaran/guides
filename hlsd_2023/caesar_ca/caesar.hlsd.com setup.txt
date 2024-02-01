@@ -18,7 +18,13 @@ reboot
 ufw enable
 ufw allow ssh
 
+apt install p7zip-full
+
+# general stuff
+# ca
 cd /root
+mkdir pki
+cd pki
 mkdir ca
 cd ca 
 mkdir certs private csr newcerts issued
@@ -28,110 +34,70 @@ echo 1000 > serial
 nano openssl.conf
 # copy ca.hlsd.com-openssl.conf file here
 
-openssl genrsa -aes256 -out private/ca.key.pem 4096
-chmod 400 private/ca.key.pem
-openssl req -config openssl.conf -key private/ca.key.pem -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.cert.pem
+openssl genrsa -aes256 -out private/ca.key 4096
+chmod 400 private/ca.key
+openssl req -config openssl.conf -key private/ca.key -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.crt
 
 # verify
-openssl x509 -noout -text -in certs/ca.cert.pem
+openssl x509 -noout -text -in certs/ca.crt
 
 
-# also create intermed CAs
-# create VPN CA
-cd /root
-mkdir inter_ca_vpn
-cd inter_ca_vpn 
-mkdir certs private csr newcerts issued revoked crl
-chmod 700 private
-touch index.txt
-echo 1000 > serial
-echo 1000 > crlnumber
-nano openssl.conf
-# copy ca.vpn.hlsd.com-openssl.conf file here
-
-openssl genrsa -aes256 -out private/inter_ca.key.pem 4096
-chmod 400 private/inter_ca.key.pem
-
-openssl req -config openssl.conf -new -sha256 -key private/inter_ca.key.pem -out inter_ca.csr
-
-cp /root/inter_ca_vpn/inter_ca.csr /root/ca/csr/inter_ca_vpn.csr
-cd /root/ca
-openssl ca -config openssl.conf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in csr/inter_ca_vpn.csr -out issued/inter_ca_vpn.cert.pem
-cp /root/ca/certs/ca.cert.pem /root/inter_ca_vpn/certs/ca.cert.pem
-cp /root/ca/issued/inter_ca_vpn.cert.pem /root/inter_ca_vpn/certs/inter_ca.cert.pem
-
-cd /root/inter_ca_vpn
-# verify
-openssl x509 -noout -text -in certs/inter_ca.cert.pem
-openssl verify -CAfile certs/ca.cert.pem certs/inter_ca.cert.pem
-
-# generate empty crl
-openssl ca -config openssl.conf -gencrl -out crl.pem
-
-
-# create DB CA
-cd /root
-mkdir inter_ca_db
-cd inter_ca_db
-mkdir certs private csr newcerts issued revoked crl
-chmod 700 private
-touch index.txt
-echo 1000 > serial
-echo 1000 > crlnumber
-nano openssl.conf
-# copy ca.db.hlsd.com-openssl.conf file here
-
-openssl genrsa -aes256 -out private/inter_ca.key.pem 4096
-chmod 400 private/inter_ca.key.pem
-
-openssl req -config openssl.conf -new -sha256 -key private/inter_ca.key.pem -out inter_ca.csr
-
-cp /root/inter_ca_db/inter_ca.csr /root/ca/csr/inter_ca_db.csr
-cd /root/ca
-openssl ca -config openssl.conf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in csr/inter_ca_db.csr -out issued/inter_ca_db.cert.pem
-cp /root/ca/certs/ca.cert.pem /root/inter_ca_db/certs/ca.cert.pem
-cp /root/ca/issued/inter_ca_db.cert.pem /root/inter_ca_db/certs/inter_ca.cert.pem
-
-cd /root/inter_ca_db
-# verify
-openssl x509 -noout -text -in certs/inter_ca.cert.pem
-openssl verify -CAfile certs/ca.cert.pem certs/inter_ca.cert.pem
-
-# generate empty crl
-openssl ca -config openssl.conf -gencrl -out crl.pem
-
-
+# intermed ca
 # create Web CA
-cd /root
-mkdir inter_ca_web
-cd inter_ca_web
+cd /root/pki
+mkdir inter_ca
+cd inter_ca
 mkdir certs private csr newcerts issued revoked crl
 chmod 700 private
 touch index.txt
 echo 1000 > serial
 echo 1000 > crlnumber
 nano openssl.conf
-# copy ca.web.hlsd.com-openssl.conf file here
+# copy ca.inter.hlsd.com-openssl.conf file here
 
-openssl genrsa -aes256 -out private/inter_ca.key.pem 4096
-chmod 400 private/inter_ca.key.pem
+openssl genrsa -aes256 -out private/inter_ca.key 4096
+chmod 400 private/inter_ca.key
 
-openssl req -config openssl.conf -new -sha256 -key private/inter_ca.key.pem -out inter_ca.csr
+openssl req -config openssl.conf -new -sha256 -key private/inter_ca.key -out inter_ca.csr
 
-cp /root/inter_ca_web/inter_ca.csr /root/ca/csr/inter_ca_web.csr
+cp /root/inter_ca/inter_ca.csr /root/ca/csr/inter_ca.csr
 cd /root/ca
-openssl ca -config openssl.conf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in csr/inter_ca_web.csr -out issued/inter_ca_web.cert.pem
-cp /root/ca/certs/ca.cert.pem /root/inter_ca_web/certs/ca.cert.pem
-cp /root/ca/issued/inter_ca_web.cert.pem /root/inter_ca_web/certs/inter_ca.cert.pem
+openssl ca -config openssl.conf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in csr/inter_ca.csr -out issued/inter_ca.crt
+cp /root/ca/certs/ca.crt /root/inter_ca/certs/ca.crt
+cp /root/ca/issued/inter_ca.crt /root/inter_ca/certs/inter_ca.crt
 
-cd /root/inter_ca_web
+cd /root/inter_ca
 # verify
-openssl x509 -noout -text -in certs/inter_ca.cert.pem
-openssl verify -CAfile certs/ca.cert.pem certs/inter_ca.cert.pem
+openssl x509 -noout -text -in certs/inter_ca.crt
+openssl verify -CAfile certs/ca.crt certs/inter_ca.crt
 
 # to revoke a sertificate
-openssl ca -config openssl.conf -revoke issued/cn.cert.pem
-mv issued/cn.cert.pem revoked/date_cn.cert.pem
+openssl ca -config openssl.conf -revoke issued/cn.crt
+mv issued/cn.crt revoked/date_cn.crt
 
 # generate crl
 openssl ca -config openssl.conf -gencrl -out crl.pem
+
+# sign server
+cd /root/ca
+cp server/cn/server.csr csr/cn.csr
+openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/cn.csr -out issued/cn.crt
+cp certs/ca.crt server/ca.crt
+cp issued/cn.crt server/cn/server.crt
+cd server
+openssl pkcs12 -export -out cn.p12 -inkey cn/private.key -in cn/server.crt -certfile ca.crt
+
+# sign client
+cd /root/ca
+cp client/cn/client.csr csr/cn.csr
+openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/cn.csr -out issued/cn.crt
+cp issued/cn.crt client/cn/client.crt
+cd client
+openssl pkcs12 -export -out issued/cn.p12 -inkey cn/private.key -in cn/client.crt -certfile ca.crt
+
+# change password
+openssl rsa -aes256 -in private.key -out private.new.key
+
+# backup ca
+cd /root/pki
+7z a -p ca.7z ca_hlsd_vpn
