@@ -1,3 +1,5 @@
+-- SKIPPED
+
 alter session set current_schema=app_log;
 
 /*

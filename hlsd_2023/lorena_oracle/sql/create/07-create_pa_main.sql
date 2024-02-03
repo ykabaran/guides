@@ -31,4 +31,4 @@ ALTER TABLE pa_feed_file ADD CONSTRAINT pk_pa_feed_file PRIMARY KEY (id) USING I
 CREATE INDEX ind_pa_feed_file_file_date ON pa_feed_file (file_date) tablespace APP_MAIN_INDEX;
 
 create role pa_feed_writer;
-grant insert on pa_feed_file to pa_feed_writer;
+grant select,insert on pa_feed_file to pa_feed_writer;

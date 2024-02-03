@@ -19,8 +19,8 @@ ufw enable
 ufw allow ssh
 
 # as root
-sudo /root
-nona install_rmq.sh
+cd /root
+nano install_rmq.sh
 # copy the contents
 # source: https://www.rabbitmq.com/install-debian.html#apt-cloudsmith
 chmod 744 install_rmq.sh
@@ -29,45 +29,44 @@ chmod 744 install_rmq.sh
 systemctl start rabbitmq-server start
 systemctl start rabbitmq-server enable
 
+ufw allow 5672/tcp
+
 rabbitmq-diagnostics status
 
-rabbitmqctl add_vhost lsinplay --description "LS Inplay Replica" 
+rabbitmqctl add_vhost lsports --description "LSports Related Queues" 
 rabbitmqctl add_user ls_inplay_prod ""
 rabbitmqctl add_user ls_inplay_cons ""
-rabbitmqctl set_permissions -p lsinplay ls_inplay_prod ".*" ".*" ".*"
-rabbitmqctl set_permissions -p lsinplay ls_inplay_cons "" "" ".*"
-
-rabbitmqctl add_vhost lsprematch --description "LS Prematch Replica" 
+rabbitmqctl set_permissions -p lsports ls_inplay_prod "_inplay_" "amq.default|_inplay_" "amq.default|_inplay_"
+rabbitmqctl set_permissions -p lsports ls_inplay_cons "" "" "amq.default|_inplay_"
 rabbitmqctl add_user ls_prematch_prod ""
 rabbitmqctl add_user ls_prematch_cons ""
-rabbitmqctl set_permissions -p lsprematch ls_prematch_prod ".*" ".*" ".*"
-rabbitmqctl set_permissions -p lsprematch ls_prematch_cons "" "" ".*"
+rabbitmqctl set_permissions -p lsports ls_prematch_prod "_prematch_" "amq.default|_prematch_" "amq.default|_prematch_"
+rabbitmqctl set_permissions -p lsports ls_prematch_cons "" "" "amq.default|_prematch_"
 
-rabbitmqctl add_vhost pa_greyhounds --description "PA Greyhounds Replica" 
-rabbitmqctl add_user pa_greyhounds_prod ""
-rabbitmqctl add_user pa_greyhounds_cons ""
-rabbitmqctl set_permissions -p pa_greyhounds pa_greyhounds_prod ".*" ".*" ".*"
-rabbitmqctl set_permissions -p pa_greyhounds pa_greyhounds_cons "" "" ".*"
+rabbitmqctl add_vhost arc_pa --description "Arc TV and PA Related Queues" 
+rabbitmqctl add_user pa_prod ""
+rabbitmqctl add_user pa_cons ""
+rabbitmqctl set_permissions -p arc_pa pa_prod "_feed_" "amq.default|_feed_" "amq.default|_feed_"
+rabbitmqctl set_permissions -p arc_pa pa_cons "" "" "amq.default|_feed_"
 
-rabbitmqctl add_vhost pa_horses --description "PA Horses Replica" 
-rabbitmqctl add_user pa_horses_prod ""
-rabbitmqctl add_user pa_horses_cons ""
-rabbitmqctl set_permissions -p pa_horses pa_horses_prod ".*" ".*" ".*"
-rabbitmqctl set_permissions -p pa_horses pa_horses_cons "" "" ".*"
+rabbitmqctl add_vhost flashscore --description "Flashscore Related Queues" 
+rabbitmqctl add_user fs_prod ""
+rabbitmqctl add_user fs_cons ""
+rabbitmqctl set_permissions -p flashscore fs_prod "_feed_" "amq.default|_feed_" "amq.default|_feed_"
+rabbitmqctl set_permissions -p flashscore fs_cons "" "" "amq.default|_feed_"
 
 # rabbitmqctl change_password ls_inplay_prod ""
 
-rabbitmqctl list_queues -p lsinplay arguments messages consumers
-rabbitmqctl list_queues -p lsprematch arguments messages consumers
-rabbitmqctl list_queues -p pa_greyhounds arguments messages consumers
-rabbitmqctl list_queues -p pa_horses arguments messages consumers
+rabbitmqctl list_queues -p lsports name arguments messages consumers
+rabbitmqctl list_queues -p arc_pa name arguments messages consumers
+rabbitmqctl list_queues -p flashscore name arguments messages consumers
 
-rabbitmqctl purge_queue -p lsinplay _queue_
-rabbitmqctl purge_queue -p lsprematch _queue_
-rabbitmqctl purge_queue -p pa_greyhounds _queue_
-rabbitmqctl purge_queue -p pa_horses _queue_
+rabbitmqctl purge_queue -p lsports _inplay_
+rabbitmqctl purge_queue -p lsports _prematch_
+rabbitmqctl purge_queue -p arc_pa _feed_
+rabbitmqctl purge_queue -p flashscore _feed_
 
-rabbitmqctl delete_queue -p lsinplay _queue_
-rabbitmqctl delete_queue -p lsprematch _queue_
-rabbitmqctl delete_queue -p pa_greyhounds _queue_
-rabbitmqctl delete_queue -p pa_horses _queue_
+rabbitmqctl delete_queue -p lsports _inplay_
+rabbitmqctl delete_queue -p lsports _prematch_
+rabbitmqctl delete_queue -p arc_pa _feed_
+rabbitmqctl delete_queue -p flashscore _feed_
