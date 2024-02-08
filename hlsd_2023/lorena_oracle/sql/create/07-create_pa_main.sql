@@ -5,6 +5,7 @@ create user pa_main identified by ""
   quota unlimited on APP_LOG;
 
 grant connect, resource to pa_main;
+alter session set current_schema = pa_main;
 
 create table pa_feed_file (
   id number(32,0),

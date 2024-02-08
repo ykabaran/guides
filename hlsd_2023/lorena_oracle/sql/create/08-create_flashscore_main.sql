@@ -5,6 +5,7 @@ create user fs_main identified by ""
   quota unlimited on APP_LOG;
 
 grant connect, resource to fs_main;
+alter session set current_schema = fs_main;
 
 create table fs_feed_file (
   id number(32,0),
@@ -30,5 +31,5 @@ interval (numtodsinterval(1,'day'))
 ALTER TABLE fs_feed_file ADD CONSTRAINT pk_fs_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 CREATE INDEX ind_fs_feed_file_file_date ON fs_feed_file (file_date) tablespace APP_MAIN_INDEX;
 
-create role fa_feed_writer;
-grant select,insert on fa_feed_file to fs_feed_writer;
+create role fs_feed_writer;
+grant select,insert on fs_feed_file to fs_feed_writer;
