@@ -21,7 +21,7 @@ create table fs_feed_file (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default sysdate
+  partition_date date default trunc(sysdate)
 )
 partition by range(partition_date)
 interval (numtodsinterval(1,'day'))
@@ -33,3 +33,55 @@ CREATE INDEX ind_fs_feed_file_file_date ON fs_feed_file (file_date) tablespace A
 
 create role fs_feed_writer;
 grant select,insert on fs_feed_file to fs_feed_writer;
+
+
+create table league (
+  id varchar2(1023),
+  name varchar2(1023),
+  flag_url varchar2(1023),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0)
+);
+ALTER TABLE league ADD CONSTRAINT pk_league PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+
+create table team (
+  id varchar2(1023),
+  name varchar2(1023),
+  logo_url varchar2(1023),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0)
+);
+ALTER TABLE team ADD CONSTRAINT pk_team PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+
+create table fixture (
+  id varchar2(1023),
+  league_id varchar2(1023),
+  fixture_name varchar2(1023),
+  start_date number(32,0),
+  home_team_id varchar2(1023),
+  away_team_id varchar2(1023),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  partition_date date default trunc(sysdate)
+)
+partition by range(partition_date)
+interval (numtodsinterval(30,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+);
+ALTER TABLE fixture ADD CONSTRAINT pk_fixture PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE INDEX ind_fixture_start_date ON fixture (start_date) tablespace APP_MAIN_INDEX;
+
+
+grant select,insert,update on league to fs_feed_writer;
+grant select,insert,update on team to fs_feed_writer;
+grant select,insert,update on fixture to fs_feed_writer;
