@@ -40,3 +40,16 @@ ufw allow 'Nginx Full'
 systemctl enable nginx
 
 # create sites available and rev proxy http /pa_feed/* to victoria.hlsd.com:3032/
+nano /etc/nginx/sites-enabled/default
+location /pa_datafeed {
+  rewrite /pa_datafeed/(.*) /$1 break;
+  proxy_pass http://victoria.hlsd.com:3032;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection 'upgrade';
+  proxy_set_header Host $host;
+  proxy_cache_bypass $http_upgrade;
+}
+
+
+
