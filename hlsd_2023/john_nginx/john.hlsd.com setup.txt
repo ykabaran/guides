@@ -33,4 +33,10 @@ openssl req -config openssl.conf -new -sha256 -key server.key.pem -out server.cs
 openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/john.hlsd.com.csr -out issued/john.hlsd.com.cert.pem
 # copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, issued/john.hlsd.com.cert.pem into /root/pki/server
 
-install nginx
+# install nginx
+apt install nginx
+ufw app list
+ufw allow 'Nginx Full'
+systemctl enable nginx
+
+# create sites available and rev proxy http /pa_feed/* to victoria.hlsd.com:3032/
