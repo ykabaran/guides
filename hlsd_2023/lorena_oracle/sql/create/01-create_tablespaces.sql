@@ -1,5 +1,7 @@
 alter session set current_schema=SYS;
 
+alter profile DEFAULT limit password_life_time UNLIMITED;
+
 select * from v$log;
 select * from v$logfile;
 select * from DBA_DATA_FILES;
@@ -53,6 +55,18 @@ alter tablespace app_main_index
 	add datafile '/uoradata/LORENA/app_main_index02.dbf' size 4G autoextend off;
 alter tablespace app_main_index
 	add datafile '/uoradata/LORENA/app_main_index03.dbf' size 4G autoextend off;
+
+create tablespace feed_file
+   datafile '/uoradata/LORENA/feed_file01.dbf' size 8G autoextend off
+   NOLOGGING;
+alter tablespace feed_file
+   add datafile '/uoradata/LORENA/feed_file02.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/LORENA/feed_file03.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/LORENA/feed_file04.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/LORENA/feed_file05.dbf' size 8G autoextend off;
 
 
 select

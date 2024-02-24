@@ -1,16 +1,69 @@
-# create ls_main schema in lorena
-# fix services to write fixture/sport/league/player data to lorena
-# deploy app to victoria
-# grant read access to ls_main to fs_main
-
 create user ls_main identified by ""
   default tablespace APP_MAIN
   quota unlimited on APP_MAIN
   quota unlimited on APP_MAIN_INDEX
-  quota unlimited on APP_LOG;
+  quota unlimited on APP_LOG
+  quota unlimited on FEED_FILE;
 
 grant connect, resource to ls_main;
 alter session set current_schema = ls_main;
+
+create table prematch_feed_file (
+  id number(32,0),
+  feed_id varchar2(1023),
+  file_date  number(32,0),
+  file_name varchar2(1023),
+  file_size number(32,0),
+  file_mime_type varchar2(1023),
+  file_hash varchar2(1023),
+  content_meta varchar2(32767),
+  file_clob clob,
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  partition_date date default sysdate
+)
+partition by range(partition_date)
+interval (numtodsinterval(1,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+)
+tablespace FEED_FILE;
+ALTER TABLE prematch_feed_file ADD CONSTRAINT pk_prematch_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE feed_file;
+CREATE INDEX ind_prematch_feed_file_file_date ON prematch_feed_file (file_date) tablespace feed_file;
+
+create role ls_prematch_feed_writer;
+grant select,insert on prematch_feed_file to ls_prematch_feed_writer;
+
+create table inplay_feed_file (
+  id number(32,0),
+  feed_id varchar2(1023),
+  file_date  number(32,0),
+  file_name varchar2(1023),
+  file_size number(32,0),
+  file_mime_type varchar2(1023),
+  file_hash varchar2(1023),
+  content_meta varchar2(32767),
+  file_clob clob,
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  partition_date date default sysdate
+)
+partition by range(partition_date)
+interval (numtodsinterval(1,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+)
+tablespace FEED_FILE;
+ALTER TABLE inplay_feed_file ADD CONSTRAINT pk_inplay_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE feed_file;
+CREATE INDEX ind_inplay_feed_file_file_date ON inplay_feed_file (file_date) tablespace feed_file;
+
+create role ls_inplay_feed_writer;
+grant select,insert on inplay_feed_file to ls_inplay_feed_writer;
+
 
 CREATE TABLE sport (
   id number(32,0),
@@ -133,3 +186,5 @@ GRANT SELECT ON market_type TO ls_data_reader;
 GRANT SELECT ON league TO ls_data_reader;
 GRANT SELECT ON player TO ls_data_reader;
 GRANT SELECT ON fixture TO ls_data_reader;
+
+

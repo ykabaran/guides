@@ -1,9 +1,20 @@
-alter session set current_schema=db_admin;
+create user db_admin identified by ""
+  default tablespace APP_LOG
+  quota unlimited on APP_LOG;
 
--- select * from dba_part_tables where owner = 'DB_ADMIN';
--- select * from dba_part_indexes where owner = 'DB_ADMIN';
--- select * from DBA_TAB_PARTITIONS where table_owner = 'DB_ADMIN' and HIGH_VALUE > systimestamp;
--- select * from DBA_ind_PARTITIONS where index_owner = 'DB_ADMIN';
+grant connect, dba to db_admin;
+grant
+  select any table,
+  select any dictionary,
+  insert any table,
+  update any table,
+  delete any table,
+  alter any table,
+  drop any table
+to db_admin with admin option;
+GRANT ADMINISTER DATABASE TRIGGER TO db_admin;
+
+alter session set current_schema=db_admin;
 
 CREATE SEQUENCE seq_log_id START WITH 1000000;
 
@@ -11,7 +22,7 @@ create table DB_SYSTEM_LOG (
 	LOG_ID       NUMBER(32,0) DEFAULT seq_log_id.nextval not null constraint PK_DB_SYSTEM_LOG primary key,
 	LOG_LEVEL    VARCHAR2(1023),
 	LOG_CATEGORY VARCHAR2(1023),
-	LOG_MESSAGE  CLOB,
+	LOG_MESSAGE  VARCHAR2(32767),
 	ERR_CODE     NUMBER(32,0),
 	ERR_MESSAGE  VARCHAR2(32767),
 	BACKTRACE    VARCHAR2(32767),
@@ -44,15 +55,39 @@ interval (numtodsinterval(7,'day'))
 );
 /
 
-create view VIEW_TABLESPACE_STATUS
+create table DB_PARTITION_CLEANUP (
+  tablespace_name varchar2(1023),
+  table_owner varchar2(1023),
+  table_name varchar2(1023),
+  table_column varchar2(1023),
+  num_days number(16,0),
+  delete_interval varchar2(1023),
+  status varchar2(1023) default 'active'
+);
+/
+
+insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_LOG', 'DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
+insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_LOG', 'DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
+insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_MAIN', 'LS_MAIN', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_MAIN', 'LS_MAIN', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_MAIN', 'FS_MAIN', 'FS_FEED_FILE', 'PARTITION_DATE', 4, '1/24');
+insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_MAIN', 'PA_MAIN', 'PA_FEED_FILE', 'PARTITION_DATE', 30, '1/24');
+
+create or replace view VIEW_TABLESPACE_STATUS
 AS select
-   fs.tablespace_name                          "Tablespace",
-   (df.totalspace - fs.freespace)              "Used MB",
-   fs.freespace                                "Free MB",
-   df.totalspace                               "Total MB",
-   df.MaxSpace                               "Max MB",
-   round(100 * (fs.freespace / df.totalspace)) "Curr Pct. Free",
-   round(100 * ((df.MaxSpace - (df.totalspace - fs.freespace)) / df.MaxSpace)) "Max Pct. Free"
+   fs.tablespace_name                          tablespace,
+   (df.totalspace - fs.freespace)              used_mb,
+   fs.freespace                                free_mb,
+   df.totalspace                               total_mb,
+   df.MaxSpace                               max_mb,
+   round(100 * (fs.freespace / df.totalspace)) curr_pct_free,
+   round(100 * ((df.MaxSpace - (df.totalspace - fs.freespace)) / df.MaxSpace)) max_pct_free
 from
    (select
       tablespace_name,
@@ -77,28 +112,28 @@ where
 
 create PACKAGE pkg_log
 AS
-  PROCEDURE log_any (log_level VARCHAR2, category VARCHAR2, message CLOB);
+  PROCEDURE log_any (log_level VARCHAR2, category VARCHAR2, message VARCHAR2);
 
-  PROCEDURE log_error (category VARCHAR2 := 'UNKNOWN', message CLOB := NULL);
+  PROCEDURE log_error (category VARCHAR2 := 'UNKNOWN', message VARCHAR2 := NULL);
 
-  PROCEDURE log_warning (category VARCHAR2, message CLOB := NULL);
+  PROCEDURE log_warning (category VARCHAR2, message VARCHAR2 := NULL);
 
-  PROCEDURE log_info (category VARCHAR2, message CLOB);
+  PROCEDURE log_info (category VARCHAR2, message VARCHAR2);
 
-  PROCEDURE log_debug (category VARCHAR2, message CLOB);
+  PROCEDURE log_debug (category VARCHAR2, message VARCHAR2);
 END;
 /
 
-create or replace PACKAGE BODY pkg_log
+create PACKAGE BODY pkg_log
 /* Formatted on 22-Nov-2018 16:35:55 (QP5 v5.276) */
 AS
-  PROCEDURE log_any (log_level VARCHAR2, category VARCHAR2, message CLOB)
+  PROCEDURE log_any (log_level VARCHAR2, category VARCHAR2, message VARCHAR2)
   IS
     PRAGMA AUTONOMOUS_TRANSACTION;
-		xlog_level varchar2(1023) := NVL(log_level, 'ERROR');
-		xcategory varchar2(1023) := NVL(category, 'UNKNOWN');
-  	sql_code number(32,0);
-  	error_message varchar2(32767);
+    xlog_level varchar2(1023) := NVL(log_level, 'ERROR');
+    xcategory varchar2(1023) := NVL(category, 'UNKNOWN');
+    sql_code number(32,0);
+    error_message varchar2(32767);
   BEGIN
     sql_code := SQLCODE;
     error_message := SQLERRM;
@@ -115,9 +150,9 @@ AS
             xcategory,
             message,
             sql_code,
-            error_message,
-            DBMS_UTILITY.format_error_backtrace,
-            DBMS_UTILITY.format_call_stack,
+            decode(sql_code, 0, null, error_message),
+            decode(sql_code, 0, null, DBMS_UTILITY.format_error_backtrace),
+            decode(sql_code, 0, null, DBMS_UTILITY.format_call_stack),
             SYS_CONTEXT('USERENV','SESSIONID'));
 
     COMMIT;
@@ -135,7 +170,7 @@ AS
   ----------
   ----------
 
-  PROCEDURE log_error (category    VARCHAR2 := 'UNKNOWN', message     CLOB := NULL)
+  PROCEDURE log_error (category    VARCHAR2 := 'UNKNOWN', message VARCHAR2 := NULL)
   IS
   BEGIN
     pkg_log.log_any ('ERROR', category, message);
@@ -144,7 +179,7 @@ AS
   ----------
   ----------
 
-  PROCEDURE log_warning (category VARCHAR2, message CLOB := NULL)
+  PROCEDURE log_warning (category VARCHAR2, message VARCHAR2 := NULL)
   IS
   BEGIN
     pkg_log.log_any ('WARNING', category, message);
@@ -153,7 +188,7 @@ AS
   ----------
   ----------
 
-  PROCEDURE log_info (category VARCHAR2, message CLOB)
+  PROCEDURE log_info (category VARCHAR2, message VARCHAR2)
   IS
   BEGIN
     pkg_log.log_any ('INFO', category, message);
@@ -162,7 +197,7 @@ AS
   ----------
   ----------
 
-  PROCEDURE log_debug (category VARCHAR2, message CLOB)
+  PROCEDURE log_debug (category VARCHAR2, message VARCHAR2)
   IS
   BEGIN
     pkg_log.log_any ('DEBUG', category, message);
@@ -170,6 +205,8 @@ AS
 
 END;
 /
+
+GRANT EXECUTE on PKG_LOG TO PUBLIC;
 
 CREATE OR REPLACE TRIGGER TRIG_DDL_CHANGE
 	BEFORE CREATE OR ALTER OR DROP OR TRUNCATE OR RENAME
@@ -281,12 +318,95 @@ exception
 end;
 /
 
+create or replace PACKAGE pkg_cleanup
+AS
+  PROCEDURE drop_old_partitions(
+    xtablespace_name varchar2, 
+    xtable_owner varchar2, 
+    xtable_name varchar2,
+    xtable_column varchar2,
+    xnum_days number,
+    xdelete_interval varchar2);
 
--- drop trigger trig_session_logon;
--- drop trigger TRIG_SERVER_ERROR;
--- drop trigger TRIG_DDL_CHANGE;
--- drop package body pkg_log;
--- drop package pkg_log;
--- drop table DDL_HISTORY_LOG;
--- drop table DB_SYSTEM_LOG;
--- drop sequence seq_log_id;
+  PROCEDURE do_partition_cleanup;
+END;
+/
+
+create PACKAGE BODY pkg_cleanup
+AS
+  PROCEDURE drop_old_partitions(
+    xtablespace_name varchar2,
+    xtable_owner varchar2,
+    xtable_name varchar2,
+    xtable_column varchar2,
+    xnum_days number,
+    xdelete_interval varchar2)
+  IS
+    partition_date date;
+  begin
+    for rec in (select PARTITION_NAME, HIGH_VALUE
+                from SYS.DBA_TAB_PARTITIONS where
+                    TABLESPACE_NAME = xtablespace_name and table_owner = xtable_owner and table_name = xtable_name)
+    loop
+      execute immediate 'SELECT ' || rec.high_value || ' FROM DUAL' into partition_date;
+      if partition_date < sysdate - xnum_days
+      then
+        db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleting ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
+        execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' MODIFY PARTITION ' || rec.PARTITION_NAME || ' NOLOGGING';
+        execute immediate 'declare
+          xstart_date date;
+          xend_date date;
+          xcurr_date date;
+          delete_interval number := ' || xdelete_interval || ';
+        begin
+          select trunc(min(' || xtable_column || ')), trunc(max(' || xtable_column || ')+1)
+          into xstart_date, xend_date
+          from ' || xtable_owner || '.' || xtable_name || ' partition(' || rec.PARTITION_NAME || ');
+
+          xcurr_date := xstart_date;
+          while xcurr_date <= xend_date
+          loop
+            db_admin.pkg_log.LOG_INFO(''CLEANUP'', ''deleting curent date '' || to_char(xcurr_date, ''YYYY-MM-DD HH24:MI''));
+            DELETE FROM ' || xtable_owner || '.' || xtable_name || ' PARTITION(' || rec.PARTITION_NAME || ') where ' || xtable_column || ' between xcurr_date - delete_interval and xcurr_date;
+            commit;
+
+            xcurr_date := xcurr_date + delete_interval;
+          end loop;
+
+          DELETE FROM ' || xtable_owner || '.' || xtable_name || ' PARTITION(' || rec.PARTITION_NAME || ');
+          commit;
+        end;';
+        execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' DROP PARTITION ' || rec.PARTITION_NAME;
+        db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleted ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
+      end if;
+    end loop;
+  end;
+
+  PROCEDURE do_partition_cleanup
+  IS
+  BEGIN
+    for rec in (select tablespace_name, table_owner, table_name, table_column, num_days, delete_interval
+                  FROM DB_ADMIN.DB_PARTITION_CLEANUP WHERE status = 'active')
+    loop
+      begin
+        drop_old_partitions(rec.tablespace_name, rec.table_owner, rec.table_name, rec.TABLE_COLUMN,rec.num_days, rec.delete_interval);
+      exception when others then
+        db_admin.pkg_log.log_error('CLEANUP', rec.tablespace_name || '.' || rec.table_owner || '.' || rec.table_name);
+      end;
+    end loop;
+  END;
+end;
+/
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+    job_name   => 'DB_ADMIN.JOB_PARTITION_CLEANUP',
+    job_type => 'STORED_PROCEDURE',
+    job_action => 'PKG_CLEANUP.DO_PARTITION_CLEANUP',
+    start_date    => SYSTIMESTAMP,
+    repeat_interval  => 'FREQ=HOURLY; INTERVAL=1',
+    auto_drop => FALSE,
+    enabled => TRUE);
+END;
+/
+

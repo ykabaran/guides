@@ -1,4 +1,8 @@
--- SKIPPED
+create user app_log identified by ""
+  default tablespace APP_LOG
+  quota unlimited on APP_LOG;
+
+grant connect, resource to app_log;
 
 alter session set current_schema=app_log;
 
@@ -118,6 +122,9 @@ interval (numtodsinterval(1,'day'))
   (to_date('2023-01-01','YYYY-MM-DD'))
 );
 
+create role app_log_reader;
+create role app_log_writer;
+	
 GRANT SELECT, INSERT, UPDATE ON log_string TO app_log_role;
 GRANT INSERT ON system_log TO app_log_role;
 GRANT SELECT, INSERT, UPDATE ON sql_log TO app_log_role;

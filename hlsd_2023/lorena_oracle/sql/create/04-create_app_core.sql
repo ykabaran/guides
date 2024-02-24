@@ -1,3 +1,9 @@
+create user app_core identified by ""
+  default tablespace APP_CORE
+  quota unlimited on APP_CORE;
+
+grant connect, resource to app_core;
+
 alter session set current_schema=app_core;
 
 create or replace package pkg_date
@@ -20,17 +26,37 @@ as
   function to_unixms(xdate in date, xtz_offset in number := null) return number
     is
     begin
-      return round((xdate - nvl(xtz_offset, pkg_date.tz_offset()) - date '1970-01-01') * 86400000);
+      return round((xdate - nvl(xtz_offset, tz_offset()) - date '1970-01-01') * 86400000);
     end;
 
   function to_date(xunixms in number, xtz_offset in number := null) return date
     is
     begin
-      return date '1970-01-01' + (xunixms/86400000) + nvl(xtz_offset, pkg_date.tz_offset());
+      return date '1970-01-01' + (xunixms/86400000) + nvl(xtz_offset, tz_offset());
     end;
 end;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
+
+create table translation (
+  id varchar2(1023),
+  category varchar2(1023),
+  value_type varchar2(32767), -- string, file, html_template, string_template
+  value_en varchar2(32767),
+  value_tr varchar2(32767),
+  status varchar2(1023),
+  change_tick number(32,0),
+  change_date number(32,0),
+  last_sync_date number(32,0),
+  create_date date default sysdate
+);
+ALTER TABLE translation ADD CONSTRAINT pk_translation PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+
+create role app_core_reader;
+create role app_core_writer;
+
+grant select on translation to app_core_reader;
+grant select,insert,update on translation to app_core_writer;
 
 /*
 create table system_param (

@@ -13,4 +13,6 @@ grant fs_feed_writer to fs_feed_file_creator01;
 create user ls_data_writer01 identified by "";
 grant connect to ls_data_writer01;
 grant ls_data_writer to ls_data_writer01;
+grant ls_prematch_feed_writer to ls_data_writer01;
+grant ls_inplay_feed_writer to ls_data_writer01;
 	

@@ -3,7 +3,8 @@ create user pa_main identified by ""
   default tablespace APP_MAIN
   quota unlimited on APP_MAIN
   quota unlimited on APP_MAIN_INDEX
-  quota unlimited on APP_LOG;
+  quota unlimited on APP_LOG
+  quota unlimited on FEED_FILE;
 
 grant connect, resource to pa_main;
 alter session set current_schema = pa_main;
@@ -23,15 +24,16 @@ create table pa_feed_file (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(1,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
-);
-ALTER TABLE pa_feed_file ADD CONSTRAINT pk_pa_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-CREATE INDEX ind_pa_feed_file_file_date ON pa_feed_file (file_date) tablespace APP_MAIN_INDEX;
+)
+tablespace FEED_FILE;
+ALTER TABLE pa_feed_file ADD CONSTRAINT pk_pa_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE FEED_FILE;
+CREATE INDEX ind_pa_feed_file_file_date ON pa_feed_file (file_date) tablespace FEED_FILE;
 
 /* change log tables */
 create table pa_data_change_d7 (
@@ -43,7 +45,7 @@ create table pa_data_change_d7 (
   data_source varchar2(32767),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(7,'day'))
@@ -63,7 +65,7 @@ create table pa_data_change_d30 (
   data_source varchar2(32767),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
@@ -131,7 +133,7 @@ create table race (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
@@ -159,7 +161,7 @@ create table race_participant (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
@@ -183,7 +185,7 @@ create table race_participant_price (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
@@ -207,7 +209,7 @@ create table race_result (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))

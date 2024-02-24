@@ -2,7 +2,8 @@ create user fs_main identified by ""
   default tablespace APP_MAIN
   quota unlimited on APP_MAIN
   quota unlimited on APP_MAIN_INDEX
-  quota unlimited on APP_LOG;
+  quota unlimited on APP_LOG
+  quota unlimited on FEED_FILE;
 
 grant connect, resource to fs_main;
 alter session set current_schema = fs_main;
@@ -21,15 +22,16 @@ create table fs_feed_file (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(1,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
-);
-ALTER TABLE fs_feed_file ADD CONSTRAINT pk_fs_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-CREATE INDEX ind_fs_feed_file_file_date ON fs_feed_file (file_date) tablespace APP_MAIN_INDEX;
+)
+tablespace FEED_FILE;
+ALTER TABLE fs_feed_file ADD CONSTRAINT pk_fs_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE FEED_FILE;
+CREATE INDEX ind_fs_feed_file_file_date ON fs_feed_file (file_date) tablespace FEED_FILE;
 
 create role fs_feed_writer;
 grant select,insert on fs_feed_file to fs_feed_writer;
@@ -71,7 +73,7 @@ create table fixture (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  partition_date date default trunc(sysdate)
+  partition_date date default sysdate
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
