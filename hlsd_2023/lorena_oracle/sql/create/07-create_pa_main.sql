@@ -31,6 +31,7 @@ interval (numtodsinterval(1,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
+nologging
 tablespace FEED_FILE;
 ALTER TABLE pa_feed_file ADD CONSTRAINT pk_pa_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE FEED_FILE;
 CREATE INDEX ind_pa_feed_file_file_date ON pa_feed_file (file_date) tablespace FEED_FILE;

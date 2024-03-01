@@ -38,59 +38,40 @@ end;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
 
-create table translation (
-  id varchar2(1023),
+create table system_parameter (
+  id number(32,0),
   category varchar2(1023),
-  value_type varchar2(32767), -- string, file, html_template, string_template
+  name varchar2(1023),
+  value_type varchar2(1023),
+  value varchar2(32767),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0)
+);
+ALTER TABLE system_parameter ADD CONSTRAINT pk_system_parameter PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+
+create table localization (
+  id number(32,0),
+  reference_id varchar2(1023),
+  category varchar2(1023),
+  value_type varchar2(1023),
   value_en varchar2(32767),
   value_tr varchar2(32767),
+
+  create_date number(32,0),
   status varchar2(1023),
-  change_tick number(32,0),
-  change_date number(32,0),
-  last_sync_date number(32,0),
-  create_date date default sysdate
+  version number(16,0),
+  change_date number(32,0)
 );
-ALTER TABLE translation ADD CONSTRAINT pk_translation PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+ALTER TABLE localization ADD CONSTRAINT pk_localization PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
 create role app_core_reader;
 create role app_core_writer;
 
-grant select on translation to app_core_reader;
-grant select,insert,update on translation to app_core_writer;
+grant select on system_parameter to app_core_reader;
+grant select on localization to app_core_reader;
 
-/*
-create table system_param (
-  param_owner varchar2(1023),
-	param_code varchar2(1023),
-	param_type varchar2(1023),
-	param_value varchar2(32767),
-	description varchar2(1023),
-	status varchar2(1023),
-	value_date number(32,0),
-	create_date date default sysdate
-);
-
-create table service_client (
-  owner varchar2(1023),
-  client_id varchar2(1023),
-  name varchar2(1023),
-  type varchar2(1023), -- WE_SERVE, THEY_SERVE, BOTH_SERVE
-  status varchar2(1023), -- ACTIVE, DISABLED
-  data varchar2(32767),
-  service_base varchar2(1023),
-  server_base varchar2(1023),
-  client_public_key varchar2(32767),
-  auth_secret varchar2(32767),
-  server_public_key varchar2(32767),
-  server_private_key varchar2(32767),
-  server_passphrase varchar2(32767),
-	create_date number(32,0)
-);
-
-GRANT SELECT, INSERT, UPDATE ON system_param TO app_base_role;
-
-GRANT SELECT ON service_client TO app_user_role;
-GRANT INSERT, UPDATE ON service_client TO app_admin_role;
- */
-
--- drop table system_param;
+grant select,insert,update on system_parameter to app_core_writer;
+grant select,insert,update on localization to app_core_writer;

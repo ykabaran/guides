@@ -56,7 +56,6 @@ interval (numtodsinterval(7,'day'))
 /
 
 create table DB_PARTITION_CLEANUP (
-  tablespace_name varchar2(1023),
   table_owner varchar2(1023),
   table_name varchar2(1023),
   table_column varchar2(1023),
@@ -67,17 +66,17 @@ create table DB_PARTITION_CLEANUP (
 /
 
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
-values ('APP_LOG', 'DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
+values ('DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
-values ('APP_LOG', 'DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
+values ('DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
-values ('APP_MAIN', 'LS_MAIN', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
+values ('LS_MAIN', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 3, '5/(24*60)');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
-values ('APP_MAIN', 'LS_MAIN', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
+values ('LS_MAIN', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 3, '5/(24*60)');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
-values ('APP_MAIN', 'FS_MAIN', 'FS_FEED_FILE', 'PARTITION_DATE', 4, '1/24');
+values ('FS_MAIN', 'FS_FEED_FILE', 'PARTITION_DATE', 4, '1/24');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
-values ('APP_MAIN', 'PA_MAIN', 'PA_FEED_FILE', 'PARTITION_DATE', 30, '1/24');
+values ('PA_MAIN', 'PA_FEED_FILE', 'PARTITION_DATE', 30, '1/24');
 
 create or replace view VIEW_TABLESPACE_STATUS
 AS select
@@ -321,7 +320,6 @@ end;
 create or replace PACKAGE pkg_cleanup
 AS
   PROCEDURE drop_old_partitions(
-    xtablespace_name varchar2, 
     xtable_owner varchar2, 
     xtable_name varchar2,
     xtable_column varchar2,
@@ -335,7 +333,6 @@ END;
 create PACKAGE BODY pkg_cleanup
 AS
   PROCEDURE drop_old_partitions(
-    xtablespace_name varchar2,
     xtable_owner varchar2,
     xtable_name varchar2,
     xtable_column varchar2,
@@ -346,7 +343,7 @@ AS
   begin
     for rec in (select PARTITION_NAME, HIGH_VALUE
                 from SYS.DBA_TAB_PARTITIONS where
-                    TABLESPACE_NAME = xtablespace_name and table_owner = xtable_owner and table_name = xtable_name)
+                    table_owner = xtable_owner and table_name = xtable_name)
     loop
       execute immediate 'SELECT ' || rec.high_value || ' FROM DUAL' into partition_date;
       if partition_date < sysdate - xnum_days
@@ -385,13 +382,13 @@ AS
   PROCEDURE do_partition_cleanup
   IS
   BEGIN
-    for rec in (select tablespace_name, table_owner, table_name, table_column, num_days, delete_interval
+    for rec in (select table_owner, table_name, table_column, num_days, delete_interval
                   FROM DB_ADMIN.DB_PARTITION_CLEANUP WHERE status = 'active')
     loop
       begin
-        drop_old_partitions(rec.tablespace_name, rec.table_owner, rec.table_name, rec.TABLE_COLUMN,rec.num_days, rec.delete_interval);
+        drop_old_partitions(rec.table_owner, rec.table_name, rec.TABLE_COLUMN,rec.num_days, rec.delete_interval);
       exception when others then
-        db_admin.pkg_log.log_error('CLEANUP', rec.tablespace_name || '.' || rec.table_owner || '.' || rec.table_name);
+        db_admin.pkg_log.log_error('CLEANUP', rec.table_owner || '.' || rec.table_name);
       end;
     end loop;
   END;

@@ -29,6 +29,7 @@ interval (numtodsinterval(1,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
+nologging
 tablespace FEED_FILE;
 ALTER TABLE fs_feed_file ADD CONSTRAINT pk_fs_feed_file PRIMARY KEY (id) USING INDEX TABLESPACE FEED_FILE;
 CREATE INDEX ind_fs_feed_file_file_date ON fs_feed_file (file_date) tablespace FEED_FILE;
@@ -87,3 +88,8 @@ CREATE INDEX ind_fixture_start_date ON fixture (start_date) tablespace APP_MAIN_
 grant select,insert,update on league to fs_feed_writer;
 grant select,insert,update on team to fs_feed_writer;
 grant select,insert,update on fixture to fs_feed_writer;
+
+create role fs_data_reader;
+grant select on league to fs_data_reader;
+grant select on team to fs_data_reader;
+grant select on fixture to fs_data_reader;
