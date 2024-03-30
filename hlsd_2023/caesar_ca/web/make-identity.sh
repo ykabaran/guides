@@ -50,7 +50,8 @@ commonName                      = {{cn_name}}.{{cn_host}}
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = {{cn_name}}.server.{{cn_host}}
+DNS.1 = {{cn_name}}.{{cn_host}}
+DNS.2 = {{cn_name}}.server.{{cn_host}}
 EOF
 )
 
