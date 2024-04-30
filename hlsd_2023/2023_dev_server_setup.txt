@@ -8,7 +8,7 @@ host 192.168.1.254 adriana.qbity.app
 		networks wan, lan 10.13.2.0/24
 		config backup ?
 
-	vm 10.13.2.9 caesar.hlsd.com
+	vm 10.13.40.9 caesar.hlsd.com
 		hardware 2 vCPUs, 2GB RAM, 20GB disk
 		os ubuntu server 22.04
 		encrypt disk
@@ -21,14 +21,7 @@ host 192.168.1.254 adriana.qbity.app
 				web_intermediate_ca ca.web.hlsd.com
 		config backup ?
 
-	vm 10.13.2.20 heimdall.hlsd.com
-		hardware 2 vCPUs, 2GB RAM, 20GB disk
-		os ubuntu server 22.04
-		networks lan
-		packages openssl, openvpn
-		config backup ?
-
-	vm 10.13.2.30 lorena.hlsd.com
+	vm 10.13.40.30 lorena.hlsd.com
 		hardware 6 vCPUs, 16GB RAM, 60GB disk, 600GB disk
 		os oracle linux 8
 		networks lan
@@ -38,19 +31,30 @@ host 192.168.1.254 adriana.qbity.app
 		config backup ?
 		data backup ?
 
-	vm 10.13.2.31 victoria.hlsd.com
+	vm 10.13.40.31 victoria.hlsd.com
 		hardware 4vCPUs, 16GB RAM, 60GB disk
 		os ubuntu server 22.04
 		networks lan
 		packages nodejs
 
-	vm 10.13.2.32 john.hlsd.com
+	vm 10.13.40.32 john.hlsd.com
 		hardware 2vCPUs, 8GB RAM, 40GB disk
 		os ubuntu server 22.04
 		networks lan
 		packages nginx
 
-	vm 10.13.2.33 elk.hlsd.com
-	vm 10.13.2.34 archive01.hlsd.com
+	vm 10.13.40.34 bunny.hlsd.com
+		hardware 2vCPUs, 8GB RAM, 60GB disk
+		os ubuntu server 22.04
+		networks lan
+		packages rabbitmq
 
+	vm 10.13.40.35 sven.hlsd.com
+		hardware 2vCPUs, 8GB RAM, 60GB disk
+		os ubuntu server 22.04
+		networks lan
+		packages elastic, kibana
+
+physical 10.13.40.33 babel.hlsd.com
+	
 

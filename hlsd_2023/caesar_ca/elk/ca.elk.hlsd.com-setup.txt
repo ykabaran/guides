@@ -1,0 +1,38 @@
+# create CA
+cd /root/pki
+mkdir ca_hlsd_elk
+cd ca_hlsd_elk 
+mkdir certs private csr newcerts issued revoked crl
+chmod 700 private
+touch index.txt
+echo 1000 > serial
+echo 1000 > crlnumber
+mkdir server client server/issued client/issued
+
+# copy elk/ca.elk.hlsd.com-openssl.conf file here
+nano openssl.conf
+# copy elk/make-identity.sh
+nano make-identity.sh
+
+openssl genrsa -aes256 -out private/ca.key 4096
+chmod 600 private/ca.key
+openssl req -config openssl.conf -key private/ca.key -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.crt
+cp certs/ca.crt server/
+cp certs/ca.crt client/
+chmod u+x make-identity.sh
+
+# verify
+openssl x509 -noout -text -in certs/ca.crt
+
+# make servers
+./make-identity.sh elastic server elk.hlsd.com
+./make-identity.sh kibana server elk.hlsd.com
+./make-identity.sh fleet server elk.hlsd.com
+./make-identity.sh apm server elk.hlsd.com
+
+# generate crl
+openssl ca -config openssl.conf -gencrl -out crl.pem
+
+# backup ca
+cd /root/pki
+7z a -p ca_hlsd_elk.7z ca_hlsd_elk
