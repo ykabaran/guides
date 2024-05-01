@@ -45,6 +45,7 @@ create table account (
 
 create table transaction (
   id number(32,0),
+  parent_id number(32,0),
   type number(32,0),
   status number(32,0)
 );
@@ -107,5 +108,48 @@ create table user_payment_card (
   card_id number(32,0),
   event_id number(32,0),
   account_id number(32,0),
+  status number(32,0)
+);
+
+create table product_category (
+  id number(32,0),
+  name varchar2(1023),
+  status number(32,0)
+);
+
+create table product (
+  id number(32,0),
+  category_id number(32,0),
+  name varchar2(1023),
+  status number(32,0)
+);
+
+create table vendor_product (
+  id number(32,0),
+  vendor_id number(32,0),
+  category_id number(32,0),
+  product_id number(32,0),
+  price_currency_id number(32,0),
+  price number(32,0),
+  status number(32,0)
+);
+
+create table vendor_sale (
+  id number(32,0),
+  vendor_id number(32,0),
+  transaction_id number(32,0),
+  sale_currency_id number(32,0),
+  sale_price number(32,0),
+  status number(32,0)
+);
+
+create table vendor_sale_product (
+  id number(32,0),
+  sale_id number(32,0),
+  product_id number(32,0),
+  product_count number(6,0),
+  price_currency_id number(32,0),
+  unit_price number(32,0),
+  total_price number(32,0),
   status number(32,0)
 );
