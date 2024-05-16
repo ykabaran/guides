@@ -102,16 +102,11 @@ CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespa
 
 create role app_core_reader;
 create role app_core_writer;
-create role app_core_admin;
 
 grant select on app_object to app_core_reader;
 grant select on localization to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
-grant select on app_object to app_core_writer;
+grant select,insert,update on app_object to app_core_writer;
 grant select,insert,update on localization to app_core_writer;
 grant select,insert,update on data_change_d300 to app_core_writer;
-
-grant select,insert,update app_object to app_core_admin;
-grant select,insert,update on localization to app_core_admin;
-grant select,insert,update on data_change_d300 to app_core_admin;
