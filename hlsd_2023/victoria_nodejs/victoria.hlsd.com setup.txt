@@ -143,3 +143,13 @@ web_server_client:
 	root_web_chained_ca -> client.crt
 nginx_server:
 	hlsi.dev globally signed crt
+
+
+# disable coredumps
+nano /etc/security/limits.conf
+* hard core 0
+* soft core 0
+nano /etc/sysctl.conf
+fs.suid_dumpable=0
+kernel.core_pattern=|/bin/false
+sysctl -p
