@@ -110,7 +110,7 @@ nvm use 20.xx.x
 nvm alias default 20.xx.x
 
 npm i -g pm2
-npm i -g ncu
+npm i -g npm-check-updates
 
 # updating global packages
 ncu -g
