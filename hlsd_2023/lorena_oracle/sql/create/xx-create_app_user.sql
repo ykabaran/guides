@@ -111,7 +111,6 @@ grant select,insert,update on app_device to app_user_data_writer;
 grant select,insert,update on app_user to app_user_data_writer;
 grant select,insert,update on app_session to app_user_data_writer;
 
-
 app_object/get
 	{
 		filter: {},
