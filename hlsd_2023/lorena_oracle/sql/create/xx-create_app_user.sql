@@ -70,12 +70,14 @@ create table app_user (
 	username varchar2(1023) not null,
 	name varchar2(1023),
 	email varchar2(1023),
+
 	auth_data varchar2(32767), -- login types, password, 2fa token, email confirmation token; encrypted with user_key from private_config
 	role_data varchar2(32767), -- roles, role_params
-  status varchar2(1023), -- active, suspended, removed
-  change_tick number(32,0),
+
+  status varchar2(1023),
+  version number(16,0),
   change_date number(32,0),
-	create_date date default sysdate
+  create_date number(32,0)
 );
 ALTER TABLE app_user ADD CONSTRAINT pk_app_user PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 CREATE UNIQUE INDEX ind_app_user_username ON app_user (username) tablespace APP_MAIN_INDEX;
