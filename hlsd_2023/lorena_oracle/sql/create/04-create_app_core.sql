@@ -52,14 +52,16 @@ ALTER TABLE localization ADD CONSTRAINT pk_localization PRIMARY KEY (id) USING I
 
 create table app_secret (
   id varchar2(1023),
-  key_type varchar2(1023), -- session_token, auth_token
-  key_roles varchar2(1023), -- key role subset
+  category varchar2(1023), -- session_token, auth_token
+  role_data varchar2(32767), -- key roles
+  
   encryption_key varchar2(32767),
   signature_key varchar2(32767),
   verification_key varchar2(32767),
+
   start_date number(32,0),
   end_date number(32,0),
-  expire_date number(32,0),
+  expiration_date number(32,0),
 
   create_date number(32,0),
   status varchar2(1023),
@@ -73,19 +75,29 @@ interval (numtodsinterval(1,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 );
-ALTER TABLE app_auth_key ADD CONSTRAINT pk_app_auth_key PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
-grant select on app_auth_key to app_auth_data_reader;
-grant select,insert,update on app_auth_key to app_auth_data_writer;
+create table data_change_table (
+  id number(32,0),
+  table_name varchar2(1023),
+  data_change_table varchar2(1023),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0)
+);
+ALTER TABLE data_change_table ADD CONSTRAINT pk_data_change_table PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
 create table data_change_d300 (
   id number(32,0),
   table_id number(32,0),
   data_id number(32,0),
+  
   change_type varchar2(1023),
-  data_before varchar2(32767),
-  data_after varchar2(32767),
-  data_source varchar2(32767),
+  before_data varchar2(32767),
+  after_data varchar2(32767),
+  source_data varchar2(32767),
 
   version number(16,0),
   change_date number(32,0),
@@ -104,13 +116,18 @@ CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespa
 
 create role app_core_reader;
 create role app_core_writer;
+create role app_secret_writer;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
 
 grant select on localization to app_core_reader;
 grant select on app_secret to app_core_reader;
+grant select on data_change_table to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
 grant select,insert,update on localization to app_core_writer;
-grant select,insert,update on app_secret to app_core_writer;
+grant select on app_secret to app_core_reader;
+grant select,insert,update on data_change_table to app_core_writer;
 grant select,insert,update on data_change_d300 to app_core_writer;
+
+grant select,insert,update on app_secret to app_secret_writer;

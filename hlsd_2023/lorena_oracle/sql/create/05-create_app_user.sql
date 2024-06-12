@@ -41,7 +41,7 @@ create table app_device (
   change_date number(32,0),
   create_date number(32,0),
 
-	partition_date date not null,
+	partition_date date not null
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
@@ -70,16 +70,19 @@ CREATE UNIQUE INDEX ind_app_user_username ON app_user (username) tablespace APP_
 
 create table app_session (
 	id varchar2(1023),
-	device_id varchar2(1023) not null,
+	device_id varchar2(1023),
 	user_id varchar2(1023),
+
   auth_data varchar2(32767), -- refresh keys, csrf tokens; encrypted with session_key
   role_data varchar2(32767), -- roles with params
   expiration_date number(32,0),
-  status varchar2(1023), -- active, suspended, expired, ended
-  change_tick number(32,0),
+
+  status varchar2(1023),
+  version number(16,0),
   change_date number(32,0),
-  partition_date date not null,
-	create_date date default sysdate
+  create_date number(32,0),
+
+  partition_date date not null
 )
 partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
@@ -94,10 +97,11 @@ create table data_change_d7 (
   id number(32,0),
   table_id number(32,0),
   data_id number(32,0),
+
   change_type varchar2(1023),
-  data_before varchar2(32767),
-  data_after varchar2(32767),
-  data_source varchar2(32767),
+  before_data varchar2(32767),
+  after_data varchar2(32767),
+  source_data varchar2(32767),
 
   version number(16,0),
   change_date number(32,0),
@@ -118,10 +122,11 @@ create table data_change_d30 (
   id number(32,0),
   table_id number(32,0),
   data_id number(32,0),
+
   change_type varchar2(1023),
-  data_before varchar2(32767),
-  data_after varchar2(32767),
-  data_source varchar2(32767),
+  before_data varchar2(32767),
+  after_data varchar2(32767),
+  source_data varchar2(32767),
 
   version number(16,0),
   change_date number(32,0),
@@ -142,10 +147,11 @@ create table data_change_d300 (
   id number(32,0),
   table_id number(32,0),
   data_id number(32,0),
+  
   change_type varchar2(1023),
-  data_before varchar2(32767),
-  data_after varchar2(32767),
-  data_source varchar2(32767),
+  before_data varchar2(32767),
+  after_data varchar2(32767),
+  source_data varchar2(32767),
 
   version number(16,0),
   change_date number(32,0),
