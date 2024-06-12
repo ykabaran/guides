@@ -36,33 +36,6 @@ as
     end;
 end;
 
-GRANT EXECUTE ON pkg_date TO PUBLIC;
-
-/*
-  app_object: {
-    object_category: ["data_status","value_type","language","currency","localization_category"],
-    data_status: ["active","disabled","healthy","expired","questionable"]
-    value_type: ["string","int","decimal","json","uid","sint","unix_date","iso_date","file"]
-    language: ["turkish","english"],
-    currency: [{name: "try", precision: 2}],
-    localization_category: [""]
-  }
-*/
-
-create table app_object (
-  id number(32,0),
-  category varchar2(1023),
-  reference_id varchar2(1023),
-  name varchar2(1023),
-  value varchar2(32767),
-
-  create_date number(32,0),
-  status varchar2(1023),
-  version number(16,0),
-  change_date number(32,0)
-);
-ALTER TABLE app_object ADD CONSTRAINT pk_app_object PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-
 create table localization (
   id number(32,0),
   category varchar2(1023),
@@ -77,6 +50,34 @@ create table localization (
 );
 ALTER TABLE localization ADD CONSTRAINT pk_localization PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
+create table app_secret (
+  id varchar2(1023),
+  key_type varchar2(1023), -- session_token, auth_token
+  key_roles varchar2(1023), -- key role subset
+  encryption_key varchar2(32767),
+  signature_key varchar2(32767),
+  verification_key varchar2(32767),
+  start_date number(32,0),
+  end_date number(32,0),
+  expire_date number(32,0),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+
+  partition_date date not null
+)
+partition by range(partition_date)
+interval (numtodsinterval(1,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+);
+ALTER TABLE app_auth_key ADD CONSTRAINT pk_app_auth_key PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+
+grant select on app_auth_key to app_auth_data_reader;
+grant select,insert,update on app_auth_key to app_auth_data_writer;
+
 create table data_change_d300 (
   id number(32,0),
   table_id number(32,0),
@@ -85,6 +86,7 @@ create table data_change_d300 (
   data_before varchar2(32767),
   data_after varchar2(32767),
   data_source varchar2(32767),
+
   version number(16,0),
   change_date number(32,0),
   partition_date date default sysdate
@@ -103,10 +105,12 @@ CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespa
 create role app_core_reader;
 create role app_core_writer;
 
-grant select on app_object to app_core_reader;
+GRANT EXECUTE ON pkg_date TO PUBLIC;
+
 grant select on localization to app_core_reader;
+grant select on app_secret to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
-grant select,insert,update on app_object to app_core_writer;
 grant select,insert,update on localization to app_core_writer;
+grant select,insert,update on app_secret to app_core_writer;
 grant select,insert,update on data_change_d300 to app_core_writer;
