@@ -77,18 +77,6 @@ interval (numtodsinterval(1,'day'))
 );
 ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
-create table data_change_table (
-  id number(32,0),
-  table_name varchar2(1023),
-  data_change_table varchar2(1023),
-
-  create_date number(32,0),
-  status varchar2(1023),
-  version number(16,0),
-  change_date number(32,0)
-);
-ALTER TABLE data_change_table ADD CONSTRAINT pk_data_change_table PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-
 create table data_change_d300 (
   id number(32,0),
   table_id number(32,0),
@@ -122,12 +110,10 @@ GRANT EXECUTE ON pkg_date TO PUBLIC;
 
 grant select on localization to app_core_reader;
 grant select on app_secret to app_core_reader;
-grant select on data_change_table to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
 grant select,insert,update on localization to app_core_writer;
 grant select on app_secret to app_core_reader;
-grant select,insert,update on data_change_table to app_core_writer;
 grant select,insert,update on data_change_d300 to app_core_writer;
 
 grant select,insert,update on app_secret to app_secret_writer;
