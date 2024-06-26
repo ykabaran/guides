@@ -75,6 +75,7 @@ create table app_session (
 
   auth_data varchar2(32767), -- refresh keys, csrf tokens; encrypted with session_key
   role_data varchar2(32767), -- roles with params
+  csrf_data varchar2(32767), -- csrf tokens
   expiration_date number(32,0),
 
   status varchar2(1023),
