@@ -1,6 +1,7 @@
 create user app_core identified by ""
   default tablespace APP_CORE
-  quota unlimited on APP_CORE;
+  quota unlimited on APP_CORE
+  quota unlimited on app_main_index;
 
 grant connect, resource to app_core;
 
