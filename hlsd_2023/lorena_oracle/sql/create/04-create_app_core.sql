@@ -1,7 +1,7 @@
 create user app_core identified by ""
   default tablespace APP_CORE
   quota unlimited on APP_CORE
-  quota unlimited on app_main_index;
+  quota unlimited on APP_LOG;
 
 grant connect, resource to app_core;
 
@@ -37,9 +37,56 @@ as
     end;
 end;
 
-create table localization (
+create table app_table_meta (
   id number(32,0),
-  category varchar2(1023),
+  name varchar2(1023),
+  description varchar2(1023)
+)
+tablespace APP_CORE;
+ALTER TABLE app_table_meta ADD CONSTRAINT pk_app_table_meta PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_permission (
+  id varchar2(1023),
+  name varchar2(1023),
+  data varchar2(32767),
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0)
+)
+tablespace APP_CORE;
+ALTER TABLE app_permission ADD CONSTRAINT pk_app_permission PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_role (
+  id varchar2(1023),
+  name varchar2(1023),
+  data varchar2(32767),
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0)
+)
+tablespace APP_CORE;
+ALTER TABLE app_role ADD CONSTRAINT pk_app_role PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_parameter (
+  id number(32,0),
+  name varchar2(1023),
+  value varchar2(32767),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0)
+)
+tablespace APP_CORE;
+ALTER TABLE app_parameter ADD CONSTRAINT pk_app_parameter PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_localization (
+  id number(32,0),
+  name varchar2(1023),
   reference_id varchar2(1023),
   value_en varchar2(32767),
   value_tr varchar2(32767),
@@ -48,21 +95,20 @@ create table localization (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0)
-);
-ALTER TABLE localization ADD CONSTRAINT pk_localization PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+)
+tablespace APP_CORE;
+ALTER TABLE app_localization ADD CONSTRAINT pk_app_localization PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
 
-create table app_secret (
+create table app_key (
   id varchar2(1023),
-  category varchar2(1023), -- session_token, auth_token
+  name varchar2(1023),
   role_data varchar2(32767), -- key roles
-  
-  encryption_key varchar2(32767),
-  signature_key varchar2(32767),
-  verification_key varchar2(32767),
 
-  start_date number(32,0),
-  end_date number(32,0),
-  expiration_date number(32,0),
+  value varchar2(32767),
+
+  use_start_date number(32,0),
+  use_end_date number(32,0),
+  valid_until_date number(32,0),
 
   create_date number(32,0),
   status varchar2(1023),
@@ -72,11 +118,12 @@ create table app_secret (
   partition_date date not null
 )
 partition by range(partition_date)
-interval (numtodsinterval(1,'day'))
+interval (numtodsinterval(7,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
-);
-ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+)
+tablespace APP_CORE;
+ALTER TABLE app_key ADD CONSTRAINT pk_app_key PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
 
 create table data_change_d300 (
   id number(32,0),
@@ -105,16 +152,21 @@ CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespa
 
 create role app_core_reader;
 create role app_core_writer;
-create role app_secret_writer;
+create role app_key_writer;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
 
-grant select on localization to app_core_reader;
-grant select on app_secret to app_core_reader;
+grant select on app_table_meta to app_core_reader;
+grant select on app_permission to app_core_reader;
+grant select on app_role to app_core_reader;
+grant select on app_parameter to app_core_reader;
+grant select on app_localization to app_core_reader;
+grant select on app_key to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
-grant select,insert,update on localization to app_core_writer;
-grant select on app_secret to app_core_reader;
+grant select,insert,update on app_localization to app_core_writer;
+grant select,insert,update on app_parameter to app_core_writer;
 grant select,insert,update on data_change_d300 to app_core_writer;
 
-grant select,insert,update on app_secret to app_secret_writer;
+grant select,insert,update on app_key to app_key_writer;
+grant select,insert,update on data_change_d300 to app_key_writer;

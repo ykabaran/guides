@@ -8,30 +8,6 @@ grant connect, resource to app_user;
 
 alter session set current_schema = app_user;
 
-create table app_permission (
-	id varchar2(1023),
-	name varchar2(1023),
-	data varchar2(32767),
-
-  status varchar2(1023),
-  version number(16,0),
-  change_date number(32,0),
-  create_date number(32,0)
-);
-ALTER TABLE app_permission ADD CONSTRAINT pk_app_permission PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-
-create table app_role (
-	id varchar2(1023),
-	name varchar2(1023),
-	data varchar2(32767),
-
-  status varchar2(1023),
-  version number(16,0),
-  change_date number(32,0),
-  create_date number(32,0)
-);
-ALTER TABLE app_role ADD CONSTRAINT pk_app_role PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-
 create table app_device (
 	id varchar2(1023),
   usage_data varchar2(32767), -- ip addresses, users, user agents
@@ -48,7 +24,8 @@ interval (numtodsinterval(30,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
-ENABLE ROW MOVEMENT;
+ENABLE ROW MOVEMENT
+tablespace app_main;
 ALTER TABLE app_device ADD CONSTRAINT pk_app_device PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
 create table app_user (
@@ -64,7 +41,8 @@ create table app_user (
   version number(16,0),
   change_date number(32,0),
   create_date number(32,0)
-);
+)
+tablespace app_main;
 ALTER TABLE app_user ADD CONSTRAINT pk_app_user PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 CREATE UNIQUE INDEX ind_app_user_username ON app_user (username) tablespace APP_MAIN_INDEX;
 
@@ -75,6 +53,7 @@ create table app_session (
 
   auth_data varchar2(32767), -- refresh keys, csrf tokens; encrypted with session_key
   role_data varchar2(32767), -- roles with params
+  csrf_data varchar2(32767), -- csrf tokens
   expiration_date number(32,0),
 
   status varchar2(1023),
@@ -89,7 +68,8 @@ interval (numtodsinterval(30,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
-ENABLE ROW MOVEMENT;
+ENABLE ROW MOVEMENT
+tablespace app_main;
 ALTER TABLE app_session ADD CONSTRAINT pk_app_session PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 CREATE INDEX ind_app_session_expiration_date ON app_session (expiration_date) tablespace APP_MAIN_INDEX;
 
@@ -171,8 +151,6 @@ CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespa
 create role app_user_reader;
 create role app_user_writer;
 
-grant select on app_permission to app_user_reader;
-grant select on app_role to app_user_reader;
 grant select on app_device to app_user_reader;
 grant select on app_user to app_user_reader;
 grant select on app_session to app_user_reader;
@@ -180,8 +158,6 @@ grant select on data_change_d7 to app_user_reader;
 grant select on data_change_d30 to app_user_reader;
 grant select on data_change_d300 to app_user_reader;
 
-grant select,insert,update on app_permission to app_user_writer;
-grant select,insert,update on app_role to app_user_writer;
 grant select,insert,update on app_device to app_user_writer;
 grant select,insert,update on app_user to app_user_writer;
 grant select,insert,update on app_session to app_user_writer;
