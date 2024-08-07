@@ -151,8 +151,6 @@ CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespa
 create role app_user_reader;
 create role app_user_writer;
 
-grant select on app_permission to app_user_reader;
-grant select on app_role to app_user_reader;
 grant select on app_device to app_user_reader;
 grant select on app_user to app_user_reader;
 grant select on app_session to app_user_reader;
@@ -160,8 +158,6 @@ grant select on data_change_d7 to app_user_reader;
 grant select on data_change_d30 to app_user_reader;
 grant select on data_change_d300 to app_user_reader;
 
-grant select,insert,update on app_permission to app_user_writer;
-grant select,insert,update on app_role to app_user_writer;
 grant select,insert,update on app_device to app_user_writer;
 grant select,insert,update on app_user to app_user_writer;
 grant select,insert,update on app_session to app_user_writer;

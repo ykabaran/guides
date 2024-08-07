@@ -152,7 +152,6 @@ CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespa
 
 create role app_core_reader;
 create role app_core_writer;
-create role app_key_reader;
 create role app_key_writer;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
@@ -162,12 +161,12 @@ grant select on app_permission to app_core_reader;
 grant select on app_role to app_core_reader;
 grant select on app_parameter to app_core_reader;
 grant select on app_localization to app_core_reader;
+grant select on app_key to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
 grant select,insert,update on app_localization to app_core_writer;
 grant select,insert,update on app_parameter to app_core_writer;
 grant select,insert,update on data_change_d300 to app_core_writer;
 
-grant select on app_key to app_key_reader;
 grant select,insert,update on app_key to app_key_writer;
 grant select,insert,update on data_change_d300 to app_key_writer;
