@@ -40,7 +40,12 @@ end;
 create table app_table_meta (
   id number(32,0),
   name varchar2(1023),
-  description varchar2(1023)
+  description varchar2(1023),
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0)
 )
 tablespace APP_CORE;
 ALTER TABLE app_table_meta ADD CONSTRAINT pk_app_table_meta PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
@@ -48,6 +53,7 @@ ALTER TABLE app_table_meta ADD CONSTRAINT pk_app_table_meta PRIMARY KEY (id) USI
 create table app_permission (
   id varchar2(1023),
   name varchar2(1023),
+  description varchar2(1023),
   data varchar2(32767),
 
   status varchar2(1023),
@@ -61,6 +67,7 @@ ALTER TABLE app_permission ADD CONSTRAINT pk_app_permission PRIMARY KEY (id) USI
 create table app_role (
   id varchar2(1023),
   name varchar2(1023),
+  description varchar2(1023),
   data varchar2(32767),
 
   status varchar2(1023),
@@ -74,6 +81,7 @@ ALTER TABLE app_role ADD CONSTRAINT pk_app_role PRIMARY KEY (id) USING INDEX TAB
 create table app_parameter (
   id number(32,0),
   name varchar2(1023),
+  description varchar2(1023),
   value varchar2(32767),
 
   create_date number(32,0),
@@ -150,11 +158,13 @@ ALTER TABLE data_change_d300 ADD CONSTRAINT pk_data_change_d300 PRIMARY KEY (id)
 CREATE INDEX ind_data_change_d300_change_date ON data_change_d300 (change_date) tablespace app_log;
 CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespace app_log;
 
+GRANT EXECUTE ON pkg_date TO PUBLIC;
+
 create role app_core_reader;
 create role app_core_writer;
+create role app_localization_writer;
+create role app_parameter_writer;
 create role app_key_writer;
-
-GRANT EXECUTE ON pkg_date TO PUBLIC;
 
 grant select on app_table_meta to app_core_reader;
 grant select on app_permission to app_core_reader;
@@ -164,9 +174,15 @@ grant select on app_localization to app_core_reader;
 grant select on app_key to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
-grant select,insert,update on app_localization to app_core_writer;
-grant select,insert,update on app_parameter to app_core_writer;
-grant select,insert,update on data_change_d300 to app_core_writer;
+grant select,insert,update on app_table_meta to app_core_writer;
+grant select,insert,update on app_permission to app_core_writer;
+grant select,insert,update on app_role to app_core_writer;
+
+grant select,insert,update on app_localization to app_localization_writer;
+grant select,insert,update on data_change_d300 to app_localization_writer;
+
+grant select,insert,update on app_parameter to app_parameter_writer;
+grant select,insert,update on data_change_d300 to app_parameter_writer;
 
 grant select,insert,update on app_key to app_key_writer;
 grant select,insert,update on data_change_d300 to app_key_writer;

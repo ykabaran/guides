@@ -1,5 +1,5 @@
 create user app_test_user01 identified by "";
-grant connect, app_core_reader to app_test_user01;
+grant connect, app_core_writer, app_localization_writer, app_parameter_writer, app_key_writer, app_user_writer to app_test_user01;
 
 create user pa_feed_file_creator01 identified by "";
 grant connect, pa_feed_writer to pa_feed_file_creator01;

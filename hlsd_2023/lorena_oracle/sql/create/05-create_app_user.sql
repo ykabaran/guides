@@ -40,8 +40,16 @@ create table app_user (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
-  create_date number(32,0)
+  create_date number(32,0),
+
+  partition_date date not null
 )
+partition by range(partition_date)
+interval (numtodsinterval(30,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+)
+ENABLE ROW MOVEMENT
 tablespace app_main;
 ALTER TABLE app_user ADD CONSTRAINT pk_app_user PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 CREATE UNIQUE INDEX ind_app_user_username ON app_user (username) tablespace APP_MAIN_INDEX;
