@@ -1,6 +1,7 @@
 create user app_core identified by ""
   default tablespace APP_CORE
-  quota unlimited on APP_CORE;
+  quota unlimited on APP_CORE
+  quota unlimited on APP_LOG;
 
 grant connect, resource to app_core;
 
@@ -36,27 +37,65 @@ as
     end;
 end;
 
-GRANT EXECUTE ON pkg_date TO PUBLIC;
-
-create table system_parameter (
+create table app_table_meta (
   id number(32,0),
-  category varchar2(1023),
   name varchar2(1023),
-  value_type varchar2(1023),
+  description varchar2(1023),
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0)
+)
+tablespace APP_CORE;
+ALTER TABLE app_table_meta ADD CONSTRAINT pk_app_table_meta PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_permission (
+  id varchar2(1023),
+  name varchar2(1023),
+  description varchar2(1023),
+  data varchar2(32767),
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0)
+)
+tablespace APP_CORE;
+ALTER TABLE app_permission ADD CONSTRAINT pk_app_permission PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_role (
+  id varchar2(1023),
+  name varchar2(1023),
+  description varchar2(1023),
+  data varchar2(32767),
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0)
+)
+tablespace APP_CORE;
+ALTER TABLE app_role ADD CONSTRAINT pk_app_role PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_parameter (
+  id number(32,0),
+  name varchar2(1023),
+  description varchar2(1023),
   value varchar2(32767),
 
   create_date number(32,0),
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0)
-);
-ALTER TABLE system_parameter ADD CONSTRAINT pk_system_parameter PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+)
+tablespace APP_CORE;
+ALTER TABLE app_parameter ADD CONSTRAINT pk_app_parameter PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
 
-create table localization (
+create table app_localization (
   id number(32,0),
+  name varchar2(1023),
   reference_id varchar2(1023),
-  category varchar2(1023),
-  value_type varchar2(1023),
   value_en varchar2(32767),
   value_tr varchar2(32767),
 
@@ -64,14 +103,86 @@ create table localization (
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0)
-);
-ALTER TABLE localization ADD CONSTRAINT pk_localization PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+)
+tablespace APP_CORE;
+ALTER TABLE app_localization ADD CONSTRAINT pk_app_localization PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table app_key (
+  id varchar2(1023),
+  name varchar2(1023),
+  role_data varchar2(32767), -- key roles
+
+  value varchar2(32767),
+
+  use_start_date number(32,0),
+  use_end_date number(32,0),
+  valid_until_date number(32,0),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+
+  partition_date date not null
+)
+partition by range(partition_date)
+interval (numtodsinterval(7,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+)
+tablespace APP_CORE;
+ALTER TABLE app_key ADD CONSTRAINT pk_app_key PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+
+create table data_change_d300 (
+  id number(32,0),
+  table_id number(32,0),
+  data_id number(32,0),
+  
+  change_type varchar2(1023),
+  before_data varchar2(32767),
+  after_data varchar2(32767),
+  source_data varchar2(32767),
+
+  version number(16,0),
+  change_date number(32,0),
+  partition_date date default sysdate
+)
+partition by range(partition_date)
+interval (numtodsinterval(300,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+)
+nologging
+tablespace app_log;
+ALTER TABLE data_change_d300 ADD CONSTRAINT pk_data_change_d300 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
+CREATE INDEX ind_data_change_d300_change_date ON data_change_d300 (change_date) tablespace app_log;
+CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespace app_log;
+
+GRANT EXECUTE ON pkg_date TO PUBLIC;
 
 create role app_core_reader;
 create role app_core_writer;
+create role app_localization_writer;
+create role app_parameter_writer;
+create role app_key_writer;
 
-grant select on system_parameter to app_core_reader;
-grant select on localization to app_core_reader;
+grant select on app_table_meta to app_core_reader;
+grant select on app_permission to app_core_reader;
+grant select on app_role to app_core_reader;
+grant select on app_parameter to app_core_reader;
+grant select on app_localization to app_core_reader;
+grant select on app_key to app_core_reader;
+grant select on data_change_d300 to app_core_reader;
 
-grant select,insert,update on system_parameter to app_core_writer;
-grant select,insert,update on localization to app_core_writer;
+grant select,insert,update on app_table_meta to app_core_writer;
+grant select,insert,update on app_permission to app_core_writer;
+grant select,insert,update on app_role to app_core_writer;
+
+grant select,insert,update on app_localization to app_localization_writer;
+grant select,insert,update on data_change_d300 to app_localization_writer;
+
+grant select,insert,update on app_parameter to app_parameter_writer;
+grant select,insert,update on data_change_d300 to app_parameter_writer;
+
+grant select,insert,update on app_key to app_key_writer;
+grant select,insert,update on data_change_d300 to app_key_writer;
