@@ -70,7 +70,7 @@ values ('DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
 values ('DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
-values ('LS_MAIN', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 3, '5/(24*60)');
+values ('LS_MAIN', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
 values ('LS_MAIN', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 3, '5/(24*60)');
 insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)

@@ -155,6 +155,9 @@ CREATE TABLE fixture (
   event_type varchar2(1023),
   source_last_update_ts varchar2(1023),
   participants varchar2(32767),
+  prematch_bet_data varchar2(32767),
+  inplay_bet_data varchar2(32767),
+  livescore_data varchar2(32767),
   extra_data varchar2(32767),
 
   inplay_status varchar2(1023),
@@ -176,6 +179,88 @@ ENABLE ROW MOVEMENT;
 ALTER TABLE fixture ADD CONSTRAINT pk_fixture PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 CREATE INDEX ind_fixture_start_date ON fixture (start_date) TABLESPACE app_main_index;
 
+CREATE TABLE fixture_livescore (
+  id number(32,0),
+  fixture_id number(32,0),
+  data_name varchar2(1023),
+  data_value varchar2(32767),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  partition_date date default SYSDATE
+)
+partition by range(partition_date)
+interval (numtodsinterval(7,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+);
+
+ALTER TABLE fixture_livescore ADD CONSTRAINT pk_fixture_livescore PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE INDEX ind_fixture_livescore_fixture ON fixture_livescore (fixture_id) TABLESPACE app_main_index;
+
+CREATE TABLE fixture_prematch_bet (
+  id number(32,0),
+  fixture_id number(32,0),
+  bookmaker_id number(32,0),
+  market_type_id number(32,0),
+
+  market_baseline varchar2(1023),
+  market_line varchar2(1023),
+  name varchar2(1023),
+  bet_status varchar2(1023),
+  bet_settlement varchar2(1023),
+  start_price number(16,4),
+  current_price number(16,4),
+  source_last_update_ts varchar2(1023),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  partition_date date default SYSDATE
+)
+partition by range(partition_date)
+interval (numtodsinterval(7,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+)
+ENABLE ROW MOVEMENT;
+
+ALTER TABLE fixture_prematch_bet ADD CONSTRAINT pk_fixture_prematch_bet PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE INDEX ind_fixture_prematch_bet_fixture ON fixture_prematch_bet (fixture_id) TABLESPACE app_main_index;
+
+CREATE TABLE fixture_inplay_bet (
+  id number(32,0),
+  fixture_id number(32,0),
+  bookmaker_id number(32,0),
+  market_type_id number(32,0),
+  
+  market_baseline varchar2(1023),
+  market_line varchar2(1023),
+  name varchar2(1023),
+  bet_status varchar2(1023),
+  bet_settlement varchar2(1023),
+  start_price number(16,4),
+  current_price number(16,4),
+  source_last_update_ts varchar2(1023),
+
+  create_date number(32,0),
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  partition_date date default SYSDATE
+)
+partition by range(partition_date)
+interval (numtodsinterval(1,'day'))
+(partition p0 values less than
+  (to_date('2024-01-01','YYYY-MM-DD'))
+);
+
+ALTER TABLE fixture_inplay_bet ADD CONSTRAINT pk_fixture_inplay_bet PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE INDEX ind_fixture_inplay_bet_fixture ON fixture_inplay_bet (fixture_id) TABLESPACE app_main_index;
+
 create role ls_data_writer;
 create role ls_data_reader;
 
@@ -186,6 +271,9 @@ GRANT SELECT, INSERT, UPDATE ON market_type TO ls_data_writer;
 GRANT SELECT, INSERT, UPDATE ON league TO ls_data_writer;
 GRANT SELECT, INSERT, UPDATE ON player TO ls_data_writer;
 GRANT SELECT, INSERT, UPDATE ON fixture TO ls_data_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_livescore TO ls_data_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_prematch_bet TO ls_data_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_inplay_bet TO ls_data_writer;
 
 GRANT SELECT ON sport TO ls_data_reader;
 GRANT SELECT ON location TO ls_data_reader;
@@ -194,5 +282,8 @@ GRANT SELECT ON market_type TO ls_data_reader;
 GRANT SELECT ON league TO ls_data_reader;
 GRANT SELECT ON player TO ls_data_reader;
 GRANT SELECT ON fixture TO ls_data_reader;
+GRANT SELECT ON fixture_livescore TO ls_data_reader;
+GRANT SELECT ON fixture_prematch_bet TO ls_data_writer;
+GRANT SELECT ON fixture_inplay_bet TO ls_data_writer;
 
 
