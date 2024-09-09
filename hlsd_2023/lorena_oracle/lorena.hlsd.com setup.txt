@@ -3,7 +3,7 @@
 # set hostname, setup network, set timezone
 # set ip or add mac to pfsense
 # create yildiz user, no root
-# install, reboot, accept liceense, no location services, no accounts
+# install, reboot, accept license, no location services, no accounts
 # update, reboot
 
 # add id_rsa
@@ -176,7 +176,7 @@ su - oracle
 sqlplus / as sysdba
 startup mount
 show parameter target; # for memory parameters
-show parameter db_recory_file_dest; # for fra parameters
+show parameter db_recovery_file_dest; # for fra parameters
 alter system set db_create_file_dest='/uoradata';
 alter system set db_flashback_retention_target = 2880; # 2 days
 alter system set undo_retention = 2880; # 2 days
@@ -224,7 +224,6 @@ systemctl status dbora
 reboot
 
 create_tablespaces.sql
-crete_users.sql
 create_db_admin.sql
 create_app_core.sql
 # TODO done up to here, rest is pending

@@ -33,7 +33,7 @@ create table DB_SYSTEM_LOG (
 partition by range(CREATE_DATE)
 interval (numtodsinterval(7,'day'))
 (partition p0 values less than
-  (to_date('2022-01-01','YYYY-MM-DD'))
+  (to_date('2024-01-01','YYYY-MM-DD'))
 );
 /
 
@@ -51,7 +51,7 @@ create table DDL_HISTORY_LOG (
 partition by range(CREATE_DATE)
 interval (numtodsinterval(7,'day'))
 (partition p0 values less than
-  (to_date('2022-01-01','YYYY-MM-DD'))
+  (to_date('2024-01-01','YYYY-MM-DD'))
 );
 /
 
@@ -65,17 +65,17 @@ create table DB_PARTITION_CLEANUP (
 );
 /
 
-insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
-insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
-insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('LS_MAIN', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
-insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('LS_MAIN', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
-insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('FS_MAIN', 'FS_FEED_FILE', 'PARTITION_DATE', 4, '1/24');
-insert into DB_PARTITION_CLEANUP (tablespace_name, table_owner, table_name, table_column, num_days, delete_interval)
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('PA_MAIN', 'PA_FEED_FILE', 'PARTITION_DATE', 30, '1/24');
 
 create or replace view VIEW_TABLESPACE_STATUS

@@ -72,7 +72,7 @@ openssl ca -config openssl.conf -gencrl -out crl.pem
 # install nvm, check repo for latest version https://github.com/nvm-sh/nvm
 add user unodejs
 su - unodejs
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 source .bashrc
 nvm -v
 nvm ls-remote
