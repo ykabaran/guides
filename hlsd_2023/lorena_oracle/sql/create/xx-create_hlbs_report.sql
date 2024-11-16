@@ -8,14 +8,20 @@ grant connect, resource to hlbs_report;
 
 alter session set current_schema = hlbs_report;
 
-create table betcardmas_stat (
-  id number(32,0), -- generated from card_date, teg_id, cgt_id, bcde_rateno
-  card_date date, -- rounded to 10min for prematch, 1min for inplay, unique index
-  teg_id number(32,0), -- unique index
-  cgt_id number(32,0), -- unique index
-  bcde_rateno number(32,0), -- unique index
-  cgtg_id number(32,0), -- not included in unique index because cgt_id is
-  teg_type varchar2(1023), -- prematch or inplay
+create table betcard_stat (
+  id number(32,0), -- generated from card_date, tgr_id, bcde_rateno
+  card_date date, -- rounded to 15min, unique index column
+  tgr_id number(32,0), -- unique index column
+  bcde_rateno number(32,0), -- unique index column
+  cat_id number(32,0),
+  lea_id number(32,0),
+  teg_id number(32,0),
+  is_live number(1,0), -- if teg is a live match
+  cgtg_id number(32,0),
+  cgt_id number(32,0),
+  teg_gamedate date,
+  teg_team_idhome number(32,0),
+  teg_team_idaway number(32,0),
 
   total_bets number(32,0),
   total_stake number(24,2),
@@ -62,8 +68,8 @@ interval (numtodsinterval(30,'day'))
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
 tablespace APP_MAIN;
-ALTER TABLE betcardmas_stat ADD CONSTRAINT pk_betcardmas_stat PRIMARY KEY (id) USING INDEX TABLESPACE APP_MAIN_INDEX;
-CREATE UNIQUE INDEX unq_betcardmas_stat ON betcardmas_stat (card_date, teg_id, cgt_id, bcde_rateno) tablespace APP_MAIN_INDEX;
+ALTER TABLE betcard_stat ADD CONSTRAINT pk_betcard_stat PRIMARY KEY (id) USING INDEX TABLESPACE APP_MAIN_INDEX;
+CREATE UNIQUE INDEX unq_betcard_stat ON betcard_stat (card_date, tgr_id, bcde_rateno) tablespace APP_MAIN_INDEX;
 
 create table customer_stat (
   id number(32,0), -- generated from bet_date, bet_type, sub_id 
@@ -156,18 +162,24 @@ interval (numtodsinterval(1,'day'))
 )
 nologging
 tablespace app_log;
-ALTER TABLE data_change_d7 ADD CONSTRAINT pk_data_change_d7 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d7_change_date ON data_change_d7 (change_date) tablespace app_log;
-CREATE INDEX ind_data_change_d7_data_id ON data_change_d7 (data_id) tablespace app_log;
+ALTER TABLE data_change_d1 ADD CONSTRAINT pk_data_change_d1 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
+CREATE INDEX ind_data_change_d1_change_date ON data_change_d1 (change_date) tablespace app_log;
+CREATE INDEX ind_data_change_d1_data_id ON data_change_d1 (data_id) tablespace app_log;
+
+insert into DB_ADMIN.DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('HLBS_REPORT', 'BETCARD_STAT', 'PARTITION_DATE', 185, '1/24');
+insert into DB_ADMIN.DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('HLBS_REPORT', 'DATA_CHANGE_D1', 'PARTITION_DATE', 3, '1/24');
 
 create role hlbs_report_reader;
 create role hlbs_report_writer;
 
-grant select on betcardmas_stat to hlbs_report_reader;
+grant select on betcard_stat to hlbs_report_reader;
 grant select on data_change_d1 to hlbs_report_reader;
 
-grant select, insert, update on betcardmas_stat to hlbs_report_writer;
+grant select, insert, update on betcard_stat to hlbs_report_writer;
 grant select, insert, update on data_change_d1 to hlbs_report_writer;
+
 
 
 

@@ -1,0 +1,17 @@
+Oracle TLS SMTP Setup
+
+Download STunnel and make it a service
+
+in conf/stunner.conf disable all and add this:
+
+[mail-nicobet-net]
+client = yes
+accept = 127.0.0.1:3023
+connect = netsol-smtp-oxcs.hostingplatform.com:587
+protocol = smtp
+
+add the acl to localhost:3023
+
+sources:
+https://www.networksolutions.com/help/article/how-do-i-get-started-with-pop3-and-imap
+http://monkeyonoracle.blogspot.com/2009/11/plsql-and-gmail-or-utlsmtp-with-ssl.html
