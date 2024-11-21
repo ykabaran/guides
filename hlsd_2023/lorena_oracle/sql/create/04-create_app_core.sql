@@ -107,16 +107,10 @@ create table app_localization (
 tablespace APP_CORE;
 ALTER TABLE app_localization ADD CONSTRAINT pk_app_localization PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
 
-create table app_key (
-  id varchar2(1023),
+create table app_secret (
+  id number(32,0),
   name varchar2(1023),
-  role_data varchar2(32767), -- key roles
-
-  value varchar2(32767),
-
-  use_start_date number(32,0),
-  use_end_date number(32,0),
-  valid_until_date number(32,0),
+  data varchar2(32767),
 
   create_date number(32,0),
   status varchar2(1023),
@@ -131,7 +125,7 @@ interval (numtodsinterval(7,'day'))
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
 tablespace APP_CORE;
-ALTER TABLE app_key ADD CONSTRAINT pk_app_key PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
 
 create table data_change_d300 (
   id number(32,0),
@@ -164,14 +158,14 @@ create role app_core_reader;
 create role app_core_writer;
 create role app_localization_writer;
 create role app_parameter_writer;
-create role app_key_writer;
+create role app_secret_writer;
 
 grant select on app_table_meta to app_core_reader;
 grant select on app_permission to app_core_reader;
 grant select on app_role to app_core_reader;
 grant select on app_parameter to app_core_reader;
 grant select on app_localization to app_core_reader;
-grant select on app_key to app_core_reader;
+grant select on app_secret to app_core_reader;
 grant select on data_change_d300 to app_core_reader;
 
 grant select,insert,update on app_table_meta to app_core_writer;
@@ -184,5 +178,5 @@ grant select,insert,update on data_change_d300 to app_localization_writer;
 grant select,insert,update on app_parameter to app_parameter_writer;
 grant select,insert,update on data_change_d300 to app_parameter_writer;
 
-grant select,insert,update on app_key to app_key_writer;
-grant select,insert,update on data_change_d300 to app_key_writer;
+grant select,insert,update on app_secret to app_secret_writer;
+grant select,insert,update on data_change_d300 to app_secret_writer;

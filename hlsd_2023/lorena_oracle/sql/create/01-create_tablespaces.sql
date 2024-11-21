@@ -39,6 +39,10 @@ create tablespace app_log
 	NOLOGGING;
 alter tablespace app_log
    add datafile '/uoradata/LORENA/app_log02.dbf' size 4G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/LORENA/app_log03.dbf' size 4G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/LORENA/app_log04.dbf' size 4G autoextend off;
 create tablespace app_core
 	datafile '/uoradata/LORENA/app_core01.dbf' size 2G autoextend off;
 create tablespace app_main

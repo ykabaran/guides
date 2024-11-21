@@ -1,0 +1,29 @@
+cd /root/pki
+mkdir star_slothinteractive_com
+cd star_slothinteractive_com
+openssl genrsa -aes256 -out private.key 4096
+chmod 400 private.key
+nano openssl.conf
+# OpenSSL configuration file.
+[req]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+prompt              = no
+
+[req_distinguished_name]
+countryName                     = CY
+stateOrProvinceName             = Nicosia
+localityName                    = Nicosia
+0.organizationName              = High Level Software Ltd
+commonName                      = *.slothinteractive.com
+
+openssl req -config openssl.conf -new -sha256 -key private.key -out server.csr
+# submit csr and get them signed, and copy the crt files back here
+cat db6cacac8c60159c.crt gd_bundle-g2-g1.crt > server.bundled.crt
+openssl pkcs12 -export -out server.p12 -inkey private.key -in server.bundled.crt
+openssl rsa -in private.key -out private.unencryted.key
+cd /root/pki
+7z a -p ./star_slothinteractive_com.7z star_slothinteractive_com
+cd star_slothinteractive_com
+rm -f private.unencryted.key

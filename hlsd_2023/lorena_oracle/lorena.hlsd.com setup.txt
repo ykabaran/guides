@@ -239,8 +239,6 @@ crontab -e
 5 4 * * 0,2,4,6 /home/oracle/scripts/rman_level1.sh
 5 16 * * * /home/oracle/scripts/rman_level1.sh
 
-# END TODO
-
 # as root
 cd /root
 mkdir pki

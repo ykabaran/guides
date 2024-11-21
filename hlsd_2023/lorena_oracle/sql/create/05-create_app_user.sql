@@ -97,7 +97,7 @@ create table data_change_d7 (
   partition_date date default sysdate
 )
 partition by range(partition_date)
-interval (numtodsinterval(30,'day'))
+interval (numtodsinterval(7,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
@@ -147,7 +147,7 @@ create table data_change_d300 (
   partition_date date default sysdate
 )
 partition by range(partition_date)
-interval (numtodsinterval(30,'day'))
+interval (numtodsinterval(300,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
