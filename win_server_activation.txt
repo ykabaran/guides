@@ -1,0 +1,5 @@
+slmgr /ipk N69G4-B89J2-4G8F4-WWYCC-J464C
+slmgr /skms kms.digiboy.ir
+slmgr /ato
+slmgr /dli
+slmgr /xpr
