@@ -9,7 +9,7 @@ grant connect, resource to app_user;
 alter session set current_schema = app_user;
 
 create table app_device (
-	id varchar2(1023),
+	id number(32,0),
   usage_data varchar2(32767), -- ip addresses, users, user agents
 
   status varchar2(1023),
@@ -29,10 +29,11 @@ tablespace app_main;
 ALTER TABLE app_device ADD CONSTRAINT pk_app_device PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
 create table app_user (
-	id varchar2(1023),
+	id number(32,0),
 	username varchar2(1023) not null,
 	name varchar2(1023),
 	email varchar2(1023),
+  parent_id number(32,0),
 
 	auth_data varchar2(32767), -- login types, password, 2fa token, email confirmation token; encrypted with user_key from private_config
 	role_data varchar2(32767), -- roles with params
@@ -55,9 +56,9 @@ ALTER TABLE app_user ADD CONSTRAINT pk_app_user PRIMARY KEY (id) USING INDEX TAB
 CREATE UNIQUE INDEX ind_app_user_username ON app_user (username) tablespace APP_MAIN_INDEX;
 
 create table app_session (
-	id varchar2(1023),
-	device_id varchar2(1023),
-	user_id varchar2(1023),
+	id number(32,0),
+	device_id number(32,0),
+	user_id number(32,0),
 
   auth_data varchar2(32767), -- refresh keys, csrf tokens; encrypted with session_key
   role_data varchar2(32767), -- roles with params
