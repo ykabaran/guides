@@ -5,7 +5,8 @@ grant connect,
 		app_parameter_writer,
 		app_key_writer,
 		app_user_writer,
-		hlbs_report_writer
+		hlbs_report_writer,
+		ls_data_writer
 	to app_test_user01;
 
 create user pa_feed_file_creator01 identified by "";
