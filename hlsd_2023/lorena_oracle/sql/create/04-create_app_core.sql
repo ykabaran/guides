@@ -131,10 +131,12 @@ create table data_change_d300 (
   id number(32,0),
   table_id number(32,0),
   data_id number(32,0),
+  parent_id number(32,0),
+  column_name varchar2(1023),
   
   change_type varchar2(1023),
-  before_data varchar2(32767),
-  after_data varchar2(32767),
+  before_value varchar2(32767),
+  after_value varchar2(32767),
   source_data varchar2(32767),
 
   version number(16,0),
@@ -142,10 +144,11 @@ create table data_change_d300 (
   partition_date date default sysdate
 )
 partition by range(partition_date)
-interval (numtodsinterval(300,'day'))
+interval (numtodsinterval(7,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
+pctfree 0
 nologging
 tablespace app_log;
 ALTER TABLE data_change_d300 ADD CONSTRAINT pk_data_change_d300 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;

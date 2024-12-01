@@ -35,14 +35,16 @@ alter database drop logfile group 2;
 alter database drop logfile group 3;
 
 create tablespace app_log
-	datafile '/uoradata/LORENA/app_log01.dbf' size 4G autoextend off
+	datafile '/uoradata/LORENA/app_log01.dbf' size 8G autoextend off
 	NOLOGGING;
 alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log02.dbf' size 4G autoextend off;
+   add datafile '/uoradata/LORENA/app_log02.dbf' size 8G autoextend off;
 alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log03.dbf' size 4G autoextend off;
+   add datafile '/uoradata/LORENA/app_log03.dbf' size 8G autoextend off;
 alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log04.dbf' size 4G autoextend off;
+   add datafile '/uoradata/LORENA/app_log04.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/LORENA/app_log05.dbf' size 8G autoextend off;
 create tablespace app_core
 	datafile '/uoradata/LORENA/app_core01.dbf' size 2G autoextend off;
 create tablespace app_main
