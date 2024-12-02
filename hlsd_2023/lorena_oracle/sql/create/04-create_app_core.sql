@@ -136,22 +136,22 @@ CREATE UNIQUE INDEX unq_app_secret_name ON app_secret (name) tablespace APP_MAIN
 
 create table data_change_d300 (
   id number(32,0),
-  table_id number(32,0),
-  data_id number(32,0),
+  table_id number(32,0) not null,
+  data_id number(32,0) not null,
   parent_id number(32,0),
   column_name varchar2(1023),
   
-  change_type varchar2(1023),
+  change_type varchar2(1023) not null,
   before_value varchar2(32767),
   after_value varchar2(32767),
   source_data varchar2(32767),
 
-  version number(16,0),
-  change_date number(32,0),
-  partition_date date default sysdate
+  version number(16,0) not null,
+  change_date number(32,0) not null,
+  partition_date date default sysdate not null 
 )
 partition by range(partition_date)
-interval (numtodsinterval(7,'day'))
+interval (numtodsinterval(300,'day'))
 (partition p0 values less than
   (to_date('2024-01-01','YYYY-MM-DD'))
 )
