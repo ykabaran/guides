@@ -3,9 +3,13 @@ grant connect,
 		app_core_writer,
 		app_localization_writer,
 		app_parameter_writer,
-		app_key_writer,
+		app_secret_writer,
 		app_user_writer,
-		hlbs_report_writer
+		hlbs_report_writer,
+		app_core_deleter,
+		app_localization_deleter,
+		app_parameter_deleter,
+		app_user_deleter
 	to app_test_user01;
 
 create user pa_feed_file_creator01 identified by "";

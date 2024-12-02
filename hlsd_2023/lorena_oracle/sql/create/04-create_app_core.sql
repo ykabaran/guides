@@ -49,6 +49,7 @@ create table app_table_meta (
 )
 tablespace APP_CORE;
 ALTER TABLE app_table_meta ADD CONSTRAINT pk_app_table_meta PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+CREATE UNIQUE INDEX unq_app_table_meta_name ON app_table_meta (name) tablespace APP_MAIN_INDEX;
 
 create table app_permission (
   id varchar2(1023),
@@ -63,6 +64,7 @@ create table app_permission (
 )
 tablespace APP_CORE;
 ALTER TABLE app_permission ADD CONSTRAINT pk_app_permission PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+CREATE UNIQUE INDEX unq_app_permission_name ON app_permission (name) tablespace APP_MAIN_INDEX;
 
 create table app_role (
   id varchar2(1023),
@@ -77,6 +79,7 @@ create table app_role (
 )
 tablespace APP_CORE;
 ALTER TABLE app_role ADD CONSTRAINT pk_app_role PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+CREATE UNIQUE INDEX unq_app_role_name ON app_role (name) tablespace APP_MAIN_INDEX;
 
 create table app_parameter (
   id number(32,0),
@@ -91,6 +94,7 @@ create table app_parameter (
 )
 tablespace APP_CORE;
 ALTER TABLE app_parameter ADD CONSTRAINT pk_app_parameter PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+CREATE UNIQUE INDEX unq_app_parameter_name ON app_parameter (name) tablespace APP_MAIN_INDEX;
 
 create table app_localization (
   id number(32,0),
@@ -106,6 +110,8 @@ create table app_localization (
 )
 tablespace APP_CORE;
 ALTER TABLE app_localization ADD CONSTRAINT pk_app_localization PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+CREATE UNIQUE INDEX unq_app_localization_name ON app_localization (name) tablespace APP_MAIN_INDEX;
+CREATE UNIQUE INDEX unq_app_localization_reference_id ON app_localization (reference_id) tablespace APP_MAIN_INDEX;
 
 create table app_secret (
   id number(32,0),
@@ -126,6 +132,7 @@ interval (numtodsinterval(7,'day'))
 )
 tablespace APP_CORE;
 ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
+CREATE UNIQUE INDEX unq_app_secret_name ON app_secret (name) tablespace APP_MAIN_INDEX;
 
 create table data_change_d300 (
   id number(32,0),
@@ -156,8 +163,11 @@ GRANT EXECUTE ON pkg_date TO PUBLIC;
 
 create role app_core_reader;
 create role app_core_writer;
+create role app_core_deleter;
 create role app_localization_writer;
+create role app_localization_deleter;
 create role app_parameter_writer;
+create role app_parameter_deleter;
 create role app_secret_writer;
 
 grant select on app_table_meta to app_core_reader;
@@ -171,12 +181,17 @@ grant select on data_change_d300 to app_core_reader;
 grant select,insert,update on app_table_meta to app_core_writer;
 grant select,insert,update on app_permission to app_core_writer;
 grant select,insert,update on app_role to app_core_writer;
+grant select,insert,update,delete on app_table_meta to app_core_deleter;
+grant select,insert,update,delete on app_permission to app_core_deleter;
+grant select,insert,update,delete on app_role to app_core_deleter;
 
 grant select,insert,update on app_localization to app_localization_writer;
 grant select,insert,update on data_change_d300 to app_localization_writer;
+grant select,insert,update,delete on app_localization to app_localization_deleter;
 
 grant select,insert,update on app_parameter to app_parameter_writer;
 grant select,insert,update on data_change_d300 to app_parameter_writer;
+grant select,insert,update,delete on app_parameter to app_parameter_deleter;
 
 grant select,insert,update on app_secret to app_secret_writer;
 grant select,insert,update on data_change_d300 to app_secret_writer;
