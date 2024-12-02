@@ -1,5 +1,15 @@
-slmgr /ipk N69G4-B89J2-4G8F4-WWYCC-J464C
+#chage server edition
+DISM /online /set-edition:serverstandard /productkey:N69G4-B89J2-4G8F4-WWYCC-J464C /accepteula
+
+# change activation server
 slmgr /skms kms.digiboy.ir
+# change product key
+slmgr /ipk N69G4-B89J2-4G8F4-WWYCC-J464C
+# activate online immediately
 slmgr /ato
-slmgr /dli
+
+# check license expiration
 slmgr /xpr
+# check detailed license informationy
+slmgr /dli
+
