@@ -340,7 +340,6 @@ pctfree 0
 nologging
 tablespace app_log;
 ALTER TABLE data_change_d30 ADD CONSTRAINT pk_data_change_d30 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d30_change_date ON data_change_d30 (change_date) tablespace app_log;
 CREATE INDEX ind_data_change_d30_data_id ON data_change_d30 (data_id) tablespace app_log;
 
 create table data_change_d7 (
@@ -368,7 +367,6 @@ pctfree 0
 nologging
 tablespace app_log;
 ALTER TABLE data_change_d7 ADD CONSTRAINT pk_data_change_d7 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d7_change_date ON data_change_d7 (change_date) tablespace app_log;
 CREATE INDEX ind_data_change_d7_data_id ON data_change_d7 (data_id) tablespace app_log;
 
 create table data_change_d1 (
@@ -396,7 +394,6 @@ pctfree 0
 nologging
 tablespace app_log;
 ALTER TABLE data_change_d1 ADD CONSTRAINT pk_data_change_d1 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d1_change_date ON data_change_d1 (change_date) tablespace app_log;
 CREATE INDEX ind_data_change_d1_data_id ON data_change_d1 (data_id) tablespace app_log;
 
 

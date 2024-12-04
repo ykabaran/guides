@@ -159,7 +159,6 @@ pctfree 0
 nologging
 tablespace app_log;
 ALTER TABLE data_change_d300 ADD CONSTRAINT pk_data_change_d300 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d300_change_date ON data_change_d300 (change_date) tablespace app_log;
 CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespace app_log;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
