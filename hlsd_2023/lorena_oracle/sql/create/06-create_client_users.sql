@@ -10,7 +10,8 @@ grant connect,
 		app_localization_deleter,
 		app_parameter_deleter,
 		app_user_deleter,
-		ls_data_writer
+		ls_data_writer,
+		gs_data_writer
 	to app_test_user01;
 
 create user pa_feed_file_creator01 identified by "";
