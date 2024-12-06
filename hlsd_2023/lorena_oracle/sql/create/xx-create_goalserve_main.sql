@@ -18,6 +18,7 @@ create table prematch_feed_file (
   file_mime_type varchar2(1023),
   file_hash varchar2(1023) not null,
   file_data varchar2(32767),
+  file_is_partial number(1,0),
 
   file_is_clob number(1,0),
   file_body varchar2(32767),
@@ -48,6 +49,7 @@ create table inplay_feed_file (
   file_mime_type varchar2(1023),
   file_hash varchar2(1023) not null,
   file_data varchar2(32767),
+  file_is_partial number(1,0),
 
   file_is_clob number(1,0),
   file_body varchar2(32767),

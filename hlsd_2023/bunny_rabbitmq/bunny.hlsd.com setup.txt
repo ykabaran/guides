@@ -34,14 +34,33 @@ ufw allow 5672/tcp
 rabbitmq-diagnostics status
 
 rabbitmqctl add_vhost lsports --description "LSports Related Queues" 
-rabbitmqctl add_user ls_inplay_prod ""
-rabbitmqctl add_user ls_inplay_cons ""
-rabbitmqctl set_permissions -p lsports ls_inplay_prod "_inplay_" "amq.default|_inplay_" "amq.default|_inplay_"
-rabbitmqctl set_permissions -p lsports ls_inplay_cons "" "" "amq.default|_inplay_"
-rabbitmqctl add_user ls_prematch_prod ""
-rabbitmqctl add_user ls_prematch_cons ""
-rabbitmqctl set_permissions -p lsports ls_prematch_prod "_prematch_" "amq.default|_prematch_" "amq.default|_prematch_"
-rabbitmqctl set_permissions -p lsports ls_prematch_cons "" "" "amq.default|_prematch_"
+rabbitmqctl add_user ls_inplay_feed_prod ""
+rabbitmqctl add_user ls_inplay_feed_cons ""
+rabbitmqctl set_permissions -p lsports ls_inplay_feed_prod "_inplay_feed_file_" "amq.default|_inplay_feed_file_" "amq.default|_inplay_feed_file_"
+rabbitmqctl set_permissions -p lsports ls_inplay_feed_cons "" "" "amq.default|_inplay_feed_file_"
+rabbitmqctl add_user ls_prematch_feed_prod ""
+rabbitmqctl add_user ls_prematch_feed_cons ""
+rabbitmqctl set_permissions -p lsports ls_prematch_feed_prod "_prematch_feed_file_" "amq.default|_prematch_feed_file_" "amq.default|_prematch_feed_file_"
+rabbitmqctl set_permissions -p lsports ls_prematch_feed_cons "" "" "amq.default|_prematch_feed_file_"
+rabbitmqctl add_user ls_change_log_prod ""
+rabbitmqctl add_user ls_change_log_cons ""
+rabbitmqctl set_permissions -p lsports ls_change_log_prod "_change_log_" "amq.default|_change_log_" "amq.default|_change_log_"
+rabbitmqctl set_permissions -p lsports ls_change_log_cons "" "" "amq.default|_change_log_"
+
+rabbitmqctl add_vhost goalserve --description "Goalserve Related Queues" 
+rabbitmqctl add_user gs_inplay_feed_prod ""
+rabbitmqctl add_user gs_inplay_feed_cons ""
+rabbitmqctl set_permissions -p goalserve gs_inplay_feed_prod "_inplay_feed_file_" "amq.default|_inplay_feed_file_" "amq.default|_inplay_feed_file_"
+rabbitmqctl set_permissions -p goalserve gs_inplay_feed_cons "" "" "amq.default|_inplay_feed_file_"
+rabbitmqctl add_user gs_prematch_feed_prod ""
+rabbitmqctl add_user gs_prematch_feed_cons ""
+rabbitmqctl set_permissions -p goalserve gs_prematch_feed_prod "_prematch_feed_file_" "amq.default|_prematch_feed_file_" "amq.default|_prematch_feed_file_"
+rabbitmqctl set_permissions -p goalserve gs_prematch_feed_cons "" "" "amq.default|_prematch_feed_file_"
+rabbitmqctl add_user gs_change_log_prod ""
+rabbitmqctl add_user gs_change_log_cons ""
+rabbitmqctl set_permissions -p goalserve gs_change_log_prod "_change_log_" "amq.default|_change_log_" "amq.default|_change_log_"
+rabbitmqctl set_permissions -p goalserve gs_change_log_cons "" "" "amq.default|_change_log_"
+
 
 rabbitmqctl add_vhost arc_pa --description "Arc TV and PA Related Queues" 
 rabbitmqctl add_user pa_prod ""
@@ -70,3 +89,7 @@ rabbitmqctl delete_queue -p lsports _inplay_
 rabbitmqctl delete_queue -p lsports _prematch_
 rabbitmqctl delete_queue -p arc_pa _feed_
 rabbitmqctl delete_queue -p flashscore _feed_
+
+rabbitmqctl delete_queue -p goalserve _inplay_feed_file_
+rabbitmqctl delete_queue -p goalserve _prematch_feed_file_
+rabbitmqctl delete_queue -p goalserve _change_log_
