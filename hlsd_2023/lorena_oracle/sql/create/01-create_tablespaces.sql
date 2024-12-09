@@ -45,6 +45,12 @@ alter tablespace app_log
    add datafile '/uoradata/LORENA/app_log04.dbf' size 8G autoextend off;
 alter tablespace app_log
    add datafile '/uoradata/LORENA/app_log05.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/LORENA/app_log06.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/LORENA/app_log07.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/LORENA/app_log08.dbf' size 8G autoextend off;
 create tablespace app_core
 	datafile '/uoradata/LORENA/app_core01.dbf' size 2G autoextend off;
 create tablespace app_main
@@ -73,6 +79,8 @@ alter tablespace feed_file
    add datafile '/uoradata/LORENA/feed_file04.dbf' size 8G autoextend off;
 alter tablespace feed_file
    add datafile '/uoradata/LORENA/feed_file05.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/LORENA/feed_file06.dbf' size 8G autoextend off;
 
 
 select
