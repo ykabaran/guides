@@ -113,6 +113,8 @@ CREATE TABLE market_type (
   gs_id varchar2(1023) not null,
   name varchar2(1023) not null,
 
+  meta_data varchar2(32767),
+
   status varchar2(1023),
   version number(16,0),
   change_date number(32,0),
@@ -387,7 +389,9 @@ GRANT SELECT, INSERT, UPDATE ON sport TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON bookmaker TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON market_type TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON league TO gs_data_writer;
+GRANT SELECT, INSERT, UPDATE ON player TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON fixture TO gs_data_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_data_path TO gs_data_writer;
 grant SELECT, INSERT ON prematch_feed_file to gs_data_writer;
 grant SELECT, INSERT ON inplay_feed_file to gs_data_writer;
 GRANT SELECT, INSERT ON data_change_d30 TO gs_data_writer;
@@ -399,7 +403,9 @@ GRANT SELECT ON sport TO gs_data_reader;
 GRANT SELECT ON bookmaker TO gs_data_reader;
 GRANT SELECT ON market_type TO gs_data_reader;
 GRANT SELECT ON league TO gs_data_reader;
+GRANT SELECT ON player TO gs_data_reader;
 GRANT SELECT ON fixture TO gs_data_reader;
+GRANT SELECT ON fixture_data_path TO gs_data_reader;
 grant SELECT ON prematch_feed_file to gs_data_reader;
 grant SELECT ON inplay_feed_file to gs_data_reader;
 GRANT SELECT ON data_change_d30 TO gs_data_reader;
