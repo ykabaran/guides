@@ -97,6 +97,19 @@ CREATE TABLE sport (
 ALTER TABLE sport ADD CONSTRAINT pk_sport PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 CREATE UNIQUE INDEX unq_sport_gs_id ON sport (gs_id) TABLESPACE app_main_index;
 
+CREATE TABLE location (
+  id number(32,0),
+  gs_id varchar2(1023) not null,
+  name varchar2(1023) not null,
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0)
+);
+ALTER TABLE location ADD CONSTRAINT pk_location PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE UNIQUE INDEX unq_location_gs_id ON location (gs_id) TABLESPACE app_main_index;
+
 CREATE TABLE bookmaker (
   id number(32,0),
   gs_id varchar2(1023) not null,
@@ -128,8 +141,8 @@ CREATE UNIQUE INDEX unq_market_type_gs_id ON market_type (gs_id) TABLESPACE app_
 CREATE TABLE league (
   id number(32,0),
   gs_id varchar2(1023) not null,
-  gs_gid varchar2(1023) not null,
   sport_id number(32,0) not null,
+  location_id number(32,0) not null,
   name varchar2(1023) not null,
 
   status varchar2(1023),
@@ -170,6 +183,7 @@ CREATE TABLE fixture (
   id number(32,0),
   gs_id varchar2(1023) not null,
   sport_id number(32,0) not null,
+  location_id number(32,0) not null,
   league_id number(32,0) not null,
 
   start_date number(32,0) not null,
@@ -388,12 +402,15 @@ create role gs_data_reader;
 
 GRANT SELECT, INSERT, UPDATE ON service_status TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON sport TO gs_data_writer;
+GRANT SELECT, INSERT, UPDATE ON location TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON bookmaker TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON market_type TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON league TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON player TO gs_data_writer;
-GRANT SELECT, INSERT, UPDATE ON fixture TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON fixture_data_path TO gs_data_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_data TO gs_data_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_prematch_bet TO gs_data_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_inplay_bet TO gs_data_writer;
 grant SELECT, INSERT ON prematch_feed_file to gs_data_writer;
 grant SELECT, INSERT ON inplay_feed_file to gs_data_writer;
 GRANT SELECT, INSERT ON data_change_d30 TO gs_data_writer;
@@ -402,12 +419,16 @@ GRANT SELECT, INSERT ON data_change_d1 TO gs_data_writer;
 
 GRANT SELECT ON service_status TO gs_data_reader;
 GRANT SELECT ON sport TO gs_data_reader;
+GRANT SELECT ON location TO gs_data_reader;
 GRANT SELECT ON bookmaker TO gs_data_reader;
 GRANT SELECT ON market_type TO gs_data_reader;
 GRANT SELECT ON league TO gs_data_reader;
 GRANT SELECT ON player TO gs_data_reader;
-GRANT SELECT ON fixture TO gs_data_reader;
 GRANT SELECT ON fixture_data_path TO gs_data_reader;
+GRANT SELECT ON fixture TO gs_data_reader;
+GRANT SELECT ON fixture_data TO gs_data_reader;
+GRANT SELECT ON fixture_prematch_bet TO gs_data_reader;
+GRANT SELECT ON fixture_inplay_bet TO gs_data_reader;
 grant SELECT ON prematch_feed_file to gs_data_reader;
 grant SELECT ON inplay_feed_file to gs_data_reader;
 GRANT SELECT ON data_change_d30 TO gs_data_reader;

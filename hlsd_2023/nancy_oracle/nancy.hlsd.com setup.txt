@@ -1,0 +1,173 @@
+# Install Oracle Linux 8
+# 4 vCPUs, 12GB RAM, 100GB storage
+# partition 20Gib /, 20Gib /home, 16Gib swap, /uora 42Gib
+# set hostname, setup network, set timezone
+# set ip or add mac to pfsense
+# create yildiz user, no root
+# install, reboot, accept license, no location services, no accounts
+# update, reboot
+
+# add id_rsa
+# connect ssh with id_rsa
+ssh-copy-id -i id_rsa yildiz@nancy.hlsd.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+# increase size of /dev/shm to RAM size, if less
+nano /etc/fstab
+none		/dev/shm		tempfs	defaults,size=16G	0 0
+systemctl daemon-reload
+mount -o remount /dev/shm
+df -h
+
+reboot
+
+# set hostname and hosts
+nano /etc/hostname
+nancy.hlsd.com
+nano /etc/hosts
+10.13.40.36 nancy.hlsd.com nancy
+
+# install prereqs and update
+dnf install -y oracle-database-preinstall-19c
+yum update -y
+
+# setup misc
+passwd oracle
+# set to 123456
+
+# transfer permissions to oracle
+chown -R oracle:oinstall /uora
+chmod -R 775 /uora
+
+nano /etc/selinux/config
+SELINUX=permissive
+
+firewall-cmd --permanent --zone=public --add-port=1521/tcp
+firewall-cmd --permanent --zone=public --add-port=2484/tcp
+firewall-cmd --reload
+firewall-cmd --list-all
+
+# assign the network drive
+mkdir /uoradata
+mount.cifs //10.13.30.246/LinuxBackup /uoradata -o username=linux,password=123456,uid=oracle,gid=oinstall,file_mode=0775,dir_mode=0775,iocharset=utf8,vers=3.0
+
+# mount them in fstab
+nano /etc/fstab
+//10.13.30.246/LinuxBackup /uoradata cifs username=linux,password=123456,uid=oracle,gid=oinstall,file_mode=0775,dir_mode=0775,iocharset=utf8,vers=3.0 0 0
+
+reboot
+
+# create the folders and scripts as oracle
+mkdir -p /uora/app/oracle/product/19.0.0/dbhome_1
+mkdir /home/oracle/scripts
+
+# copy contents of nancy_oracle to /home/oracle
+chown -R oracle:oinstall /home/oracle/scripts
+
+chmod u+x /home/oracle/scripts/*.sh
+echo ". /home/oracle/scripts/setEnv.sh" >> /home/oracle/.bash_profile
+
+# transfer LINUX.X64_193000_db_home.zip to /home/oracle/ with oracle:oinstall permissions
+
+# login to oracle with gui
+cd $ORACLE_HOME
+unzip -oq /home/oracle/LINUX.X64_193000_db_home.zip
+
+export CV_ASSUME_DISTID=OEL7.6
+./runInstaller
+	software only
+	single instance
+	enterprise edition
+	/uora/app/oracle
+	manually run root scripts
+	install
+
+# when prompted run the scripts as root from ssh
+/uora/app/oraInventory/orainstRoot.sh
+/uora/app/oracle/product/19.0.0/dbhome_1/root.sh
+
+# continue as oracle user
+lsnrctl start
+dbca
+	advanced
+	single instance
+	general purpose
+	global name and SID: nancy
+	don't create as container
+	use following for the database storage attributes
+	set to /uoradata
+	don't use OMF
+	disable FRA
+	disable archiving
+	don't create new listener
+	don't vault
+	don't label security
+	memory -> use automatic shared memory management, 80%
+	sizing -> nothing
+	character sets -> UTF8 (national set as well)
+	connection mode -> dedicated
+	samples schemas -> no
+	don't configure enterprise manager
+	don't register to cloud
+	same password to rule them all
+	create database
+	install
+
+# can exit gui
+reboot
+
+sudo su -
+passwd oracle
+# something strong
+
+su - oracle
+
+sqlplus / as sysdba
+startup mount
+show parameter target; # for memory parameters
+alter system set db_create_file_dest='/uoradata';
+
+alter database open;
+
+shutdown immediate;
+exit
+sqlplus / as sysdba
+
+startup upgrade;
+alter system set MAX_STRING_SIZE = EXTENDED;
+@/uora/app/oracle/product/19.0.0/dbhome_1/rdbms/admin/utl32k.sql
+shutdown immediate;
+exit
+
+cd $ORACLE_HOME/network/admin
+nano sqlnet.ora
+# copy contents of oracle/sqlnet.ora
+lsnrctl stop
+lsnrctl start
+
+# add database to startup configuration
+nano /etc/oratab
+nancy:/uora/app/oracle/product/19.0.0/dbhome_1:Y
+
+# as root create the service
+nano /lib/systemd/system/dbora.service
+# copy dbora.service into this file
+
+systemctl daemon-reload
+# to start/stop/autostart service use the commands below
+systemctl start dbora
+systemctl stop dbora
+systemctl enable dbora
+systemctl disable dbora
+systemctl status dbora
+
+reboot
+
+create_tablespaces.sql
+create_db_admin.sql
+create_app_core.sql
+create_app_log.sql
+create_client_users.sql

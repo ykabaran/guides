@@ -81,7 +81,7 @@ reboot
 nano /etc/hostname
 lorena.hlsd.com
 nano /etc/hosts
-10.13.2.30 lorena.hlsd.com lorena
+10.13.40.30 lorena.hlsd.com lorena
 
 # install prereqs and update
 dnf install -y oracle-database-preinstall-19c
