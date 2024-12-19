@@ -71,6 +71,37 @@ values ('DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
 insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
 
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_LOG', 'APP_DATA_CHANGE_D1', 'PARTITION_DATE', 10, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_LOG', 'APP_DATA_CHANGE_D7', 'PARTITION_DATE', 60, '1/24');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_LOG', 'APP_DATA_CHANGE_D30', 'PARTITION_DATE', 300, '1/24');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_LOG', 'APP_DATA_CHANGE_D300', 'PARTITION_DATE', 1200, '1/24');
+
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('LS_LOG', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 5, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('LS_LOG', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 5, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('LS_LOG', 'APP_DATA_CHANGE_D1', 'PARTITION_DATE', 10, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('LS_LOG', 'APP_DATA_CHANGE_D7', 'PARTITION_DATE', 60, '1/24');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('LS_LOG', 'APP_DATA_CHANGE_D30', 'PARTITION_DATE', 300, '1/24');
+
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('GS_LOG', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 5, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('GS_LOG', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 5, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('GS_LOG', 'APP_DATA_CHANGE_D1', 'PARTITION_DATE', 10, '5/(24*60)');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('GS_LOG', 'APP_DATA_CHANGE_D7', 'PARTITION_DATE', 60, '1/24');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('GS_LOG', 'APP_DATA_CHANGE_D30', 'PARTITION_DATE', 300, '1/24');
+
 create or replace view VIEW_TABLESPACE_STATUS
 AS select
    fs.tablespace_name                          tablespace,
