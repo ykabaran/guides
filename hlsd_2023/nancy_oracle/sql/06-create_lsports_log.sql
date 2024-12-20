@@ -1,5 +1,6 @@
 create user ls_log identified by ""
   default tablespace APP_LOG
+  quota unlimited on APP_LOG
   quota unlimited on APP_LOG_INDEX
   quota unlimited on FEED_FILE;
 

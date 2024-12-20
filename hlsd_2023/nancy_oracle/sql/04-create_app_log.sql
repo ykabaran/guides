@@ -3,7 +3,7 @@ create user app_log identified by ""
   quota unlimited on APP_LOG
   quota unlimited on APP_LOG_INDEX;
 
-grant connect, resource to app_core;
+grant connect, resource to app_log;
 
 alter session set current_schema=app_log;
 

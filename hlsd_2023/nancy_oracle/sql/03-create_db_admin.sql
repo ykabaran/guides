@@ -81,6 +81,9 @@ insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_day
 values ('APP_LOG', 'APP_DATA_CHANGE_D300', 'PARTITION_DATE', 1200, '1/24');
 
 insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
+values ('APP_CORE', 'APP_DATA_CHANGE_D300', 'PARTITION_DATE', 1200, '1/24');
+
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('LS_LOG', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 5, '5/(24*60)');
 insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('LS_LOG', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 5, '5/(24*60)');
@@ -374,6 +377,8 @@ AS
       then
         db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleting ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
         execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' MODIFY PARTITION ' || rec.PARTITION_NAME || ' NOLOGGING';
+        execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' TRUNCATE PARTITION ' || rec.PARTITION_NAME || ' UPDATE INDEXES';
+        /*
         execute immediate 'declare
           xstart_date date;
           xend_date date;
@@ -397,6 +402,7 @@ AS
           DELETE FROM ' || xtable_owner || '.' || xtable_name || ' PARTITION(' || rec.PARTITION_NAME || ');
           commit;
         end;';
+        */
         execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' DROP PARTITION ' || rec.PARTITION_NAME;
         db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleted ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
       end if;

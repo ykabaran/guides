@@ -52,11 +52,12 @@ firewall-cmd --list-all
 
 # assign the network drive
 mkdir /uoradata
-mount.cifs //10.13.30.246/LinuxBackup /uoradata -o username=linux,password=123456,uid=oracle,gid=oinstall,file_mode=0775,dir_mode=0775,iocharset=utf8,vers=3.0
+chown -R oracle:oinstall /uoradata
+mount -t nfs 10.13.30.246:/mnt/HDD/LinuxBackup /uoradata
 
 # mount them in fstab
 nano /etc/fstab
-//10.13.30.246/LinuxBackup /uoradata cifs username=linux,password=123456,uid=oracle,gid=oinstall,file_mode=0775,dir_mode=0775,iocharset=utf8,vers=3.0 0 0
+10.13.30.246:/mnt/HDD/LinuxBackup /uoradata nfs defaults 0 0
 
 reboot
 
