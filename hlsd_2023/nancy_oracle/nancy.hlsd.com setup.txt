@@ -57,13 +57,14 @@ mount -t nfs 10.13.30.246:/mnt/HDD/LinuxBackup /uoradata
 
 # mount them in fstab
 nano /etc/fstab
-10.13.30.246:/mnt/HDD/LinuxBackup /uoradata nfs defaults 0 0
+10.13.30.246:/mnt/HDD/LinuxBackup /uoradata nfs rw,bg,hard,nointr,rsize=131072,wsize=131072,tcp,actimeo=0,vers=3,timeo=600 0 0
 
 reboot
 
 # create the folders and scripts as oracle
 mkdir -p /uora/app/oracle/product/19.0.0/dbhome_1
 mkdir /home/oracle/scripts
+mkdir /uoradata/NANCY
 
 # copy contents of nancy_oracle to /home/oracle
 chown -R oracle:oinstall /home/oracle/scripts
@@ -99,7 +100,7 @@ dbca
 	global name and SID: nancy
 	don't create as container
 	use following for the database storage attributes
-	set to /uoradata
+	set to $ORACLE_HOME/oradata/$INSTANCE_NAME (default)
 	don't use OMF
 	disable FRA
 	disable archiving
@@ -127,27 +128,31 @@ passwd oracle
 su - oracle
 
 sqlplus / as sysdba
-startup mount
-show parameter target; # for memory parameters
-alter system set db_create_file_dest='/uoradata';
-
-alter database open;
-
-shutdown immediate;
-exit
-sqlplus / as sysdba
-
 startup upgrade;
 alter system set MAX_STRING_SIZE = EXTENDED;
 @/uora/app/oracle/product/19.0.0/dbhome_1/rdbms/admin/utl32k.sql
 shutdown immediate;
 exit
 
+sqlplus / as sysdba
+startup mount
+show parameter target; # for memory parameters
+alter system set db_create_file_dest='/uoradata';
+
+alter database open;
+
 cd $ORACLE_HOME/network/admin
 nano sqlnet.ora
 # copy contents of oracle/sqlnet.ora
 lsnrctl stop
 lsnrctl start
+
+cd $ORACLE_HOME/dbs
+nano oranfstab
+# copy contents of oracle/oranfstab
+
+cd $ORACLE_HOME/rdbms/lib
+make -f ins_rdbms.mk dnfs_on
 
 # add database to startup configuration
 nano /etc/oratab

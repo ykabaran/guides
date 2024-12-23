@@ -7,27 +7,28 @@ select * from v$logfile;
 select * from DBA_DATA_FILES;
 select * from SYS.DBA_TABLESPACES;
 
-alter database datafile '/uoradata/NANCY/system01.dbf' resize 2G;
-alter database datafile '/uoradata/NANCY/system01.dbf' autoextend off;
-alter database datafile '/uoradata/NANCY/sysaux01.dbf' resize 4G;
-alter database datafile '/uoradata/NANCY/sysaux01.dbf' autoextend off;
+alter database datafile '/uora/app/oracle/oradata/NANCY/system01.dbf' resize 2G;
+alter database datafile '/uora/app/oracle/oradata/NANCY/system01.dbf' autoextend off;
+alter database datafile '/uora/app/oracle/oradata/NANCY/sysaux01.dbf' resize 4G;
+alter database datafile '/uora/app/oracle/oradata/NANCY/sysaux01.dbf' autoextend off;
 ALTER TABLESPACE sysaux
-     ADD DATAFILE '/uoradata/NANCY/sysaux02.dbf' size 4G autoextend off;
+     ADD DATAFILE '/uora/app/oracle/oradata/NANCY/sysaux02.dbf' size 4G autoextend off;
 
-alter database datafile '/uoradata/NANCY/users01.dbf' resize 1G;
-alter database datafile '/uoradata/NANCY/users01.dbf' autoextend off;
-alter database datafile '/uoradata/NANCY/undotbs01.dbf' resize 4G;
-alter database datafile '/uoradata/NANCY/undotbs01.dbf' autoextend off;
+alter database datafile '/uora/app/oracle/oradata/NANCY/users01.dbf' resize 1G;
+alter database datafile '/uora/app/oracle/oradata/NANCY/users01.dbf' autoextend off;
+alter database datafile '/uora/app/oracle/oradata/NANCY/undotbs01.dbf' resize 4G;
+alter database datafile '/uora/app/oracle/oradata/NANCY/undotbs01.dbf' autoextend off;
 ALTER TABLESPACE undotbs1
-     ADD DATAFILE '/uoradata/NANCY/undotbs02.dbf' SIZE 4G AUTOEXTEND OFF;
+     ADD DATAFILE '/uora/app/oracle/oradata/NANCY/undotbs02.dbf' SIZE 4G AUTOEXTEND OFF;
 ALTER TABLESPACE undotbs1
-     ADD DATAFILE '/uoradata/NANCY/undotbs03.dbf' SIZE 4G AUTOEXTEND OFF;
+     ADD DATAFILE '/uora/app/oracle/oradata/NANCY/undotbs03.dbf' SIZE 4G AUTOEXTEND OFF;
 
-alter database add logfile group 4 ('/uoradata/NANCY/redo04.log') size 400M;
-alter database add logfile group 5 ('/uoradata/NANCY/redo05.log') size 400M;
-alter database add logfile group 6 ('/uoradata/NANCY/redo06.log') size 400M;
-alter database add logfile group 7 ('/uoradata/NANCY/redo07.log') size 400M;
-alter database add logfile group 8 ('/uoradata/NANCY/redo08.log') size 400M;
+alter database add logfile group 4 ('/uora/app/oracle/oradata/NANCY/redo04.log') size 1G;
+alter database add logfile group 5 ('/uora/app/oracle/oradata/NANCY/redo05.log') size 1G;
+alter database add logfile group 6 ('/uora/app/oracle/oradata/NANCY/redo06.log') size 1G;
+alter database add logfile group 7 ('/uora/app/oracle/oradata/NANCY/redo07.log') size 1G;
+alter database add logfile group 8 ('/uora/app/oracle/oradata/NANCY/redo08.log') size 1G;
+alter database add logfile group 9 ('/uora/app/oracle/oradata/NANCY/redo09.log') size 1G;
 alter system switch logfile;
 alter system checkpoint;
 alter database drop logfile group 1;
@@ -69,7 +70,8 @@ alter tablespace app_log
    add datafile '/uoradata/NANCY/app_log16.dbf' size 8G autoextend off;
 
 create tablespace app_log_index
-	datafile '/uoradata/NANCY/app_log_index01.dbf' size 8G autoextend off;
+	datafile '/uoradata/NANCY/app_log_index01.dbf' size 8G autoextend off
+   NOLOGGING;
 alter tablespace app_log_index
 	add datafile '/uoradata/NANCY/app_log_index02.dbf' size 8G autoextend off;
 alter tablespace app_log_index
