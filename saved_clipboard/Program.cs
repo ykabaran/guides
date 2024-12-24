@@ -59,30 +59,35 @@ public class Program {
 
 	private const int NUM_STORAGE_SLOTS = 5;
 	private const int STORAGE_START_KEY = 129;
-	private static IDataObject?[] clipboardStorage = new IDataObject?[NUM_STORAGE_SLOTS];
+    private const int NUM_LOCK_KEY = 20;
+    private const int CAPS_LOCK_KEY = 144;
+    private const int SCROLL_LOCK_KEY = 145;
+	private const int WM_KEYDOWN = 0x0100;
+	private const int WM_KEYUP = 0x0101;
+    private static IDataObject?[] clipboardStorage = new IDataObject?[NUM_STORAGE_SLOTS];
 	private static int currClipboardStorage = 0;
 	private static keyboardNames[] gKeyNames = {keyboardNames.G_1, keyboardNames.G_2, keyboardNames.G_3, keyboardNames.G_4, keyboardNames.G_5};
 
 	private static IDataObject? ReadClipboard() {
-    IDataObject result = new DataObject();
-    IDataObject? dataObject = Clipboard.GetDataObject();
+		IDataObject result = new DataObject();
+		IDataObject? dataObject = Clipboard.GetDataObject();
 		if(dataObject == null){ return null; }
 
-    string[] formats = dataObject.GetFormats() ?? Array.Empty<string>();
+		string[] formats = dataObject.GetFormats() ?? Array.Empty<string>();
 		bool hasData = false;
-    foreach (string format in formats) {
-      try {
+		foreach (string format in formats) {
+			try {
 				object? data = dataObject.GetData(format);
 				if (data != null) {
 					result.SetData(format, data);
 					hasData = true;
 				}
-      } catch (ExternalException ex) { 
+			} catch (ExternalException ex) { 
 				Debug.WriteLine($"Error {ex.ErrorCode}: {ex.Message}");
 			}
-    }
+		}
 		if(!hasData){ return null; }
-    return result;
+		return result;
 	}
 
 	private static IntPtr SetKeyboardHook() {
@@ -124,13 +129,19 @@ public class Program {
 	}
 
   private static IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam) {
-		if (nCode >= 0 && wParam == (IntPtr)0x0100) {
+		if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN) {
 			int vkCode = Marshal.ReadInt32(lParam);
 			if(vkCode >= STORAGE_START_KEY && vkCode < STORAGE_START_KEY + NUM_STORAGE_SLOTS){
 				int storageIndex = vkCode - STORAGE_START_KEY;
 				HandleGKeyDown(storageIndex);
 			}
-		}
+		} else if(nCode >= 0 && wParam == (IntPtr)WM_KEYUP) {
+            int vkCode = Marshal.ReadInt32(lParam);
+            if (vkCode == NUM_LOCK_KEY || vkCode == CAPS_LOCK_KEY || vkCode == SCROLL_LOCK_KEY) {
+				Console.WriteLine("lock key pressed");
+                Task.Delay(50).ContinueWith(t => RecolorGKeys());
+            }
+        }
 		return CallNextHookEx(_keyboardHookID, nCode, wParam, lParam);
 	}
 
@@ -169,7 +180,16 @@ public class Program {
 				LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(gKeyNames[i], 200, 200, 200);
 			}
 		}
-	}
+		if (!Control.IsKeyLocked(Keys.NumLock)) {
+			LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(keyboardNames.NUM_LOCK, 255, 0, 0);
+        }
+        if (Control.IsKeyLocked(Keys.CapsLock)) {
+            LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(keyboardNames.CAPS_LOCK, 0, 255, 0);
+        }
+		if (Control.IsKeyLocked(Keys.Scroll)) {
+			LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(keyboardNames.SCROLL_LOCK, 0, 255, 0);
+		}
+    }
 
 	[STAThread]
 	public static void Main(string[] args) {
