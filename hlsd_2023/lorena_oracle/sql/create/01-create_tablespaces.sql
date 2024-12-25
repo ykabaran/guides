@@ -68,26 +68,11 @@ alter tablespace app_main
 alter tablespace app_main
 	add datafile '/uoradata/LORENA/app_main04.dbf' size 4G autoextend off;
 create tablespace app_main_index
-	datafile '/uoradata/LORENA/app_main_index01.dbf' size 4G autoextend off;
+	datafile '/uoradata/LORENA/app_main_index01.dbf' size 8G autoextend off;
 alter tablespace app_main_index
-	add datafile '/uoradata/LORENA/app_main_index02.dbf' size 4G autoextend off;
+	add datafile '/uoradata/LORENA/app_main_index02.dbf' size 8G autoextend off;
 alter tablespace app_main_index
-	add datafile '/uoradata/LORENA/app_main_index03.dbf' size 4G autoextend off;
-
-create tablespace feed_file
-   datafile '/uoradata/LORENA/feed_file01.dbf' size 8G autoextend off
-   NOLOGGING;
-alter tablespace feed_file
-   add datafile '/uoradata/LORENA/feed_file02.dbf' size 8G autoextend off;
-alter tablespace feed_file
-   add datafile '/uoradata/LORENA/feed_file03.dbf' size 8G autoextend off;
-alter tablespace feed_file
-   add datafile '/uoradata/LORENA/feed_file04.dbf' size 8G autoextend off;
-alter tablespace feed_file
-   add datafile '/uoradata/LORENA/feed_file05.dbf' size 8G autoextend off;
-alter tablespace feed_file
-   add datafile '/uoradata/LORENA/feed_file06.dbf' size 8G autoextend off;
-
+	add datafile '/uoradata/LORENA/app_main_index03.dbf' size 8G autoextend off;
 
 select
    fs.tablespace_name                          "Tablespace",

@@ -1,8 +1,7 @@
 create user hls_sport identified by ""
   default tablespace APP_MAIN
   quota unlimited on APP_MAIN
-  quota unlimited on APP_MAIN_INDEX
-  quota unlimited on APP_LOG;
+  quota unlimited on APP_MAIN_INDEX;
 
 grant connect, resource to hls_sport;
 alter session set current_schema = hls_sport;
@@ -312,86 +311,6 @@ create table virtual_bookmaker_config (
 );
 ALTER TABLE virtual_bookmaker_config ADD CONSTRAINT pk_virtual_bookmaker_config PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
-create table data_change_d30 (
-  id number(32,0),
-  table_id number(32,0) not null,
-  data_id number(32,0) not null,
-  parent_id number(32,0),
-  column_name varchar2(1023),
-  
-  change_type varchar2(1023) not null,
-  before_value varchar2(32767),
-  after_value varchar2(32767),
-  source_data varchar2(32767),
-
-  version number(16,0) not null,
-  change_date number(32,0) not null,
-  partition_date date default sysdate not null 
-)
-partition by range(partition_date)
-interval (numtodsinterval(30,'day'))
-(partition p0 values less than
-  (to_date('2024-01-01','YYYY-MM-DD'))
-)
-pctfree 0
-nologging
-tablespace app_log;
-ALTER TABLE data_change_d30 ADD CONSTRAINT pk_data_change_d30 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d30_data_id ON data_change_d30 (data_id) tablespace app_log;
-
-create table data_change_d7 (
-  id number(32,0),
-  table_id number(32,0) not null,
-  data_id number(32,0) not null,
-  parent_id number(32,0),
-  column_name varchar2(1023),
-  
-  change_type varchar2(1023) not null,
-  before_value varchar2(32767),
-  after_value varchar2(32767),
-  source_data varchar2(32767),
-
-  version number(16,0) not null,
-  change_date number(32,0) not null,
-  partition_date date default sysdate not null 
-)
-partition by range(partition_date)
-interval (numtodsinterval(7,'day'))
-(partition p0 values less than
-  (to_date('2024-01-01','YYYY-MM-DD'))
-)
-pctfree 0
-nologging
-tablespace app_log;
-ALTER TABLE data_change_d7 ADD CONSTRAINT pk_data_change_d7 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d7_data_id ON data_change_d7 (data_id) tablespace app_log;
-
-create table data_change_d1 (
-  id number(32,0),
-  table_id number(32,0) not null,
-  data_id number(32,0) not null,
-  parent_id number(32,0),
-  column_name varchar2(1023),
-  
-  change_type varchar2(1023) not null,
-  before_value varchar2(32767),
-  after_value varchar2(32767),
-  source_data varchar2(32767),
-
-  version number(16,0) not null,
-  change_date number(32,0) not null,
-  partition_date date default sysdate not null 
-)
-partition by range(partition_date)
-interval (numtodsinterval(1,'day'))
-(partition p0 values less than
-  (to_date('2024-01-01','YYYY-MM-DD'))
-)
-pctfree 0
-nologging
-tablespace app_log;
-ALTER TABLE data_change_d1 ADD CONSTRAINT pk_data_change_d1 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d1_data_id ON data_change_d1 (data_id) tablespace app_log;
 
 create role hls_sport_writer;
 create role hls_sport_reader;
@@ -413,9 +332,6 @@ GRANT SELECT, INSERT, UPDATE ON fixture_result TO hls_sport_writer;
 GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker TO hls_sport_writer;
 GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker_profile TO hls_sport_writer;
 GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker_config TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON data_change_d1 TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON data_change_d7 TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON data_change_d30 TO hls_sport_writer;
 
 GRANT SELECT ON sport TO hls_sport_reader;
 GRANT SELECT ON location TO hls_sport_reader;
@@ -434,7 +350,4 @@ GRANT SELECT ON fixture_result TO hls_sport_reader;
 GRANT SELECT ON virtual_bookmaker TO hls_sport_reader;
 GRANT SELECT ON virtual_bookmaker_profile TO hls_sport_reader;
 GRANT SELECT ON virtual_bookmaker_config TO hls_sport_reader;
-GRANT SELECT ON data_change_d1 TO hls_sport_reader;
-GRANT SELECT ON data_change_d7 TO hls_sport_reader;
-GRANT SELECT ON data_change_d30 TO hls_sport_reader;
 
