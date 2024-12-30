@@ -232,7 +232,6 @@ CREATE TABLE fixture_inplay_bet (
   last_price number(16,4),
 
   server_date number(32,0),
-  source_last_update_ts varchar2(1023),
 
   status varchar2(1023),
   version number(16,0),

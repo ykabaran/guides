@@ -1,7 +1,17 @@
+
 hls_sport
 // calculate virtual odds
 // calculate results
-// match fixtures
+
+lsports_hlbs
+// hack disable/enable tennis
+// hack into auto_map
+// hack into fixture_result
+
+hls_sport
+// match fixtures with better name checks
+
+hls_sport
 // fixture search
 
 ls_main
@@ -12,13 +22,11 @@ gs_main
 
 hlbs_sport
 // fixture search
-// fixture data
 
 gs_main_project
-// gs_inplay_bets
-// gs scores and point by point data models
-// gs_fixture_data_collector more methods
+// point by point data models
 
 app_tools project
+// fix apm context and span models
 // graceful shutdown
 // pm2 shutdown timeout

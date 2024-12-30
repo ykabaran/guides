@@ -61,35 +61,16 @@ rabbitmqctl add_user gs_change_log_cons ""
 rabbitmqctl set_permissions -p goalserve gs_change_log_prod "_change_log_" "amq.default|_change_log_" "amq.default|_change_log_"
 rabbitmqctl set_permissions -p goalserve gs_change_log_cons "" "" "amq.default|_change_log_"
 
-
-rabbitmqctl add_vhost arc_pa --description "Arc TV and PA Related Queues" 
-rabbitmqctl add_user pa_prod ""
-rabbitmqctl add_user pa_cons ""
-rabbitmqctl set_permissions -p arc_pa pa_prod "_feed_" "amq.default|_feed_" "amq.default|_feed_"
-rabbitmqctl set_permissions -p arc_pa pa_cons "" "" "amq.default|_feed_"
-
-rabbitmqctl add_vhost flashscore --description "Flashscore Related Queues" 
-rabbitmqctl add_user fs_prod ""
-rabbitmqctl add_user fs_cons ""
-rabbitmqctl set_permissions -p flashscore fs_prod "_feed_" "amq.default|_feed_" "amq.default|_feed_"
-rabbitmqctl set_permissions -p flashscore fs_cons "" "" "amq.default|_feed_"
-
-# rabbitmqctl change_password ls_inplay_prod ""
+rabbitmqctl add_vhost hls_sport --description "HLS Sport Related Queues" 
+rabbitmqctl add_user hls_sport_change_log_prod ""
+rabbitmqctl add_user hls_sport_change_log_cons ""
+rabbitmqctl set_permissions -p hls_sport hls_sport_change_log_prod "_change_log_" "amq.default|_change_log_" "amq.default|_change_log_"
+rabbitmqctl set_permissions -p hls_sport hls_sport_change_log_cons "" "" "amq.default|_change_log_"
 
 rabbitmqctl list_queues -p lsports name arguments messages consumers
-rabbitmqctl list_queues -p arc_pa name arguments messages consumers
-rabbitmqctl list_queues -p flashscore name arguments messages consumers
+rabbitmqctl list_queues -p goalserve name arguments messages consumers
+rabbitmqctl list_queues -p hls_sport name arguments messages consumers
 
-rabbitmqctl purge_queue -p lsports _inplay_
-rabbitmqctl purge_queue -p lsports _prematch_
-rabbitmqctl purge_queue -p arc_pa _feed_
-rabbitmqctl purge_queue -p flashscore _feed_
-
-rabbitmqctl delete_queue -p lsports _inplay_
-rabbitmqctl delete_queue -p lsports _prematch_
-rabbitmqctl delete_queue -p arc_pa _feed_
-rabbitmqctl delete_queue -p flashscore _feed_
-
-rabbitmqctl delete_queue -p goalserve _inplay_feed_file_
-rabbitmqctl delete_queue -p goalserve _prematch_feed_file_
-rabbitmqctl delete_queue -p goalserve _change_log_
+rabbitmqctl change_password user_name ""
+rabbitmqctl purge_queue -p vhost_name _queue_name_
+rabbitmqctl delete_queue -p vhost_name _queue_name_

@@ -1,4 +1,5 @@
 server: babel.hlsd.com
-local: 10.13.40.36
-path: 10.13.30.246
+local: nancy.hlsd.com
+path: babel.hlsd.com
+dontroute
 export: /uoradata mount: /mnt/HDD/LinuxBackup
