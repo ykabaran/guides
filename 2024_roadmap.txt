@@ -1,27 +1,11 @@
 
-hls_sport
-// calculate virtual odds
-// calculate results
-
-lsports_hlbs
-// hack disable/enable tennis
-// hack into auto_map
-// hack into fixture_result
+goalserve_hlbs
+// insert into auto_map
+// insert into fixture_result
+// write to hlbs_teamgame/hlbs_teamgamestat/hlbs_teamgamerate/hlbs_fixture_events
 
 hls_sport
 // match fixtures with better name checks
-
-hls_sport
-// fixture search
-
-ls_main
-// fixture search
-
-gs_main
-// fixture search
-
-hlbs_sport
-// fixture search
 
 gs_main_project
 // point by point data models

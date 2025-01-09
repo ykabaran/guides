@@ -63,8 +63,8 @@ CREATE TABLE market_type (
   id number(32,0),
   gs_id varchar2(1023) not null,
   name varchar2(1023) not null,
-
-  meta_data varchar2(32767),
+  is_prematch number(1,0) default 0,
+  is_inplay number(1,0) default 0,
 
   status varchar2(1023),
   version number(16,0),
@@ -80,6 +80,8 @@ CREATE TABLE league (
   sport_id number(32,0) not null,
   location_id number(32,0) not null,
   name varchar2(1023) not null,
+  inplay_name varchar2(1023),
+  is_inplay_only number(1,0) default 0,
 
   status varchar2(1023),
   version number(16,0),
@@ -126,6 +128,7 @@ CREATE TABLE fixture (
   fixture_status varchar2(1023),
   fixture_name varchar2(1023),
 
+  inplay_gs_id varchar2(1023),
   inplay_status varchar2(1023),
   scores_status varchar2(1023),
   statistics_status varchar2(1023),
