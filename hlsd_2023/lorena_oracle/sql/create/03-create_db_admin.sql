@@ -69,14 +69,6 @@ insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_day
 values ('DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
 insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
 values ('DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
-insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
-values ('LS_MAIN', 'INPLAY_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
-insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
-values ('LS_MAIN', 'PREMATCH_FEED_FILE', 'PARTITION_DATE', 2, '5/(24*60)');
-insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
-values ('FS_MAIN', 'FS_FEED_FILE', 'PARTITION_DATE', 4, '1/24');
-insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
-values ('PA_MAIN', 'PA_FEED_FILE', 'PARTITION_DATE', 30, '1/24');
 
 create or replace view VIEW_TABLESPACE_STATUS
 AS select

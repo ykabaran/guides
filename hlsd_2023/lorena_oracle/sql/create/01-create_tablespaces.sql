@@ -39,34 +39,16 @@ create tablespace app_log
 	NOLOGGING;
 alter tablespace app_log
    add datafile '/uoradata/LORENA/app_log02.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log03.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log04.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log05.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log06.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log07.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log08.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log09.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log10.dbf' size 8G autoextend off;
-alter tablespace app_log
-   add datafile '/uoradata/LORENA/app_log11.dbf' size 8G autoextend off;
 create tablespace app_core
 	datafile '/uoradata/LORENA/app_core01.dbf' size 2G autoextend off;
 create tablespace app_main
-	datafile '/uoradata/LORENA/app_main01.dbf' size 4G autoextend off;
+	datafile '/uoradata/LORENA/app_main01.dbf' size 8G autoextend off;
 alter tablespace app_main
-	add datafile '/uoradata/LORENA/app_main02.dbf' size 4G autoextend off;
+	add datafile '/uoradata/LORENA/app_main02.dbf' size 8G autoextend off;
 alter tablespace app_main
-	add datafile '/uoradata/LORENA/app_main03.dbf' size 4G autoextend off;
+	add datafile '/uoradata/LORENA/app_main03.dbf' size 8G autoextend off;
 alter tablespace app_main
-	add datafile '/uoradata/LORENA/app_main04.dbf' size 4G autoextend off;
+	add datafile '/uoradata/LORENA/app_main04.dbf' size 8G autoextend off;
 create tablespace app_main_index
 	datafile '/uoradata/LORENA/app_main_index01.dbf' size 8G autoextend off;
 alter tablespace app_main_index
