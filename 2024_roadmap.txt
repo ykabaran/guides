@@ -1,16 +1,15 @@
 
-goalserve_hlbs
-// insert into auto_map
+hls_sport
 // insert into fixture_result
 // write to hlbs_teamgame/hlbs_teamgamerate/hlbs_teamgamestat/hlbs_fixture_events
-
-hls_sport
-// match fixtures with better name checks
 
 gs_main_project
 // point by point data models
 
 app_tools project
+// restart/update victoria
 // fix apm context and span models
+// figure out admin freeze reason
+//	session update errors sometimes, retry loop hangs refresh
 // graceful shutdown
 // pm2 shutdown timeout

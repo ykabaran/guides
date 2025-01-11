@@ -69,6 +69,21 @@ openssl ca -config openssl.conf -gencrl -out crl.pem
 
 # copy the signed certs back together with crl
 
+# disable coredumps
+# might need to be added to somewhere to be persistent
+ulimit -c 0
+
+# install oracle instant client
+https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
+mkdir -p /opt/oracle
+cd /opt/oracle
+unzip instantclient-basic-linuxx64.zip
+sudo sh -c "echo /opt/oracle/instantclient_23_6 > /etc/ld.so.conf.d/oracle-instantclient.conf"
+sudo ldconfig
+# for the user who is going to use the client set
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_19_18:$LD_LIBRARY_PATH
+sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /opt/oracle/instantclient_23_6/libaio.so.1
+
 # install nvm, check repo for latest version https://github.com/nvm-sh/nvm
 add user unodejs
 su - unodejs
@@ -142,13 +157,3 @@ web_server_client:
 	root_web_chained_ca -> client.crt
 nginx_server:
 	hlsi.dev globally signed crt
-
-
-# disable coredumps
-nano /etc/security/limits.conf
-* hard core 0
-* soft core 0
-nano /etc/sysctl.conf
-fs.suid_dumpable=0
-kernel.core_pattern=|/bin/false
-sysctl -p
