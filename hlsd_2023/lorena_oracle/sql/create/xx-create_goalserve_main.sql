@@ -6,6 +6,7 @@ create user gs_main identified by ""
 grant connect, resource to gs_main;
 alter session set current_schema = gs_main;
 
+CREATE SEQUENCE seq_fake_id START WITH 1000000;
 
 CREATE TABLE service_status (
   id number(32,0),
@@ -77,11 +78,10 @@ CREATE UNIQUE INDEX unq_market_type_gs_id ON market_type (gs_id) TABLESPACE app_
 CREATE TABLE league (
   id number(32,0),
   gs_id varchar2(1023) not null,
+  fake_id number(16,0) DEFAULT ON NULL seq_fake_id.nextval,
   sport_id number(32,0) not null,
   location_id number(32,0) not null,
   name varchar2(1023) not null,
-  inplay_name varchar2(1023),
-  is_inplay_only number(1,0) default 0,
 
   status varchar2(1023),
   version number(16,0),
