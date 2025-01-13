@@ -268,6 +268,7 @@ GRANT SELECT, INSERT, UPDATE ON fixture_data_path TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON fixture_data TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON fixture_prematch_bet TO gs_data_writer;
 GRANT SELECT, INSERT, UPDATE ON fixture_inplay_bet TO gs_data_writer;
+GRANT SELECT ON seq_fake_id to gs_data_writer;
 
 GRANT SELECT ON service_status TO gs_data_reader;
 GRANT SELECT ON sport TO gs_data_reader;
