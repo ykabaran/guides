@@ -1,6 +1,5 @@
 
 hls_sport
-// insert into fixture_result
 // write to hlbs_teamgame/hlbs_teamgamerate/hlbs_teamgamestat/hlbs_fixture_events
 
 gs_main_project
