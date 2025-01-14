@@ -54,7 +54,7 @@ firewall-cmd --list-all
 # assign the network drive
 mkdir /uoradata
 chown -R oracle:oinstall /uoradata
-mount -t nfs 10.13.40.33:/mnt/HDD/LinuxBackup /uoradata
+mount -t nfs babel.hlsd.com:/mnt/HDD/LinuxBackup /uoradata
 
 # mount them in fstab
 nano /etc/fstab
