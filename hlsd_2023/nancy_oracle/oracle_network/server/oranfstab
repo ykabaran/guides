@@ -1,5 +1,5 @@
-server: babel.hlsd.com
+server: kraken
 local: nancy.hlsd.com
-path: babel.hlsd.com
+path: kraken.hlsd.com
 dontroute
-export: /uoradata mount: /mnt/HDD/LinuxBackup
+export: /uoradata mount: /mnt/pool_alpha/nancy

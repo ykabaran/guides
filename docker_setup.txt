@@ -13,17 +13,20 @@ where TARIH = '2021-04-18 00:00:00.000';
 
 
 docker pull mcr.microsoft.com/mssql/server:2019-latest
+docker pull mcr.microsoft.com/mssql/server:2022-latest
 
 --
-docker run --rm -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrongPassw0rd" -p 1433:1433 --name sql_server -d mcr.microsoft.com/mssql/server:2019-latest
+docker run --rm -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrongPassw0rd" -p 1433:1433 --name sql_server -d mcr.microsoft.com/mssql/server:2022-latest
 
 docker cp Farmakom.yedek sql_server:/tmp/Farmakom.yedek
 
 docker cp '.\Farmakom Online! Otomatik Yedek Modülü 20211123-1046.yedek' sql_server:/tmp/Farmakom.yedek
 
-docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "YourStrongPassw0rd" -Q "RESTORE DATABASE ONLINE23 FROM DISK = '/tmp/Farmakom.yedek' WITH MOVE 'ONLINE23' TO '/var/opt/mssql/data/ONLINE23.mdf', MOVE 'ONLINE23_log' TO '/var/opt/mssql/data/ONLINE23_log.mdf'"
+docker exec -it sql_server /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -C -P "YourStrongPassw0rd" -Q "RESTORE DATABASE ONLINE25 FROM DISK = '/tmp/Farmakom.yedek' WITH MOVE 'ONLINE25' TO '/var/opt/mssql/data/ONLINE25.mdf', MOVE 'ONLINE25_log' TO '/var/opt/mssql/data/ONLINE25_log.mdf'"
 
-docker exec -it sql_server /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "YourStrongPassw0rd" -Q "BACKUP DATABASE ONLINE23 TO DISK = '/tmp/Farmakom3.yedek' WITH NOFORMAT, NOINIT, NAME = 'Farmakom-Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
+docker exec -it sql_server /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -C -P "YourStrongPassw0rd" -Q "RESTORE FILELISTONLY FROM DISK = '/tmp/Farmakom.yedek'"
+
+docker exec -it sql_server /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -C -P "YourStrongPassw0rd" -Q "BACKUP DATABASE ONLINE23 TO DISK = '/tmp/Farmakom3.yedek' WITH NOFORMAT, NOINIT, NAME = 'Farmakom-Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
 
 docker cp sql_server:/tmp/Farmakom3.yedek Farmakom3.yedek
 
