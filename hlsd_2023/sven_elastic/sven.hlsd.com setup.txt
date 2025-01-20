@@ -93,3 +93,22 @@ curl -L -O https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-ag
 tar xzvf elastic-agent-8.12.2-linux-x86_64.tar.gz
 cd elastic-agent-8.12.2-linux-x86_64
 sudo ./elastic-agent install --url=https://sven.hlsd.com:8220 --enrollment-token=xxx --insecure
+
+
+# assign a network drive
+apt install nfs-common
+mkdir /uelasticdata
+chown -R elasticsearch:elasticsearch /uelasticdata
+mount -t nfs kraken.hlsd.com:/mnt/pool_alpha/sven /uelasticdata
+
+# mount them in fstab
+nano /etc/fstab
+kraken.hlsd.com:/mnt/pool_alpha/sven /uelasticdata nfs rw,bg,hard,nointr,rsize=131072,wsize=131072,tcp,actimeo=0,vers=3,timeo=600 0 0
+
+systemctl stop elasticsearch
+cd /etc/elasticsearch
+cp -R /var/lib/elasticsearch/* /uelasticdata/
+chown -R elasticsearch:elasticsearch /uelasticdata
+nano /etc/elasticsearch/elasticsearch.yml
+# change path.data: /var/lib/elasticsearch to
+# path.data: /uelasticdata

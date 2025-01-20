@@ -113,7 +113,6 @@ alter tablespace feed_file
 alter tablespace feed_file
    add datafile '/uoradata/NANCY/feed_file12.dbf' size 8G autoextend off;
 
-
 select
    fs.tablespace_name                          "Tablespace",
    (df.totalspace - fs.freespace)              "Used MB",
