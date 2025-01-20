@@ -104,6 +104,15 @@ alter tablespace feed_file
    add datafile '/uoradata/NANCY/feed_file07.dbf' size 8G autoextend off;
 alter tablespace feed_file
    add datafile '/uoradata/NANCY/feed_file08.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/NANCY/feed_file09.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/NANCY/feed_file10.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/NANCY/feed_file11.dbf' size 8G autoextend off;
+alter tablespace feed_file
+   add datafile '/uoradata/NANCY/feed_file12.dbf' size 8G autoextend off;
+
 
 select
    fs.tablespace_name                          "Tablespace",
