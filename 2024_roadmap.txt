@@ -5,6 +5,8 @@ hls_sport
 
 gs_main_project
 // finished live fixtures
+// fixture status keeps updating for live events
+// live events get double created
 
 app_tools project
 // admin device update errors
