@@ -3,10 +3,10 @@ hls_sport
 // write to hlbs_teamgame/hlbs_teamgamerate/hlbs_teamgamestat/hlbs_fixture_events
 
 gs_main_project
+// finished live fixtures
 // point by point data models
 
 app_tools project
-// restart/update victoria
 // fix apm context and span models
 // figure out admin freeze reason
 //	session update errors sometimes, retry loop hangs refresh
