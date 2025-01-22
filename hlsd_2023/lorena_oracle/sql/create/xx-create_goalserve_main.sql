@@ -129,6 +129,7 @@ CREATE TABLE fixture (
   fixture_name varchar2(1023),
 
   inplay_gs_id varchar2(1023),
+  inplay_gs_mid varchar2(1023),
   inplay_status varchar2(1023),
   scores_status varchar2(1023),
   statistics_status varchar2(1023),
