@@ -1,14 +1,109 @@
 
 hls_sport
+// service status updates
 // remove/link duplicate fixtures
 // point by point data models
 
-gs_main_project
-// finished live fixtures
-// fixture status keeps updating for live events
-// live events get double created
+hls_admin
+// service status updates
 
 app_tools project
 // admin device update errors
 // graceful shutdown
 // pm2 shutdown timeout
+
+ls_main
+// unknown sport/location/league
+
+nicobet_account_bridge
+hls:
+/create_session_token
+	{
+		[user_id]: "",
+		[session_id]: "",
+		[session_token]: ""
+	}
+	{
+		client_token: "",
+		session_id: "",
+		session_token: ""
+	}
+/get_session_summary
+	{
+		session_id: ""
+	}
+	{
+		session: {
+			id: "",
+			status: "",
+			balances: []
+		},
+		transactions: [{
+			transaction_id: "",
+			amount: "",
+			data: {},
+			status: "",
+			create_date: unix_ms
+		}]
+	}
+/get_transaction
+	{
+		transaction_id: ""
+	}
+	{
+		session: {},
+		transaction: {}
+	}
+
+hlbs:
+/get_balance
+	{
+		[session_id]: "",
+		[session_token]: "",
+		[user_id]: ""
+	}
+	{
+		balances: [{
+			[id]: "",
+			currency: "",
+			amount: ""
+		}]
+	}
+/create_transaction
+	{
+		[session_id]: "",
+		[session_token]: "",
+		[user_id]: "",
+		[prev_transaction_id]: ""
+		transaction: {
+			id: "",
+			[balance_id]: "",
+			amount: "",
+			data: {}
+		}
+	}
+	{
+		balance: {
+			id: "",
+			currency: "",
+			amount: ""
+		},
+		transaction: {
+			id: "",
+			[balance_id]: "",
+			amount: "",
+			data: {}
+		}
+	}
+/get_transaction
+	{
+		[session_id]: "",
+		[session_token]: "",
+		[user_id]: "",
+		transaction_id: ""
+	}
+	{
+		id: "",
+		amount: "",
+		status: "" // pending, errored, finalized
+	}
