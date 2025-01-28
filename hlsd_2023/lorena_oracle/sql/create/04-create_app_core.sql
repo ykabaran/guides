@@ -134,33 +134,6 @@ tablespace APP_CORE;
 ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX TABLESPACE APP_CORE;
 CREATE UNIQUE INDEX unq_app_secret_name ON app_secret (name) tablespace APP_MAIN_INDEX;
 
-create table data_change_d300 (
-  id number(32,0),
-  table_id number(32,0) not null,
-  data_id number(32,0) not null,
-  parent_id number(32,0),
-  column_name varchar2(1023),
-  
-  change_type varchar2(1023) not null,
-  before_value varchar2(32767),
-  after_value varchar2(32767),
-  source_data varchar2(32767),
-
-  version number(16,0) not null,
-  change_date number(32,0) not null,
-  partition_date date default sysdate not null 
-)
-partition by range(partition_date)
-interval (numtodsinterval(300,'day'))
-(partition p0 values less than
-  (to_date('2024-01-01','YYYY-MM-DD'))
-)
-pctfree 0
-nologging
-tablespace app_log;
-ALTER TABLE data_change_d300 ADD CONSTRAINT pk_data_change_d300 PRIMARY KEY (id) USING INDEX TABLESPACE app_log;
-CREATE INDEX ind_data_change_d300_data_id ON data_change_d300 (data_id) tablespace app_log;
-
 GRANT EXECUTE ON pkg_date TO PUBLIC;
 
 create role app_core_reader;
@@ -178,7 +151,6 @@ grant select on app_role to app_core_reader;
 grant select on app_parameter to app_core_reader;
 grant select on app_localization to app_core_reader;
 grant select on app_secret to app_core_reader;
-grant select on data_change_d300 to app_core_reader;
 
 grant select,insert,update on app_table_meta to app_core_writer;
 grant select,insert,update on app_permission to app_core_writer;
@@ -188,12 +160,9 @@ grant select,insert,update,delete on app_permission to app_core_deleter;
 grant select,insert,update,delete on app_role to app_core_deleter;
 
 grant select,insert,update on app_localization to app_localization_writer;
-grant select,insert,update on data_change_d300 to app_localization_writer;
 grant select,insert,update,delete on app_localization to app_localization_deleter;
 
 grant select,insert,update on app_parameter to app_parameter_writer;
-grant select,insert,update on data_change_d300 to app_parameter_writer;
 grant select,insert,update,delete on app_parameter to app_parameter_deleter;
 
 grant select,insert,update on app_secret to app_secret_writer;
-grant select,insert,update on data_change_d300 to app_secret_writer;

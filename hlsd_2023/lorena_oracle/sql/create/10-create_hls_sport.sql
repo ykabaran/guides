@@ -264,7 +264,7 @@ CREATE INDEX ind_fixture_result_fixture ON fixture_result (fixture_id) TABLESPAC
 
 create table virtual_bookmaker ( 
   id number(32,0),
-  app_id number(32,0) not null, -- some app_id in app_core.app_user table that has a virtual_bookmaker role
+  app_id number(32,0) not null, -- some app_id in app_user.app_user table that has a virtual_bookmaker role
   name varchar2(1023) not null,
   data varchar2(32767),
 
@@ -312,26 +312,8 @@ create table virtual_bookmaker_config (
 ALTER TABLE virtual_bookmaker_config ADD CONSTRAINT pk_virtual_bookmaker_config PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
 
 
-create role hls_sport_writer;
 create role hls_sport_reader;
-
-GRANT SELECT, INSERT, UPDATE ON sport TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON location TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON bookmaker TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON market_type TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON play_event_type TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON result_type TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON league TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON venue TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON player TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON person TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON fixture TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON fixture_player TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON fixture_play_event TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON fixture_result TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker_profile TO hls_sport_writer;
-GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker_config TO hls_sport_writer;
+create role hls_sport_writer;
 
 GRANT SELECT ON sport TO hls_sport_reader;
 GRANT SELECT ON location TO hls_sport_reader;
@@ -351,3 +333,20 @@ GRANT SELECT ON virtual_bookmaker TO hls_sport_reader;
 GRANT SELECT ON virtual_bookmaker_profile TO hls_sport_reader;
 GRANT SELECT ON virtual_bookmaker_config TO hls_sport_reader;
 
+GRANT SELECT, INSERT, UPDATE ON sport TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON location TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON bookmaker TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON market_type TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON play_event_type TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON result_type TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON league TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON venue TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON player TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON person TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_player TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_play_event TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON fixture_result TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker_profile TO hls_sport_writer;
+GRANT SELECT, INSERT, UPDATE ON virtual_bookmaker_config TO hls_sport_writer;

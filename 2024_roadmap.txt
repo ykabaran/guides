@@ -15,95 +15,202 @@ app_tools project
 ls_main
 // unknown sport/location/league
 
+hls_game
+// instant_win game
+// single_player game
+// multiplayer_pvh game
+// multiplayer_pvp game
+
 nicobet_account_bridge
 hls:
-/create_session_token
+Currency {
+	id: "",
+	code: "",
+	name: "",
+	precision: 2,
+	status: "" // active, disabled
+}
+Game {
+	id: "",
+	code: "",
+	name: "",
+	configuration: {},
+	status: "" // active, disabled
+}
+User {
+	id: "", // our user_id, or guest user id
+	[ref_id]: "", // their user id
+	accounts: Account[],
+	status: "" // active, disabled
+}
+Account {
+	id: "", // our account_id
+	[ref_id]: "", // their account_id
+	user: User,
+	session: Session,
+	currency: Currency,
+	amount: "", // in decimal
+	status: "", // active, closed
+	start_date: unix_ms,
+	end_date: unix_ms
+}
+Session {
+	id: "",
+	[ref_id]: "", // their session_id
+	user: User,
+	accounts: Account[],
+	events: SessionEvent[],
+	status: "", // active, finished, terminated, errored
+	start_date: unix_ms,
+	end_date: unix_ms
+}
+SessionEvent {
+	id: "",
+	session: Session,
+	[game]: Game, // if the event was game related
+	type: "", // play_slot
+	[contract]: Contract, // if the event created a contract
+	status: "", // pending, finished, cancelled, errored
+	start_date: unix_ms, // if the event had a contract, these are the contract dates
+	end_date: unix_ms
+}
+Contract {
+	id: "",
+	contract_steps: ContractStep[],
+	type: "", // play_slot
+	status: "", // pending, finalized
+	start_date: unix_ms,
+	end_date: unix_ms
+}
+ContractStep {
+	id: "",
+	[ref_id]: "", // their transaction_id
+	contract: Contract,
+	transactions: Transaction[],
+	type: "", // place_bet, pay_winnings, cancel_winning, refund_bet
+	status: "", // pending, finalized
+	start_date: unix_ms,
+	end_date: unix_ms
+}
+Transaction {
+	id: "",
+	contract_step: ContractStep,
+	account: Account,
+	amount: "", // decimal
+	balance_before: "", // decimal
+	balance_after: "", // decimal
+	create_date: unix_ms
+}
+
+auth with dynamic app_auth
+/create_session
 	{
 		[user_id]: "",
-		[session_id]: "",
-		[session_token]: ""
+		[session_id]: "", // their session_id, if given must be unique
+		[session_token]: "", // their session_token, to be sent with our requests
+		[game_id]: "" // initial game id to load	
 	}
 	{
-		client_token: "",
+		session: Session,
+		client_url: "" // the url to give to the client to load the games, includes client_token
+	}
+/search_sessions
+	{
+		from_date: unix_ms,
+		[to_date]: unix_ms,
+		[user_id]: "", // their user_id
+		[status]: ""
+	}
+	{
+		sessions: Session[]
+	}
+/get_session
+	{
 		session_id: "",
-		session_token: ""
+		[is_our_id]: boolean // whether our or their session_id
 	}
-/get_session_summary
+	Session
+/terminate_session
 	{
-		session_id: ""
+		session_id: "",
+		[is_our_id]: boolean // whether our or their session_id
 	}
-	{
-		session: {
-			id: "",
-			status: "",
-			balances: []
-		},
-		transactions: [{
-			transaction_id: "",
-			amount: "",
-			data: {},
-			status: "",
-			create_date: unix_ms
-		}]
-	}
+	Session
 /get_transaction
 	{
-		transaction_id: ""
+		transaction_id: "",
+		[is_our_id]: boolean // whether our or their session_id
 	}
-	{
-		session: {},
-		transaction: {}
-	}
+	Transaction
 
 hlbs:
-/get_balance
+Account {
+	id: "", // real, bonus
+	currency: "TRY",
+	amount: "" // decimal
+}
+TransactionRequest {
+	id: "", // our transation_id
+	account_id: "", // real, bonus
+	amount: "", // decimal
+	data: {}
+}
+auth with dynamic app_auth
+/initialize_session
+	HLS.Session
 	{
-		[session_id]: "",
-		[session_token]: "",
-		[user_id]: ""
+		success: true,
+		[error]: ""
+	}
+/get_user_data
+	{
+		user_id: "" // their user_id
 	}
 	{
-		balances: [{
-			[id]: "",
-			currency: "",
-			amount: ""
-		}]
+		accounts: Account[]
 	}
 /create_transaction
 	{
-		[session_id]: "",
-		[session_token]: "",
-		[user_id]: "",
-		[prev_transaction_id]: ""
-		transaction: {
-			id: "",
-			[balance_id]: "",
-			amount: "",
-			data: {}
-		}
+		transaction_id: "", // our contract_step_id
+		user_id: "", // their user_id
+		type: "", // slot.play, slot.win, slot.lose
+		data: {}, // session_id, game_id, prize_redemption_id, contract_id, contract_step_id, etc
+		prev_transactions: [] // ids of the previous transactions in this contract, if any
+		transactions: TransactionRequest[]
 	}
 	{
-		balance: {
-			id: "",
-			currency: "",
-			amount: ""
-		},
-		transaction: {
-			id: "",
-			[balance_id]: "",
-			amount: "",
-			data: {}
-		}
+		transaction_id: "", // their transaction_id
+		accounts: Account[]
 	}
-/get_transaction
+/finalize_session
+	HLS.Session
 	{
-		[session_id]: "",
-		[session_token]: "",
-		[user_id]: "",
-		transaction_id: ""
+		success: true,
+		[error]: ""
 	}
-	{
-		id: "",
-		amount: "",
-		status: "" // pending, errored, finalized
-	}
+
+
+action flow:
+	user visits nicobet
+	user logs in
+	user visits games page
+		nicobet requests /create_session from hls
+		nicobet gives client_url to user
+		user visits client_url
+		client app requests /user/login
+		hls user requests /initialize_session from nicobet
+	user plays slot
+		hls game updates game prize to reserved
+		hls account creates contract for user
+		hls account requests /create_transaction from nicobet
+		hls account updates contract to in_progress
+		hls game updates game prize to in_progress
+	user views prize
+	user notifies hls game that viewing is over or viewing timeout is reached
+		hls game updates game prize to return_pending
+		hls account updates contract to return_pending
+		hls account requests /create_transaction from nicobet
+		hls account updates contract to finalized
+		hls game updates game prize to finished
+	user exits games page or heartbeat timeout is reached
+		hls user requests /finalize_session from nicobet
