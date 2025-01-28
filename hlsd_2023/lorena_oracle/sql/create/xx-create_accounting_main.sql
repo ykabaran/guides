@@ -11,6 +11,7 @@ CREATE TABLE currency (
   code varchar2(1023) not null,
   name varchar2(1023) not null,
   precision number(16,0) not null default 2,
+  normalized_value number(32,0) not null default 0, -- unit value in USD for example
 
   status varchar2(1023),
   version number(16,0),
@@ -22,7 +23,10 @@ CREATE UNIQUE INDEX unq_currency_code ON currency (code) TABLESPACE app_main_ind
 
 create table account (
   id number(32,0),
+  owner_id number(32,0),
+  owner_type varchar2(1023), -- user, app, session
   type varchar2(1023), -- payment_account/commission_account
+  name varchar2(1023), -- any name given to the account
   currency_id number(32,0),
   balance number(32,0), -- stored as integer, decimal precision is determined by the given currency
   pending_in number(32,0),
@@ -43,11 +47,14 @@ interval (numtodsinterval(7,'day'))
 )
 ENABLE ROW MOVEMENT;
 ALTER TABLE account ADD CONSTRAINT pk_account PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE INDEX ind_account_owner ON account (owner_id) TABLESPACE app_main_index;
 
 create table wallet (
   id number(32,0),
   owner_id number(32,0),
   owner_type varchar2(1023), -- user, app, session
+  name varchar2(1023), -- any name given to the wallet
+  data varchar2(32767), -- how to spend/return the funds, bonus first etc
 
   status varchar2(1023),
   version number(16,0),
@@ -62,6 +69,7 @@ interval (numtodsinterval(30,'day'))
 )
 ENABLE ROW MOVEMENT;
 ALTER TABLE wallet ADD CONSTRAINT pk_wallet PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE INDEX ind_wallet_owner ON wallet (owner_id) TABLESPACE app_main_index;
 
 create table wallet_content (
   id number(32,0),
@@ -82,7 +90,7 @@ interval (numtodsinterval(30,'day'))
 )
 ENABLE ROW MOVEMENT;
 ALTER TABLE wallet_content ADD CONSTRAINT pk_wallet_content PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-CREATE UNIQUE INDEX unq_wallet_content ON currency (wallet_id, content_id) TABLESPACE app_main_index;
+CREATE UNIQUE INDEX unq_wallet_content ON wallet_content (wallet_id, content_id) TABLESPACE app_main_index;
 
 create table contract (
   id number(32,0),
@@ -112,16 +120,11 @@ create table contract_step (
   id number(32,0),
   ref_id varchar2(1023), -- reference transaction_id if the payment was processed remotely
   contract_id number(32,0),
-  step_num number(16,0),
   type number(32,0), -- place_bet, increse_bet, bet_lost, bet_won, win_cancelled, bet_cancelled
   data varchar2(32767), -- json data about the contract step, maybe more game ids, foreign transaction ids, etc
 
-  start_date number(32,0),
-  end_date number(32,0),
-
-  status varchar2(1023), -- open, finalized
-  version number(16,0),
-  change_date number(32,0),
+  status varchar2(1023), -- the contract status
+  version number(16,0), -- the contract version
   create_date number(32,0),
   partition_date date default sysdate not null 
 )
@@ -129,17 +132,18 @@ partition by range(partition_date)
 interval (numtodsinterval(30,'day'))
 (partition p0 values less than
   (to_date('2025-01-01','YYYY-MM-DD'))
-);
+)
+pctfree 0;
 ALTER TABLE contract_step ADD CONSTRAINT pk_contract_step PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-CREATE INDEX ind_contract_step_contract ON transaction (contract_id) TABLESPACE app_main_index;
-CREATE UNIQUE INDEX ind_contract_step_ref_id ON transaction (ref_id) TABLESPACE app_main_index;
+CREATE INDEX ind_contract_step_contract ON contract_step (contract_id) TABLESPACE app_main_index;
+CREATE UNIQUE INDEX ind_contract_step_ref_id ON contract_step (ref_id) TABLESPACE app_main_index;
 
 create table transaction (
   id number(32,0),
   account_id number(32,0),
   contract_id number(32,0),
   contract_step_id number(32,0),
-  type varchar2(1023), --
+  type varchar2(1023), -- payment, winning
   direction varchar2(1023), -- none.to.pending_in, pending_in.to.balance, balance.to.pending_out, pending_out.to.none, none.to.balance, balance.to.none
   amount number(32,0), -- always a positive number, negative is determined by direction
   balance_before number(32,0),
