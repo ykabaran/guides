@@ -26,7 +26,7 @@ create table account (
   currency_id number(32,0),
   balance number(32,0), -- stored as integer, decimal precision is determined by the given currency
   pending_in number(32,0),
-  pending_out numbeR(32,0),
+  pending_out number(32,0),
   total_in number(32,0),
   total_out number(32,0),
 
