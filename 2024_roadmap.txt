@@ -21,6 +21,27 @@ hls_game
 // multiplayer_pvh game
 // multiplayer_pvp game
 
+hls_account
+// currency_crud
+// create_account
+// get_account
+// update_account -- only status can be updated
+// set_account_balance -- implicitely creates a contract
+// close_account
+// create_contract
+// get_contract
+// update_contract -- inserts contract_step and transactions
+
+app_user_tools
+// separate cross-login from pasword login
+// create user if id given
+// create a wallet for the user/session
+// get accounts via backend request
+// create missing accounts
+// update account balances
+// disable non-existent accounts
+// return auth_token
+
 nicobet_account_bridge
 hls:
 Currency {
