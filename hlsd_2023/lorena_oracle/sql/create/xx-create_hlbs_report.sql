@@ -70,7 +70,7 @@ interval (numtodsinterval(30,'day'))
 )
 tablespace APP_MAIN;
 ALTER TABLE betcard_stat ADD CONSTRAINT pk_betcard_stat PRIMARY KEY (id) USING INDEX TABLESPACE APP_MAIN_INDEX;
-CREATE UNIQUE INDEX unq_betcard_stat ON betcard_stat (card_date, tgr_id, bcde_rateno) tablespace APP_MAIN_INDEX;
+CREATE UNIQUE INDEX unq_betcard_stat ON betcard_stat (card_date, is_shop, tgr_id, bcde_rateno) tablespace APP_MAIN_INDEX;
 
 create table customer_stat (
   id number(32,0), -- generated from bet_date, bet_type, sub_id 
