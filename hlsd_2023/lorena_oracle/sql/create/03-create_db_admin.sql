@@ -10,7 +10,8 @@ grant
   update any table,
   delete any table,
   alter any table,
-  drop any table
+  drop any table,
+  alter any index
 to db_admin with admin option;
 GRANT ADMINISTER DATABASE TRIGGER TO db_admin;
 
@@ -381,6 +382,18 @@ AS
         drop_old_partitions(rec.table_owner, rec.table_name, rec.TABLE_COLUMN,rec.num_days, rec.delete_interval);
       exception when others then
         db_admin.pkg_log.log_error('CLEANUP', rec.table_owner || '.' || rec.table_name);
+      end;
+    end loop;
+
+    for rec in (select distinct table_owner, table_name FROM DB_ADMIN.DB_PARTITION_CLEANUP WHERE status = 'active')
+    loop
+      begin
+        for rec2 in (select * from all_indexes where owner = rec.TABLE_OWNER and TABLE_NAME = rec.TABLE_NAME)
+        loop
+          execute immediate 'alter index ' || rec2.owner || '.' || rec2.INDEX_NAME || ' rebuild online';
+        end loop;
+      exception when others then
+        db_admin.pkg_log.log_error('CLEANUP', rec.table_owner || '.' || rec.table_name || ' index rebuild');
       end;
     end loop;
   END;

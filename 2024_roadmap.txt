@@ -26,7 +26,7 @@ hls_account
 // create_account
 // get_account
 // update_account -- only status can be updated
-// set_account_balance -- implicitely creates a contract
+// set_account_balance -- implicitly creates a contract
 // close_account
 // create_contract
 // get_contract
