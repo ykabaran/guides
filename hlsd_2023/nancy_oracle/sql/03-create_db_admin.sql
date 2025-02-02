@@ -434,7 +434,9 @@ AS
       begin
         for rec2 in (select * from all_indexes where owner = rec.TABLE_OWNER and TABLE_NAME = rec.TABLE_NAME)
         loop
+          db_admin.pkg_log.LOG_INFO('CLEANUP', 'rebuilding index ' || rec2.owner || '.' || rec2.INDEX_NAME);
           execute immediate 'alter index ' || rec2.owner || '.' || rec2.INDEX_NAME || ' rebuild online';
+          db_admin.pkg_log.LOG_INFO('CLEANUP', 'finished rebuilding index ' || rec2.owner || '.' || rec2.INDEX_NAME);
         end loop;
       exception when others then
         db_admin.pkg_log.log_error('CLEANUP', rec.table_owner || '.' || rec.table_name || ' index rebuild');
