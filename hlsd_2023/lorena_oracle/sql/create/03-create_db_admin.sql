@@ -320,10 +320,12 @@ AS
     xdelete_interval varchar2);
 
   PROCEDURE do_partition_cleanup;
+
+  PROCEDURE do_index_rebuild;
 END;
 /
 
-create PACKAGE BODY pkg_cleanup
+create or replace PACKAGE BODY pkg_cleanup
 AS
   PROCEDURE drop_old_partitions(
     xtable_owner varchar2,
@@ -343,6 +345,8 @@ AS
       then
         db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleting ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
         execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' MODIFY PARTITION ' || rec.PARTITION_NAME || ' NOLOGGING';
+        execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' TRUNCATE PARTITION ' || rec.PARTITION_NAME || ' UPDATE INDEXES';
+        /*
         execute immediate 'declare
           xstart_date date;
           xend_date date;
@@ -366,6 +370,7 @@ AS
           DELETE FROM ' || xtable_owner || '.' || xtable_name || ' PARTITION(' || rec.PARTITION_NAME || ');
           commit;
         end;';
+        */
         execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' DROP PARTITION ' || rec.PARTITION_NAME;
         db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleted ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
       end if;
@@ -384,7 +389,11 @@ AS
         db_admin.pkg_log.log_error('CLEANUP', rec.table_owner || '.' || rec.table_name);
       end;
     end loop;
+  END;
 
+  PROCEDURE do_index_rebuild
+  IS
+  BEGIN    
     for rec in (select distinct table_owner, table_name FROM DB_ADMIN.DB_PARTITION_CLEANUP WHERE status = 'active')
     loop
       begin
@@ -407,6 +416,18 @@ BEGIN
     job_action => 'PKG_CLEANUP.DO_PARTITION_CLEANUP',
     start_date    => SYSTIMESTAMP,
     repeat_interval  => 'FREQ=HOURLY; INTERVAL=1',
+    auto_drop => FALSE,
+    enabled => TRUE);
+END;
+/
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+    job_name   => 'DB_ADMIN.JOB_INDEX_REBUILD',
+    job_type => 'STORED_PROCEDURE',
+    job_action => 'PKG_CLEANUP.DO_INDEX_REBUILD',
+    start_date    => TO_DATE(TO_CHAR(TRUNC(SYSDATE + 1), 'YYYY-MM-DD') || ' 03:10', 'YYYY-MM-DD HH24:MI:SS'),
+    repeat_interval  => 'FREQ=DAILY; INTERVAL=1',
     auto_drop => FALSE,
     enabled => TRUE);
 END;

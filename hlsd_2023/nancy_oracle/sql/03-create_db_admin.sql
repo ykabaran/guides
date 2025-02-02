@@ -355,10 +355,12 @@ AS
     xdelete_interval varchar2);
 
   PROCEDURE do_partition_cleanup;
+
+  PROCEDURE do_index_rebuild;
 END;
 /
 
-create PACKAGE BODY pkg_cleanup
+create or replace PACKAGE BODY pkg_cleanup
 AS
   PROCEDURE drop_old_partitions(
     xtable_owner varchar2,
@@ -422,7 +424,11 @@ AS
         db_admin.pkg_log.log_error('CLEANUP', rec.table_owner || '.' || rec.table_name);
       end;
     end loop;
-    
+  END;
+
+  PROCEDURE do_index_rebuild
+  IS
+  BEGIN    
     for rec in (select distinct table_owner, table_name FROM DB_ADMIN.DB_PARTITION_CLEANUP WHERE status = 'active')
     loop
       begin
@@ -445,6 +451,18 @@ BEGIN
     job_action => 'PKG_CLEANUP.DO_PARTITION_CLEANUP',
     start_date    => SYSTIMESTAMP,
     repeat_interval  => 'FREQ=HOURLY; INTERVAL=1',
+    auto_drop => FALSE,
+    enabled => TRUE);
+END;
+/
+
+BEGIN
+  DBMS_SCHEDULER.CREATE_JOB (
+    job_name   => 'DB_ADMIN.JOB_INDEX_REBUILD',
+    job_type => 'STORED_PROCEDURE',
+    job_action => 'PKG_CLEANUP.DO_INDEX_REBUILD',
+    start_date    => TO_DATE(TO_CHAR(TRUNC(SYSDATE + 1), 'YYYY-MM-DD') || ' 03:10', 'YYYY-MM-DD HH24:MI:SS'),
+    repeat_interval  => 'FREQ=DAILY; INTERVAL=1',
     auto_drop => FALSE,
     enabled => TRUE);
 END;
