@@ -1,15 +1,7 @@
 
 hls_account
-// account_service, account_handler
-	// create_account
-	// get_account
-	// update_account -- only status can be updated
-	// set_account_balance -- implicitly creates a contract
-	// close_account
-// contract_service, contract_handler
-	// create_contract
-	// get_contract
-	// update_contract -- inserts contract_step and transactions
+// docs
+// implementations
 
 hls_sport
 // service status updates
