@@ -1,12 +1,14 @@
 # List of directories containing the projects
-$baseDirectory = "C:\Users\user\Documents\projects"
+$baseDirectory = "C:\Users\Yildiz\Documents\projects"
 $directories = @(
     "app_tools\app_tools",
+#    "app_tools\app_tools_test",
     "app_tools\app_user_tools",
-    "lsports\lsports_main",
-    "goalserve\goalserve_main",
-    "Admin2024\hlbs_sport",
-    "Admin2024\hls_sport",
+    "app_tools\app_accounting",
+#    "lsports\lsports_main",
+#    "goalserve\goalserve_main",
+#    "Admin2024\hlbs_sport",
+#    "Admin2024\hls_sport",
     "Admin2024\Admin2024_api",
     "app_tools\app_diagnostics_client"
 )

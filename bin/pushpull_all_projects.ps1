@@ -5,12 +5,13 @@ param(
 )
 
 # List of directories containing git repositories
-$baseDirectory = "C:\Users\user\Documents\projects"
+$baseDirectory = "C:\Users\Yildiz\Documents\projects"
 $directories = @(
     "guides",
     "app_tools\app_tools",
     "app_tools\app_tools_test",
     "app_tools\app_user_tools",
+    "app_tools\app_accounting",
     "app_tools\app_diagnostics_client",
     "lsports\lsports_main",
     "goalserve\goalserve_main",

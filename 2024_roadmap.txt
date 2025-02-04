@@ -1,6 +1,15 @@
 
-ls_prod
-// cleanup
+hls_account
+// account_service, account_handler
+	// create_account
+	// get_account
+	// update_account -- only status can be updated
+	// set_account_balance -- implicitly creates a contract
+	// close_account
+// contract_service, contract_handler
+	// create_contract
+	// get_contract
+	// update_contract -- inserts contract_step and transactions
 
 hls_sport
 // service status updates
@@ -23,17 +32,6 @@ hls_game
 // single_player game
 // multiplayer_pvh game
 // multiplayer_pvp game
-
-hls_account
-// currency_crud
-// create_account
-// get_account
-// update_account -- only status can be updated
-// set_account_balance -- implicitly creates a contract
-// close_account
-// create_contract
-// get_contract
-// update_contract -- inserts contract_step and transactions
 
 app_user_tools
 // separate cross-login from pasword login
