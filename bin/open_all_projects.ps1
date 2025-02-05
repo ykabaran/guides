@@ -1,5 +1,5 @@
 # List of directories containing the projects
-$baseDirectory = "C:\Users\Yildiz\Documents\projects"
+$baseDirectory = "C:\Users\user\Documents\projects"
 $directories = @(
     "app_tools\app_tools",
 #    "app_tools\app_tools_test",

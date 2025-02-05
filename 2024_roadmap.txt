@@ -12,7 +12,6 @@ hls_admin
 // service status updates
 
 app_tools project
-// admin device update errors
 // graceful shutdown
 // pm2 shutdown timeout
 

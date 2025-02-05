@@ -11,7 +11,7 @@ alter session set current_schema = hlbs_report;
 create table betcard_stat (
   id number(32,0), -- generated from card_date, tgr_id, bcde_rateno
   card_date date, -- rounded to 15min, unique index column
-  is_shop number(1,0), -- if bet was placed at a shop
+  user_type varchar2(1023), -- shop, card, kktc, tc
   tgr_id number(32,0), -- unique index column
   bcde_rateno number(32,0), -- unique index column
   cat_id number(32,0),
