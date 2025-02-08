@@ -1,22 +1,7 @@
 
 hls_account
-// docs
 // implementations
-
-hls_sport
-// service status updates
-// remove/link duplicate fixtures
-// point by point data models
-
-hls_admin
-// service status updates
-
-app_tools project
-// graceful shutdown
-// pm2 shutdown timeout
-
-ls_main
-// unknown sport/location/league
+// docs
 
 hls_game
 // instant_win game
@@ -33,6 +18,18 @@ app_user_tools
 // update account balances
 // disable non-existent accounts
 // return auth_token
+
+hls_sport
+// service status updates
+// remove/link duplicate fixtures
+// point by point data models
+
+hls_admin
+// service status updates
+
+app_tools project
+// graceful shutdown
+// pm2 shutdown timeout
 
 nicobet_account_bridge
 hls:
