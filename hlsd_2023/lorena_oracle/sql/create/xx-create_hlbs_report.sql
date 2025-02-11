@@ -56,6 +56,10 @@ create table betcard_stat (
   total_sold_stake number(24,2),
   total_sold_return number(24,2),
 
+  total_cancelled_bets number(32,0),
+  total_cancelled_stake number(24,2),
+  total_cancelled_return number(24,2),
+
   create_date number(32,0),
   status varchar2(1023),
   version number(16,0),
