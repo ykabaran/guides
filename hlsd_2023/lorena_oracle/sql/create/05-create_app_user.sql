@@ -27,11 +27,10 @@ ALTER TABLE app_device ADD CONSTRAINT pk_app_device PRIMARY KEY (id) USING INDEX
 
 create table app_user (
 	id number(32,0),
-  ref_id varchar2(1023),
+  parent_id number(32,0),
 	username varchar2(1023) not null,
 	name varchar2(1023),
 	email varchar2(1023),
-  parent_id number(32,0),
 
 	auth_data varchar2(32767), -- login types, password, 2fa token, email confirmation token; encrypted with user_key from private_config
 	role_data varchar2(32767), -- roles with params
@@ -50,19 +49,20 @@ interval (numtodsinterval(30,'day'))
 )
 ENABLE ROW MOVEMENT;
 ALTER TABLE app_user ADD CONSTRAINT pk_app_user PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-CREATE UNIQUE INDEX unq_app_user_ref_id ON app_session (ref_id) tablespace APP_MAIN_INDEX;
 CREATE UNIQUE INDEX unq_app_user_username ON app_user (username) tablespace APP_MAIN_INDEX;
 
 create table app_session (
 	id number(32,0),
-	device_id number(32,0),
+	device_id number(32,0) not null,
+  app_id number(32,0) not null,
 	user_id number(32,0),
   ref_id varchar2(1023),
 
   auth_data varchar2(32767), -- refresh keys, csrf tokens; encrypted with session_key
   role_data varchar2(32767), -- roles with params
+  extra_data varchar2(32767), -- extra session information in plain json
   csrf_data varchar2(32767), -- csrf tokens
-  expiration_date number(32,0),
+  expiration_date number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),
