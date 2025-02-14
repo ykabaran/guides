@@ -10,6 +10,7 @@ CREATE TABLE game (
   id number(32,0),
   code varchar2(1023) not null,
   name varchar2(1023) not null,
+  data varchar2(32767), -- data about what kind of game this is and it's default configs and such
 
   status varchar2(1023),
   version number(16,0),

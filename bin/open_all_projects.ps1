@@ -9,6 +9,7 @@ $directories = @(
 #    "goalserve\goalserve_main",
 #    "Admin2024\hlbs_sport",
 #    "Admin2024\hls_sport",
+    "Admin2024\hls_game",
     "Admin2024\Admin2024_api",
     "app_tools\app_diagnostics_client"
 )

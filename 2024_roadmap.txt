@@ -6,11 +6,7 @@ hls_account
 hls_game
 // instant_win game
 	// get game config
-	// buy card
-	// claim prize
-// single_player game
-	// get game config
-	// start game
+	// buy game instance
 	// make move, can add bet or claim prize, or end game
 // multiplayer_pvh game
 // multiplayer_pvp game
