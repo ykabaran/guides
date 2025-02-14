@@ -8,14 +8,14 @@ alter session set current_schema = hls_instant_game;
 
 create table game_prize_group (
   id number(32,0),
-  house_id number(32,0), -- virtual_game_house
-  game_id number(32,0),
-  prize_type varchar2(1023), -- normal_play, no_win_play, prize_win_play, free_spin_play, free_spin_purchase_play
-  currency_id number(32,0), -- from app_core
-  bet_stake number(32,0), -- integer
+  house_id number(32,0) not null, -- virtual_game_house
+  game_id number(32,0) not null,
+  prize_type varchar2(1023) not null, -- normal_play, no_win_play, prize_win_play, free_spin_play, free_spin_purchase_play
+  currency_id number(32,0) not null, -- from app_core
+  bet_stake number(32,0) not null, -- integer
 
   data varchar2(32767), -- summary data, updated periodically
-  start_date number(32,0),
+  start_date number(32,0) not null,
   end_date number(32,0),
 
   status varchar2(1023),
@@ -34,9 +34,9 @@ ALTER TABLE game_prize_group ADD CONSTRAINT pk_game_prize_group PRIMARY KEY (id)
 
 create table game_prize (
   id number(32,0),
-  group_id number(32,0), -- game_prize_group
+  group_id number(32,0) not null, -- game_prize_group
   bet_return number(32,0),
-  data varchar2(32767),
+  data varchar2(32767) not null,
   redemption_id number(32,0),
 
   status varchar2(1023), -- active, disabled, done, cancelled, errored
@@ -56,14 +56,14 @@ CREATE INDEX ind_game_prize_group ON game_prize (group_id) tablespace app_log;
 
 create table game_prize_redemption (
   id number(32,0),
-  prize_id number(32,0),
-  app_id number(32,0),
-  user_id number(32,0),
-  session_id number(32,0),
-  contract_id number(32,0),
-  trace_data varchar2(32767), -- ip address, user_agent, etc
-  redemption_data varchar2(32767), -- any extra game related data
-  bet_return number(32,0),
+  prize_id number(32,0) not null,
+  app_id number(32,0) not null,
+  user_id number(32,0) not null,
+  session_id number(32,0) not null,
+  contract_id number(32,0) not null,
+  trace_data varchar2(32767) not null, -- ip address, user_agent, etc
+  data varchar2(32767) not null, -- any extra game related data
+  bet_return number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),

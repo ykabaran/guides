@@ -10,7 +10,7 @@ CREATE TABLE game (
   id number(32,0),
   code varchar2(1023) not null,
   name varchar2(1023) not null,
-  data varchar2(32767), -- data about what kind of game this is and it's default configs and such
+  data varchar2(32767) not null, -- data about what kind of game this is and it's default configs and such
 
   status varchar2(1023),
   version number(16,0),
@@ -22,9 +22,9 @@ CREATE UNIQUE INDEX unq_game_code ON game (code) TABLESPACE app_main_index;
 
 create table virtual_game_house (
   id number(32,0),
-  app_id number(32,0), -- some app_id in app_user.app_user table that has a virtual_game_house role
-  name varchar2(1023),
-  data varchar2(32767), -- which games are available, general configurations, etc
+  app_id number(32,0) not null, -- some app_id in app_user.app_user table that has a virtual_game_house role
+  name varchar2(1023) not null,
+  data varchar2(32767) not null, -- which games are available, general configurations, etc
 
   status varchar2(1023),
   version number(16,0),
@@ -35,10 +35,10 @@ ALTER TABLE virtual_game_house ADD CONSTRAINT pk_virtual_game_house PRIMARY KEY 
 
 create table virtual_game_house_config (
   id number(32,0),
-  house_id number(32,0),
-  game_id number(32,0),
-  wallet_id number(32,0), -- must be owned by house's app_id
-  data varchar2(32767), -- which prize groups are available, general configurations, etc
+  house_id number(32,0) not null,
+  game_id number(32,0) not null,
+  wallet_id number(32,0) not null, -- must be owned by house's app_id
+  data varchar2(32767) not null, -- which prize groups are available, general configurations, etc
 
   status varchar2(1023),
   version number(16,0),

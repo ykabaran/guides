@@ -1,3 +1,91 @@
+apps
+	ls_main
+		lorena: app_core_reader, ls_data_writer
+		bunny: lsports.feed_file.prod, lsports.change_log.prod
+	ls_feed_file_cons
+		lorena: app_core_reader
+		bunny: lsports.feed_file.cons
+		nancy: ls_log_writer
+	ls_change_log_cons
+		lorena: app_core_reader
+		bunny: lsports.change_log.cons
+		nancy: ls_log_writer
+
+	gs_main
+		lorena: app_core_reader, gs_data_writer
+		bunny: goalserve.feed_file.prod, goalserve.change_log.prod
+	gs_feed_file_cons
+		lorena: app_core_reader
+		bunny: goalserve.feed_file.cons
+		nancy: gs_log_writer
+	gs_change_log_cons
+		lorena: app_core_reader
+		bunny: goalserve.change_log.cons
+		nancy: gs_log_writer
+
+	hls_sport_main
+		lorena: app_core_reader, ls_data_reader, gs_data_reader, hls_sport_writer
+		bunny: hls.sport_change_log
+	hls_sport_hlbs
+		lorena: app_core_reader, ls_data_reader, gs_data_reader, hls_sport_reader
+		hlbs: lsports_hlbs, hlbs, hltt
+
+	hls_game
+		lorena: app_core_reader, hls_game_writer,
+		lorena: app_user_reader, app_accounting_writer
+		hlbs: hlbs
+		bunny: hls.game_change_log
+
+	hls_change_log_cons
+		lorena: app_core_reader
+		bunny: hls.core_change_log.cons, hls.user_change_log.cons, hls.accounting_change_log.cons
+		nancy: app_core_log_writer, app_user_log_writer, app_accounting_log_writer
+		bunny: hls.sport_change_log.cons, hls.game_change_log.cons
+		nancy: hls_sport_log_writer, hls_game_log_writer
+
+	hls_admin
+		lorena: app_core_deleter, app_user_deleter, app_accounting_deleter
+		bunny: hls.core_change_log.prod, hls.user_change_log.prod, hls.accounting_change_log.prod
+		nancy: app_core_log_reader, app_user_log_reader, app_accounting_log_reader
+		lorena: ls_data_reader, gs_data_reader
+		nancy: ls_log_reader, gs_log_reader
+		lorena: hls_sport_deleter, hls_game_deleter
+		bunny: hls.sport_change_log.prod, hls.game_change_log.prod
+		nancy: hls_sport_log_reader, hls_game_log_reader
+
+
+rmqs
+	lsports
+		feed_file
+		change_log
+	goalserve
+		feed_file
+		change_log
+	hls
+		core_change_log
+		user_change_log
+		accounting_change_log
+		sport_change_log
+		game_change_log
+
+
+users
+	root:su
+		sysadmin: su
+		sysdev: su
+		hls: hls_admin
+			hls.sport: hls_sport_admin
+				hls.sport.lsports: ls_admin
+				hls.sport.goalserve: gs_admin
+				hls.sport.hlbs: hlbs_admin
+				hls.sport.main: hls_sport_admin
+			hls.game: hls_game_admin
+			hls.admin: hls_admin
+			hls.user: hls_user
+		nicobet: company_admin
+			nicobet.sport: sports_bookmaker
+			nicobet.game: game_house
+			nicobet.user: company_user
 
 hls_account
 // implementations
@@ -6,19 +94,21 @@ hls_account
 hls_game
 // instant_win game
 	// get game config
+		// get the user_id from session then follow the parent change until a game_house is found
 	// buy game instance
 	// make move, can add bet or claim prize, or end game
 // multiplayer_pvh game
 // multiplayer_pvp game
 
 app_user_tools
-// create user if id given
-// create a wallet for the user/session
-// get accounts via backend request
-// create missing accounts
-// update account balances
-// disable non-existent accounts
-// return auth_token
+// cross-login
+	// create user if id given
+	// create a wallet for the user/session
+	// get accounts via backend request
+	// create missing accounts
+	// update account balances
+	// disable non-existent accounts
+	// return auth_token
 
 hls_sport
 // service status updates
