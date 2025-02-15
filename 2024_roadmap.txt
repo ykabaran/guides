@@ -76,16 +76,114 @@ users
 		hls: hls_admin
 			hls.sport: hls_sport_admin
 				hls.sport.lsports: ls_admin
+					write any ls_base
+					write any ls_fixture
+
 				hls.sport.goalserve: gs_admin
-				hls.sport.hlbs: hlbs_admin
+					write any gs_base
+					write any gs_fixture
+
 				hls.sport.main: hls_sport_admin
+					read any ls/gs/hlbs/hls_sport_base
+					read any ls/gs/hlbs/hls_sport_fixture
+					write any hls_sport_base
+					write any hls_sport_fixture
+
+				hls.sport.hlbs: hlbs_admin
+					read self app_user
+					read self hls_virtual_bookmaker
+					read any ls/gs/hlbs/hls_sport_base
+					read any ls/gs/hlbs/hls_sport_fixture
+					write any hlbs_fixture
+
 			hls.game: hls_game_admin
+				read any app_user
+				write any app_session
+				read any hls_game_house
+				write any hls_game_base
+				write any hls_game_play
+				write any app_accounting
+				write any hlbs_accounting
+				login any hls_game_house_company_user
+
 			hls.admin: hls_admin
+				login any app_user
+				write any app_core
+				write any app_user
+				write any app_session
+				write any app_accounting
+				write any hls_virtual_bookmaker
+				write any hls_game_house
+				read any ls/gs/hlbs_base
+				read any ls/gs/hlbs_fixture
+				write any hls_sport_base
+				write any hls_sport_fixture
+				write any hls_game_base
+				write any hls_game_play
+
 			hls.user: hls_user
+				write self app_user
+				write self app_accounting
+				read any hls_game_base
+				write self hls_game_play
+
 		nicobet: company_admin
 			nicobet.sport: sports_bookmaker
+				loginto hls.admin
+				read self app_user
+				write self app_session
+				write self hls_virtual_bookmaker
+				read any ls/gs/hlbs/hls_sport_base
+				read any ls/gs/hlbs/hls_sport_fixture
+
 			nicobet.game: game_house
-			nicobet.user: company_user
+				loginto hls.admin
+				read self app_user
+				write self app_session
+				read any hls_game_base
+				write self hls_game_house
+				write company app_user
+				write self app_accounting
+				write self hls_game_play
+
+			nicobet.admin[]: company_admin
+				loginto hls.admin
+				write company app_user
+				write company hls_virtual_bookmaker
+				write company hls_game_house
+
+			nicobet.user[]: company_user
+				loginto company hls.game
+				read any hls_game_base
+				write self app_user
+				write self app_session
+				write self app_accounting
+				write self hls_game_play
+
+nicobet.user -> nicobet : game_play_request
+nicobet.game -> hls.game : company_user_login_request { app_id: nicobet.game, api_key, user_id }
+hls.game -> nicobet.game : signed_token_response { app_id: nicobet.game, user_id, signature }
+nicobet.game -> nicobet.user : signed_token_response { app_id: nicobet.game, user_id, signature }
+nicobet.user -> hls.game : login_request { app_id: nicobet.game, user_id, signature }
+hls.game -> nicobet.user : auth_token_response { app_id: nicobet.game, user_id, signature }
+-- we are here
+nicobet.user -> hls.game : game_config_request { app_id: nicobet.game, game_id }
+hls.game -> nicobet.user : game_config_response {}
+nicobet.user -> hls.game : game_play_request { app_id: nicobet.game, user_id, game_id, bet_stake }
+hls.game -> nicobet.game : payment_request { app_id: nicobet.game, user_id, game_id, bet_stake, prize_id, contract_id }
+nicobet.game -> hls.game : payment_response { contract_id, transaction_id }
+hls.game -> nicobet.user : game_play_response { prize_id, prize }
+nicobet.user -> hls.game : game_move_request { app_id: nicobet.game, user_id, game_id, prize_id, move }
+hls.game -> nicobet.user : game_move_response { prize_id, prize }
+
+hls_game
+	app_user/create_login_token
+	app_user/login
+	app_user/refresh
+	-- done until here
+	hls_game/get_config
+	hls_game/game_name/start
+	hls_game/game_name/move
 
 hls_account
 // implementations
@@ -119,7 +217,12 @@ hls_admin
 // service status updates
 
 app_tools project
-// graceful shutdown
+// service dependency tree (graceful shutdown)
+	// wait for service ready before starting dependent services
+	// wait for service shutdown before stopping dependent services
+// improve entity_crud
+	// respect all permissions for select/insert/update/delete
+	// provide customizable query format
 // pm2 shutdown timeout
 
 nicobet_account_bridge
