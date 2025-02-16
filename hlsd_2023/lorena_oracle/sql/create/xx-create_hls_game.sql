@@ -46,6 +46,7 @@ create table virtual_game_house_config (
   create_date number(32,0)
 );
 ALTER TABLE virtual_game_house_config ADD CONSTRAINT pk_virtual_game_house_config PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+CREATE UNIQUE INDEX unq_virtual_game_house_config ON virtual_game_house_config (house_id, game_id) TABLESPACE app_main_index;
 
 create role hls_game_reader;
 create role hls_game_writer;
