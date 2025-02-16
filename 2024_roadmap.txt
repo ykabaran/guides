@@ -176,29 +176,26 @@ hls.game -> nicobet.user : game_play_response { prize_id, prize }
 nicobet.user -> hls.game : game_move_request { app_id: nicobet.game, user_id, game_id, prize_id, move }
 hls.game -> nicobet.user : game_move_response { prize_id, prize }
 
+app_tools
+// dependency tree docs and other project updates
+
 hls_game
-	app_user/create_login_token
-	app_user/login
-	app_user/refresh
-	-- done until here
+	create game/game_house/game_house_config
 	hls_game/get_config
+	create test game
 	hls_game/game_name/start
 	hls_game/game_name/move
+	create accountless play
 
 hls_account
 // implementations
 // docs
 
 hls_game
-// instant_win game
-	// get game config
-		// get the user_id from session then follow the parent change until a game_house is found
-	// buy game instance
-	// make move, can add bet or claim prize, or end game
 // multiplayer_pvh game
 // multiplayer_pvp game
 
-app_user_tools
+hls_game
 // cross-login
 	// create user if id given
 	// create a wallet for the user/session
@@ -207,6 +204,9 @@ app_user_tools
 	// update account balances
 	// disable non-existent accounts
 	// return auth_token
+
+ls/gs
+// service status updates
 
 hls_sport
 // service status updates
@@ -217,9 +217,6 @@ hls_admin
 // service status updates
 
 app_tools project
-// service dependency tree (graceful shutdown)
-	// wait for service ready before starting dependent services
-	// wait for service shutdown before stopping dependent services
 // improve entity_crud
 	// respect all permissions for select/insert/update/delete
 	// provide customizable query format
