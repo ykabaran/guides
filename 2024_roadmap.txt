@@ -178,10 +178,9 @@ hls.game -> nicobet.user : game_move_response { prize_id, prize }
 
 
 hls_game
-	hls_game/get_config
-	create test game
-	hls_game/game_name/start
-	hls_game/game_name/move
+	hls_test_game/start
+	hls_test_game/move
+	hls_test_game/get_recent
 	create accountless play
 
 hls_account

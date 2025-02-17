@@ -11,6 +11,7 @@ CREATE TABLE app_currency (
   code varchar2(1023) not null,
   name varchar2(1023) not null,
   precision number(16,0) default 2 not null,
+  data varchar2(32767),
 
   status varchar2(1023),
   version number(16,0),
