@@ -34,6 +34,7 @@ ALTER TABLE game_prize_group ADD CONSTRAINT pk_game_prize_group PRIMARY KEY (id)
 
 create table game_prize (
   id number(32,0),
+  game_id number(32,0) not null, -- game
   group_id number(32,0) not null, -- game_prize_group
   bet_return number(32,0),
   data varchar2(32767) not null,
@@ -56,6 +57,8 @@ CREATE INDEX ind_game_prize_group ON game_prize (group_id) tablespace app_log;
 
 create table game_prize_redemption (
   id number(32,0),
+  game_id number(32,0) not null,
+  prize_group_id number(32,0) not null,
   prize_id number(32,0) not null,
   app_id number(32,0) not null,
   user_id number(32,0) not null,
