@@ -166,7 +166,6 @@ hls.game -> nicobet.game : signed_token_response { app_id: nicobet.game, user_id
 nicobet.game -> nicobet.user : signed_token_response { app_id: nicobet.game, user_id, signature }
 nicobet.user -> hls.game : login_request { app_id: nicobet.game, user_id, signature }
 hls.game -> nicobet.user : auth_token_response { app_id: nicobet.game, user_id, signature }
--- we are here
 nicobet.user -> hls.game : game_config_request { app_id: nicobet.game, game_id }
 hls.game -> nicobet.user : game_config_response {}
 nicobet.user -> hls.game : game_play_request { app_id: nicobet.game, user_id, game_id, bet_stake }
@@ -178,10 +177,8 @@ hls.game -> nicobet.user : game_move_response { prize_id, prize }
 
 
 hls_game
-	hls_test_game/start
-	hls_test_game/move
-	hls_test_game/get_recent
-	create accountless play
+	contracts/accounts
+	create demo play
 
 hls_account
 // implementations
