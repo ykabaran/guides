@@ -176,9 +176,8 @@ nicobet.user -> hls.game : game_move_request { app_id: nicobet.game, user_id, ga
 hls.game -> nicobet.user : game_move_response { prize_id, prize }
 
 app_tools
-	dynamic service descriptor generation
-	handler input validators
-	
+	handler input/output validators
+
 hls_game
 	contracts/accounts
 	create demo play
