@@ -176,6 +176,16 @@ nicobet.user -> hls.game : game_move_request { app_id: nicobet.game, user_id, ga
 hls.game -> nicobet.user : game_move_response { prize_id, prize }
 
 
+nicobet
+	add a few games to debug menu
+	some games open in place, others new tab
+john
+	yildiz.hlss.dev
+		/ yildiz.hlsd.com:3090
+		/api yildiz.hlsd.com:3091
+
+
+
 hls_game
 	contracts/accounts
 	create demo play
