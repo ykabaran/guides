@@ -1,0 +1,9 @@
+{
+  "alg": {
+    "name": "ec",
+    "namedCurve": "prime256v1"
+  },
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErs3Ubk2mgyduvALp3KOKstXR5d2E\ng/9vCmYfQbIGGkPnq8SWtxZvDaykqS6dMmaVEuQjqm1WweIkmMfu0I3ACw==\n-----END PUBLIC KEY-----\n",
+  "privateKey": "-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIHsMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAgh+UtZXDvTqgICCAAw\nDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEPVERaSmyv00nT4YGFRtL/0EgZCV\ncvfzPEj+8ekoxFVB4OSir/AHQj/8+izqIj8J6Udk3Xw485RQdrtqz+7ZMm2ec4MY\nTzUiRketngJuy+2SOADG1T9vFuAO0Sz/GiGmu+sZGvK7ns5H2xn57C7VApSfVpKs\n/m/opzUHm+zBbv6qJ9I3/MD0+c5AxbajobImyu6q1Mj8BBMXrT0k599SygT2U8M=\n-----END ENCRYPTED PRIVATE KEY-----\n",
+  "passphrase": "CKE1IpWCaxmiZciqAMhqTfnNXuHcYvLcxD4Uz8aVdPQ="
+}
