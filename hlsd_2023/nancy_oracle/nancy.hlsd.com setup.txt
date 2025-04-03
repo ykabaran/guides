@@ -178,3 +178,7 @@ create_db_admin.sql
 create_app_core.sql
 create_app_log.sql
 create_client_users.sql
+
+# as oracle add rman scripts to crontab
+crontab -e
+2 4 * * * /home/oracle/scripts/cleanup.sh
