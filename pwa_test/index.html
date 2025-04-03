@@ -4,20 +4,35 @@
 <head>
   <meta name="description" content="Service worker test page" />
   <meta charset="utf-8">
-  <title>Service Worker</title>
+  <title>PWA Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="author" content="">
+  <meta name="author" content="High Level Software Ltd.">
+	<link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
   
 <div class="container">
-  <button id="sub_btn">Subscribe</button>
+  <button id="install_btn" style="display: none;">Install App</button>
+  <button id="notif_btn" style="display: none;">Enable Notifications</button>
+  <button id="sub_btn" style="display: none;">Subscribe</button>
+	<br>
+	<br>
+	Disabled? <input id="notification_disabled" type="checkbox" checked /> 
+	<br>
+	Notification Time (minutes) <input id="notification_interval" type="number" min="1" max="3600" value="10" />
+	<br>
+	Repeat? <input id="notification_repeat" type="checkbox" checked /> 
+	<br>
+  <button id="schedule_btn">Schedule Notifications</button>
+	<br>
+	<br>
+	<div id="logs"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="script.js"></script>
+<script src="script.js?v=5"></script>
 </body>
 </html>
