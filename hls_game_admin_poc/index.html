@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="description" content="HLS Game Admin Page Proof of Concept Demo" />
+  <meta charset="utf-8">
+  <title>HLS Game Admin POC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="High Level Software Ltd.">
+</head>
+
+<body>
+  
+<div class="container">
+	<h1>Slots (with Jackpot)</h1>
+	<div>
+		<label for="currency">Currency:</label>
+		<select id="currency" name="currency" default="TRY">
+			<option value="TRY">Turkish Lira (₺)</option>
+			<option value="USD">US Dollar ($)</option>
+			<option value="EUR">Euro (€)</option>
+			<option value="GBP">British Pound (£)</option>
+		</select>
+	</div>
+	<div>
+		<label for="bet_stakes">Bet Stakes:</label>
+		<select id="bet_stakes" name="bet_stakes">
+			<option value="1">1₺</option>
+			<option value="5">5₺</option>
+			<option value="10">10₺</option>
+			<option value="20">20₺</option>
+			<option value="50">50₺</option>
+			<option value="100">100₺</option>
+		</select>
+	</div>
+	<div>
+		<label for="jackpot_percentage">Jackpot Percentage:</label>
+		<input type="number" id="jackpot_percentage" name="jackpot_percentage" min="0" max="100" value="1" step="0.01" />
+	</div>
+	<div>
+		<label for="prize_pool">Prize Pool:</label>
+		<select id="prize_pool" name="prize_pool">
+			<option value="default">Default Pool</option>
+			<option value="giveaway">Giveaway Pool</option>
+		</select>
+	</div>
+	<div>
+		<table>
+			<thead>
+				<tr>
+					<th>Prize</th>
+					<th>Rate</th>
+					<th>Total</th>
+					<th>Remaining</th>
+				</tr>
+			</thead>
+			<tbody id="prize_table">
+				<!-- list the prizes from DATA here -->
+			</tbody>
+		</table>
+	</div>
+	<div id="chart_container">
+		<canvas id="prize_chart"></canvas><!-- a stacked bar chart showing total and remaining, same data as the table in chart form -->
+		<canvas id="prize_distribution_chart"></canvas><!-- a stacked bar chart showing prize counts by range, e.g. 400 prizes between x10 and x100, etc, 30 prizes between x500 and x100, etc -->
+		<canvas id="prize_pie_chart"></canvas><!-- a pie chart of how many of the prizes are 0, how many are normal, how many reward free spins, and how many contain jackpots -->
+	</div>
+	<div>
+		<p>Total Spins: <span id="total_spins">100,000</span></p>
+		<p>Total Profit: <span id="total_profit"></span>4,500TL</span></p>
+		<p>Total Percentage: <span id="total_percentage"></span>96%</span></p>
+		<p>Remaining Spins: <span id="remaining_spins"></span>67,890 (67.89%)</span></p>
+		<p>Current Profit: <span id="current_profit"></span>1,200 TL</span></p>
+		<p>Prize Percentage: <span id="prize_percentage"></span>95%</span></p>
+	</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+	const DATA = {
+		prizes: [
+			{ name: "Prize 1", rate: 1, total: 1000, remaining: 900 },
+			{ name: "Prize 2", rate: 3, total: 500, remaining: 400 },
+			{ name: "Prize 3", rate: 4, total: 200, remaining: 150 },
+			{ name: "Prize 4", rate: 5, total: 50, remaining: 30 },
+			{ name: "Jackpot", rate: 1000, total: 10, remaining: 5 }
+		]
+	};
+	// draw charts here using Chart.js
+</script>
+</body>
+</html>
