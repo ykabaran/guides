@@ -15,8 +15,8 @@
 	<h1>Slots (with Jackpot)</h1>
 	<div>
 		<label for="currency">Currency:</label>
-		<select id="currency" name="currency" default="TRY">
-			<option value="TRY">Turkish Lira (₺)</option>
+		<select id="currency" name="currency">
+			<option value="TRY" selected>Turkish Lira (₺)</option>
 			<option value="USD">US Dollar ($)</option>
 			<option value="EUR">Euro (€)</option>
 			<option value="GBP">British Pound (£)</option>
@@ -29,7 +29,7 @@
 			<option value="5">5₺</option>
 			<option value="10">10₺</option>
 			<option value="20">20₺</option>
-			<option value="50">50₺</option>
+			<option value="50" selected>50₺</option>
 			<option value="100">100₺</option>
 		</select>
 	</div>
@@ -60,32 +60,219 @@
 		</table>
 	</div>
 	<div id="chart_container">
+		<canvas id="prize_pie_chart"></canvas><!-- a pie chart of how many of the prizes are 0, how many are normal, how many reward free spins, and how many contain jackpots -->
 		<canvas id="prize_chart"></canvas><!-- a stacked bar chart showing total and remaining, same data as the table in chart form -->
 		<canvas id="prize_distribution_chart"></canvas><!-- a stacked bar chart showing prize counts by range, e.g. 400 prizes between x10 and x100, etc, 30 prizes between x500 and x100, etc -->
-		<canvas id="prize_pie_chart"></canvas><!-- a pie chart of how many of the prizes are 0, how many are normal, how many reward free spins, and how many contain jackpots -->
 	</div>
 	<div>
-		<p>Total Spins: <span id="total_spins">100,000</span></p>
-		<p>Total Profit: <span id="total_profit"></span>4,500TL</span></p>
-		<p>Total Percentage: <span id="total_percentage"></span>96%</span></p>
-		<p>Remaining Spins: <span id="remaining_spins"></span>67,890 (67.89%)</span></p>
-		<p>Current Profit: <span id="current_profit"></span>1,200 TL</span></p>
-		<p>Prize Percentage: <span id="prize_percentage"></span>95%</span></p>
+		<p>Total Spins: <span id="total_spins"></span></p>
+		<p>Total Profit: <span id="total_profit"></span></span></p>
+		<p>Total Percentage: <span id="total_percentage"></span></span></p>
+		<p>Remaining Spins: <span id="remaining_spins"></span></span></p>
+		<p>Current Profit: <span id="current_profit"></span></span></p>
 	</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 	const DATA = {
+		counts_summary: {
+			total: { count: 108919, used: 65110 },
+			profit: { count: 3454.47, used: 3847.73 },
+			empty: { count: 65002, used: 38897 },
+			normal_win: { count: 43584, used: 26023 },
+			free_spin: { count: 333, used: 190 }
+		},
+		prize_counts: {
+			'3 x Grapes': { count: 231, used: 138 },
+			'3 x Orange': { count: 25973, used: 15498 },
+			'3 x Cherry': { count: 32146, used: 19408 },
+			'3 x Lemon': { count: 31787, used: 19007 },
+			'3 x Plums': { count: 24755, used: 14906 },
+			'4 x Plums': { count: 4263, used: 2562 },
+			'4 x Cherry': { count: 5879, used: 3529 },
+			'3 x $ (Scatter)': { count: 253, used: 163 },
+			'5 x Cherry': { count: 599, used: 329 },
+			'4 x Lemon': { count: 5764, used: 3375 },
+			'4 x Orange': { count: 4295, used: 2547 },
+			'5 x Plums': { count: 441, used: 263 },
+			'2 x 7': { count: 3049, used: 1878 },
+			'3 x BAR': { count: 1119, used: 672 },
+			'4 x BAR': { count: 115, used: 71 },
+			'5 x Lemon': { count: 682, used: 382 },
+			'3 x Watermelon': { count: 621, used: 345 },
+			'4 x Watermelon': { count: 103, used: 81 },
+			'5 x Orange': { count: 383, used: 241 },
+			'Bell (Gold x4)': { count: 159, used: 99 },
+			'Bell (Gold x5)': { count: 125, used: 72 },
+			'Bell (Gold x1)': { count: 260, used: 156 },
+			'Jackpot MINOR': { count: 116, used: 60 },
+			'Bell (Gold x3)': { count: 190, used: 109 },
+			'Bell (Gold x2)': { count: 246, used: 136 },
+			'Jackpot MAJOR': { count: 15, used: 9 },
+			'Jackpot MINI': { count: 172, used: 98 },
+			'4 x $ (Scatter)': { count: 33, used: 17 },
+			'Bell (Gold x10)': { count: 120, used: 59 },
+			'Bell (Gold x50)': { count: 62, used: 40 },
+			'Jackpot GRAND': { count: 4, used: 2 },
+			'Bell (Gold x20)': { count: 71, used: 46 },
+			'3 x Star (Scatter)': { count: 28, used: 18 },
+			'Reels Boost': { count: 50, used: 28 },
+			'3 x 7': { count: 216, used: 159 },
+			'5 x $ (Scatter)': { count: 6, used: 4 },
+			'4 x Grapes': { count: 66, used: 6 },
+			'5 x BAR': { count: 5, used: 5 },
+			'5 x Grapes': { count: 1, used: 1 },
+			'4 x 7': { count: 46, used: 36 },
+			'5 x Watermelon': { count: 12, used: 8 },
+			'5 x 7': { count: 2, used: 2 }
+		},
+		prize_range_counts: [
+			{ max: 0, count: 65002, used: 38897 },
+			{ max: 1, count: 40578, used: 24202 },
+			{ max: 5, count: 2557, used: 1554 },
+			{ max: 10, count: 278, used: 164 },
+			{ max: 20, count: 119, used: 72 },
+			{ max: 50, count: 64, used: 37 },
+			{ max: 100, count: 72, used: 40 },
+			{ max: 500, count: 220, used: 129 },
+			{ max: -1, count: 29, used: 15 }
+		],
 		prizes: [
-			{ name: "Prize 1", rate: 1, total: 1000, remaining: 900 },
-			{ name: "Prize 2", rate: 3, total: 500, remaining: 400 },
-			{ name: "Prize 3", rate: 4, total: 200, remaining: 150 },
-			{ name: "Prize 4", rate: 5, total: 50, remaining: 30 },
-			{ name: "Jackpot", rate: 1000, total: 10, remaining: 5 }
+			{ name: "3 x Cherry", rate: 0.1 },
+			{ name: "4 x Cherry", rate: 0.4 },
+			{ name: "5 x Cherry", rate: 1.5 },
+			{ name: "3 x Lemon", rate: 0.1 },
+			{ name: "4 x Lemon", rate: 0.4 },
+			{ name: "5 x Lemon", rate: 1.5 },
+			{ name: "3 x Orange", rate: 0.1 },
+			{ name: "4 x Orange", rate: 0.4 },
+			{ name: "5 x Orange", rate: 1.5 },
+			{ name: "3 x Plums", rate: 0.1 },
+			{ name: "4 x Plums", rate: 0.4 },
+			{ name: "5 x Plums", rate: 1.5 },
+			{ name: "3 x BAR", rate: 0.2 },
+			{ name: "4 x BAR", rate: 0.8 },
+			{ name: "5 x BAR", rate: 2 },
+			{ name: "3 x Watermelon", rate: 0.5 },
+			{ name: "4 x Watermelon", rate: 1.5 },
+			{ name: "5 x Watermelon", rate: 5 },
+			{ name: "3 x Grapes", rate: 0.5 },
+			{ name: "4 x Grapes", rate: 1.5 },
+			{ name: "5 x Grapes", rate: 5 },
+			{ name: "2 x 7", rate: 0.1 },
+			{ name: "3 x 7", rate: 1 },
+			{ name: "4 x 7", rate: 4 },
+			{ name: "5 x 7", rate: 20 },
+			{ name: "3 x Star (Scatter)", rate: 20 },
+			{ name: "3 x $ (Scatter)", rate: 3 },
+			{ name: "4 x $ (Scatter)", rate: 20 },
+			{ name: "5 x $ (Scatter)", rate: 100 },
+			{ name: "Reels Boost", rate: 0 },
+			{ name: "Bell (Gold x1)", rate: 1 },
+			{ name: "Bell (Gold x2)", rate: 2 },
+			{ name: "Bell (Gold x3)", rate: 3 },
+			{ name: "Bell (Gold x4)", rate: 4 },
+			{ name: "Bell (Gold x5)", rate: 5 },
+			{ name: "Bell (Gold x10)", rate: 10 },
+			{ name: "Bell (Gold x20)", rate: 20 },
+			{ name: "Bell (Gold x50)", rate: 50 },
+			{ name: "Jackpot MINI", rate: 10 },
+			{ name: "Jackpot MINOR", rate: 50 },
+			{ name: "Jackpot MAJOR", rate: 750 },
+			{ name: "Jackpot GRAND", rate: 2500 }
 		]
 	};
 	// draw charts here using Chart.js
+
+	const main = () => {
+		const betStake = 50; // default bet stake
+		const currency = "₺";
+		document.getElementById('total_spins').innerText = DATA.counts_summary.total.count.toLocaleString("en-US");
+		document.getElementById('total_profit').innerText = `${(betStake * DATA.counts_summary.profit.count).toLocaleString("en-US", { minimumFractionDigits: 2 })}${currency}`;
+		document.getElementById('total_percentage').innerText = ((1 - (DATA.counts_summary.profit.count / DATA.counts_summary.total.count)) * 100).toFixed(2) + '%';
+		document.getElementById('remaining_spins').innerText = (DATA.counts_summary.total.count - DATA.counts_summary.total.used).toLocaleString("en-US", 0);
+		document.getElementById('current_profit').innerText = `${(betStake * DATA.counts_summary.profit.used).toLocaleString("en-US", { minimumFractionDigits: 2 })}${currency}`;
+
+		const prizeTable = document.getElementById('prize_table');
+		for(const prize of DATA.prizes) {
+			const newRow = document.createElement("tr");
+			const nameCell = document.createElement("td");
+			nameCell.innerText = prize.name;
+			const rateCell = document.createElement("td");
+			rateCell.innerText = `x${prize.rate.toLocaleString("en-US")}`;
+			const totalCell = document.createElement("td");
+			totalCell.innerText = DATA.prize_counts[prize.name].count.toLocaleString("en-US");
+			const remainingCell = document.createElement("td");
+			remainingCell.innerText = (DATA.prize_counts[prize.name].count - DATA.prize_counts[prize.name].used).toLocaleString("en-US");
+			newRow.appendChild(nameCell);
+			newRow.appendChild(rateCell);
+			newRow.appendChild(totalCell);
+			newRow.appendChild(remainingCell);
+			prizeTable.appendChild(newRow);
+		}
+
+		new Chart(document.getElementById("prize_pie_chart"), {
+			type: 'pie',
+			data: {
+				labels: [
+					'Lost',
+					'Win',
+					'Bell Link'
+				],
+				datasets: [{
+					label: 'Totals',
+					data: [ DATA.counts_summary.empty.count, DATA.counts_summary.normal_win.count, DATA.counts_summary.free_spin.count ]
+				}]
+			}
+		});
+
+		new Chart(document.getElementById("prize_chart"), {
+			type: 'bar',
+			data: {
+				labels: DATA.prizes.map(prize => prize.name),
+				datasets: [{
+					label: 'Total',
+					data: DATA.prizes.map(prize => DATA.prize_counts[prize.name].count)
+				}]
+			},
+			options: {
+				scales: {
+					y: { type: 'logarithmic' }
+				}
+			}
+		});
+
+		const prizeRangeLabels = [];
+		let lastMax = 0;
+		for(const range of DATA.prize_range_counts) {
+			if(range.max === -1) {
+				prizeRangeLabels.push(`>${(lastMax * betStake).toLocaleString("en-US")}${currency}`);
+			} else if(range.max > 0) {
+				prizeRangeLabels.push(`${(lastMax * betStake).toLocaleString("en-US")} - ${(range.max * betStake).toLocaleString("en-US")}${currency}`);
+			} else {
+				prizeRangeLabels.push(`0${currency}`);
+			}
+			lastMax = range.max;
+		}
+		new Chart(document.getElementById("prize_distribution_chart"), {
+			type: 'bar',
+			data: {
+				labels: prizeRangeLabels,
+				datasets: [{
+					label: 'Total',
+					data: DATA.prize_range_counts.map(prize => prize.count)
+				}]
+			},
+			options: {
+				scales: {
+					y: { type: 'logarithmic' }
+				}
+			}
+		});
+	};
+
+	document.addEventListener('DOMContentLoaded', main);
 </script>
 </body>
 </html>
