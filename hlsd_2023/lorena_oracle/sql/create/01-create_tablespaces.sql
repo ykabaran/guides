@@ -22,6 +22,8 @@ ALTER TABLESPACE undotbs1
      ADD DATAFILE '/uoradata/LORENA/undotbs02.dbf' SIZE 4G AUTOEXTEND OFF;
 ALTER TABLESPACE undotbs1
      ADD DATAFILE '/uoradata/LORENA/undotbs03.dbf' SIZE 4G AUTOEXTEND OFF;
+ALTER TABLESPACE undotbs1
+     ADD DATAFILE '/uoradata/LORENA/undotbs04.dbf' SIZE 4G AUTOEXTEND OFF;
 
 alter database add logfile group 4 ('/uoradata/LORENA/redo04.log') size 400M;
 alter database add logfile group 5 ('/uoradata/LORENA/redo05.log') size 400M;
