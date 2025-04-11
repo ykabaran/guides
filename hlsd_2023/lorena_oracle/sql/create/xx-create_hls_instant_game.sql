@@ -6,6 +6,30 @@ create user hls_instant_game identified by ""
 grant connect, resource to hls_instant_game;
 alter session set current_schema = hls_instant_game;
 
+create table game_asset (
+  id number(32,0),
+  house_id number(32,0) not null, -- virtual_game_house
+  game_id number(32,0) not null,
+  asset_type varchar2(1023) not null, -- jackpot, leftover
+  currency_id number(32,0) not null, -- from app_core
+  asset_value number(32,0) not null, -- integer
+
+  data varchar2(32767),
+
+  status varchar2(1023),
+  version number(16,0),
+  change_date number(32,0),
+  create_date number(32,0),
+  partition_date date default sysdate not null 
+)
+partition by range(partition_date)
+interval (numtodsinterval(30,'day'))
+(partition p0 values less than
+  (to_date('2025-01-01','YYYY-MM-DD'))
+)
+enable row movement;
+ALTER TABLE game_asset ADD CONSTRAINT pk_game_asset PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
+
 create table game_prize_group (
   id number(32,0),
   house_id number(32,0) not null, -- virtual_game_house
@@ -39,6 +63,7 @@ create table game_prize (
   bet_return number(32,0),
   data varchar2(32767) not null,
   redemption_id number(32,0),
+  reserved_used_id number(32,0),
 
   status varchar2(1023), -- active, disabled, done, cancelled, errored
   version number(16,0),
@@ -94,14 +119,17 @@ create role hls_instant_game_reader;
 create role hls_instant_game_writer;
 create role hls_instant_game_deleter;
 
+grant select on game_asset to hls_instant_game_reader;
 grant select on game_prize_group to hls_instant_game_reader;
 grant select on game_prize to hls_instant_game_reader;
 grant select on game_prize_redemption to hls_instant_game_reader;
 
+grant select,insert,update on game_asset to hls_instant_game_writer;
 grant select,insert,update on game_prize_group to hls_instant_game_writer;
 grant select,insert,update on game_prize to hls_instant_game_writer;
 grant select,insert,update on game_prize_redemption to hls_instant_game_writer;
 
+grant select,insert,update,delete on game_asset to hls_instant_game_deleter;
 grant select,insert,update,delete on game_prize_group to hls_instant_game_deleter;
 grant select,insert,update,delete on game_prize to hls_instant_game_deleter;
 grant select,insert,update,delete on game_prize_redemption to hls_instant_game_deleter;
