@@ -68,6 +68,14 @@ alter tablespace app_log
    add datafile '/uoradata/NANCY/app_log15.dbf' size 8G autoextend off;
 alter tablespace app_log
    add datafile '/uoradata/NANCY/app_log16.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/NANCY/app_log17.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/NANCY/app_log18.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/NANCY/app_log19.dbf' size 8G autoextend off;
+alter tablespace app_log
+   add datafile '/uoradata/NANCY/app_log20.dbf' size 8G autoextend off;
 
 create tablespace app_log_index
 	datafile '/uoradata/NANCY/app_log_index01.dbf' size 8G autoextend off
