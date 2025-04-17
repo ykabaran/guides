@@ -78,7 +78,7 @@ interval (numtodsinterval(30,'day'))
 )
 enable row movement;
 ALTER TABLE game_prize ADD CONSTRAINT pk_game_prize PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-CREATE INDEX ind_game_prize_group ON game_prize (group_id) tablespace app_log;
+CREATE INDEX ind_game_prize_group ON game_prize (group_id) tablespace app_main_index;
 
 create table game_prize_redemption (
   id number(32,0),
