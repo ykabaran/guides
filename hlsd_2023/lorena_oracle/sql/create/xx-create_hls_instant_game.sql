@@ -84,11 +84,11 @@ create table game_prize_redemption (
   id number(32,0),
   game_id number(32,0) not null,
   prize_group_id number(32,0) not null,
-  prize_id number(32,0) not null,
+  prize_id number(32,0),
   app_id number(32,0) not null,
   user_id number(32,0) not null,
   session_id number(32,0) not null,
-  contract_id number(32,0) not null,
+  contract_id number(32,0),
   trace_data varchar2(32767) not null, -- ip address, user_agent, etc
   secret_key varchar2(1023),
   data varchar2(32767) not null, -- any extra game related data
