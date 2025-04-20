@@ -82,7 +82,6 @@ CREATE INDEX ind_game_prize_group ON game_prize (group_id) tablespace app_main_i
 
 create table game_prize_redemption (
   id number(32,0),
-  game_id number(32,0) not null,
   prize_group_id number(32,0) not null,
   prize_id number(32,0),
   app_id number(32,0) not null,
@@ -93,7 +92,6 @@ create table game_prize_redemption (
   secret_key varchar2(1023),
   data varchar2(32767) not null, -- any extra game related data
   bet_stake number(32,0) not null,
-  bet_rate number(8,2) not null,
   bet_return number(32,0) not null,
 
   status varchar2(1023),
