@@ -1,7 +1,7 @@
 // slot bonanza
-	// split game into normal and feature create
-	// add pay_table, randomization_params, and pool_data
-	// change create pool and generate single prize functions
+	// change prize return structure
+	// add compression
+	// add pay_table, randomization_params, and pool_data to db
 
 // game job to update incomplete redemption
 	// for all hlbs payments check to see if made before making
