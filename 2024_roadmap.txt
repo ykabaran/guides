@@ -1,7 +1,5 @@
 // slot bonanza
-	// change prize return structure
-	// add compression
-	// add pay_table, randomization_params, and pool_data to db
+	// calculate prize positions and feature trigger
 
 // game job to update incomplete redemption
 	// for all hlbs payments check to see if made before making
@@ -42,3 +40,37 @@
 	// deploy games applications
 	// change logs shipped to nancy via rabbitmq?
 	// production elastic stack and apm
+
+
+{
+	matrix: [],
+	rounds: [{
+		prizes: [{
+			name: "",
+			rate: 1,
+			win: "",
+			positions: []
+		}],
+		cumulative_win: ""
+	}],
+	total_win: "",
+	feature_trigger: {
+		positions: [],
+		spin_awards: 15
+	},
+	freature_prize: {
+		spins: [{
+			matrix: [],
+			rounds: [],
+			multipliers: [{
+				position: {},
+				rate
+			}],
+			base_win: "",
+			multiplier: 1,
+			total_win: "",
+			cumulative_win: ""
+		}],
+		total_win: ""
+	}
+}
