@@ -16,12 +16,6 @@
 		// if not made make the payment
 		// if made update redemption to "finished"
 
-// entity_crud_service
-	// add returning support
-	// add functional update support
-	// add a transactional action that can do insert/update in a transaction, and still create the change logs
-	// rewrite place_bet stuff with transaction support
-
 // testing
 	// simulate many user spinning the same pool at the same time vs different pools and so on
 	// simulate what happens if no available pool/prize
@@ -37,3 +31,9 @@
 	// deploy games applications
 	// change logs shipped to nancy via rabbitmq?
 	// production elastic stack and apm
+
+// entity_crud_service
+	// add returning support
+	// add functional update support
+	// add a transactional action that can do insert/update in a transaction, and still create the change logs
+	// rewrite place_bet stuff with transaction support
