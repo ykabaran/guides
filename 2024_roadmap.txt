@@ -16,21 +16,21 @@
 		// if not made make the payment
 		// if made update redemption to "finished"
 
+// moving to production
+	// prepare databases/servers with ip assignments and ssl certs
+	// create db schemas on production
+	// create default permissions/roles/users/currencies
+	// manually create users/game_houses/games/configs in the database
+	// deploy games applications
+	// change logs shipped to nancy via rabbitmq?
+	// production elastic stack and apm
+
 // testing
 	// simulate many user spinning the same pool at the same time vs different pools and so on
 	// simulate what happens if no available pool/prize
 	// simulate payment failure
 	// simulate award payment failure
 	// simulate jackpot win with normal/feature
-
-// moving to production
-	// prepare databases/servers with ip assignments and ssl certs
-	// create db schemas on production
-	// create default permissions/roles/users/currencies and deploy admin application
-	// login as admin user and create users/game_houses/games/configs
-	// deploy games applications
-	// change logs shipped to nancy via rabbitmq?
-	// production elastic stack and apm
 
 // entity_crud_service
 	// add returning support
