@@ -6,15 +6,6 @@
 		// if no redemption then "active" the prize
 		// call subclass's onPrizeCancelled method, if jackpot prize then update the asset data
 		// if "redeemed" then set
-	// check redemptions
-	// if "active"
-		// call the subclass's autoCompleteGame method, this is expected to eventually call endGame method
-	// if "game_completed"
-		// call the subclass's onGameEnded method to update the jackpot asset, if jackpot won then remove the "reserved" tag and set the "last_won" tag
-		// set to "return_payment_pending"
-	// if "return_payment_pending", first check if the payment was already made
-		// if not made make the payment
-		// if made update redemption to "finished"
 
 // moving to production
 	// prepare databases/servers with ip assignments and ssl certs
