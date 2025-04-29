@@ -1,0 +1,230 @@
+# Install Oracle Linux 8
+# partition 20Gib /, 14 Gib /home, 24Gib swap
+# set hostname, setup network, set timezone
+# create yildiz user, no root
+# install, reboot, accept license, no location services, no accounts
+# update, reboot
+
+# add id_rsa
+# connect ssh with id_rsa
+ssh-copy-id -i id_rsa yildiz@padma.hlsp.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+# assign and divide the second and third disks, leave the rest empty in vg
+fdisk -l
+fdisk /dev/sda
+	n
+	p,1,xx,xx
+	t,8e
+	w
+fdisk /dev/sdc
+	n
+	p,1,xx,xx
+	t,8e
+	w
+pvcreate /dev/sda1
+pvcreate /dev/sdc1
+pvs
+vgcreate vg_oracle /dev/sda1
+vgcreate vg_oracle_bak /dev/sdc1
+vgs
+pvscan
+lvcreate -n lv_oracle -L 40G vg_oracle
+lvcreate -n lv_oracle_data -L 120G vg_oracle
+lvcreate -n lv_oracle_fra -L 200G vg_oracle_bak
+lvcreate -n lv_oracle_backup -L 200G vg_oracle_bak
+lvs
+lvdisplay
+mkfs.xfs /dev/vg_oracle/lv_oracle
+mkfs.xfs /dev/vg_oracle/lv_oracle_data
+mkfs.xfs /dev/vg_oracle_bak/lv_oracle_fra
+mkfs.xfs /dev/vg_oracle_bak/lv_oracle_backup
+
+mkdir /uora
+mkdir /uoradata
+mkdir /uorafra
+mkdir /uorabackup
+
+# mount them in fstab
+nano /etc/fstab
+/dev/vg_oracle/lv_oracle	/uora	xfs	defaults	0 0
+/dev/vg_oracle/lv_oracle_data	/uoradata	xfs	defaults	0 0
+/dev/vg_oracle_bak/lv_oracle_fra	/uorafra	xfs	defaults	0 0
+/dev/vg_oracle_bak/lv_oracle_backup	/uorabackup	xfs	defaults	0 0
+
+# increase size of /dev/shm to RAM size, if less
+nano /etc/fstab
+none		/dev/shm		tempfs	defaults,size=24G	0 0
+systemctl daemon-reload
+mount -o remount /dev/shm
+df -h
+
+reboot
+
+# set hostname and hosts
+nano /etc/hostname
+padma.hlsp.com
+nano /etc/hosts
+192.168.1.220 padma.hlsp.com padma
+
+# install prereqs and update
+dnf install -y oracle-database-preinstall-19c
+yum update -y
+
+# setup misc
+passwd oracle
+# set to 123456
+
+nano /etc/selinux/config
+SELINUX=permissive
+
+firewall-cmd --permanent --zone=public --add-port=1521/tcp
+firewall-cmd --permanent --zone=public --add-port=2484/tcp
+firewall-cmd --reload
+firewall-cmd --list-all
+
+reboot
+
+# transfer permissions to oracle
+chown -R oracle:oinstall /uora /uoradata /uorafra /uorabackup
+chmod -R 775 /uora /uoradata /uorafra /uorabackup
+
+# create the folders and scripts as oracle
+mkdir -p /uora/app/oracle/product/19.0.0/dbhome_1
+mkdir /uorabackup/rman
+mkdir /uorabackup/logs
+mkdir /home/oracle/scripts
+
+# copy contents of /scripts to /home/oracle
+chown -R oracle:oinstall /home/oracle/scripts
+
+chmod u+x /home/oracle/scripts/*.sh
+echo ". /home/oracle/scripts/set_env.sh" >> /home/oracle/.bash_profile
+
+# transfer LINUX.X64_193000_db_home.zip to /home/oracle/ with oracle:oinstall permissions
+
+# login to oracle with gui
+cd $ORACLE_HOME
+unzip -oq /home/oracle/LINUX.X64_193000_db_home.zip
+
+export CV_ASSUME_DISTID=OEL7.6
+./runInstaller
+	software only
+	single instance
+	enterprise edition
+	/uora/app/oracle
+	manually run root scripts
+	install
+
+# when prompted run the scripts as root from ssh
+/uora/app/oraInventory/orainstRoot.sh
+/uora/app/oracle/product/19.0.0/dbhome_1/root.sh
+
+# continue as oracle user
+lsnrctl start
+dbca
+	advanced
+	single instance
+	general purpose
+	global name and SID: padma
+	don't create as container
+	use following for the database storage attributes
+	set to /uoradata
+	don't use OMF
+	specify FRA as to /uorafra
+	180GB (about twice as big as the data)
+	enable archiving
+	don't create new listener
+	don't vault
+	don't label security
+	memory -> use automatic shared memory management, 80%
+	sizing -> nothing
+	character sets -> UTF8 (national set as well)
+	connection mode -> dedicated
+	samples schemas -> no
+	don't configure enterprise manager
+	don't register to cloud
+	same password to rule them all
+	create database
+	install
+
+# can exit gui
+reboot
+
+sudo su -
+passwd oracle
+# something strong
+
+su - oracle
+
+sqlplus / as sysdba
+startup mount
+show parameter target; # for memory parameters
+show parameter db_recovery_file_dest; # for fra parameters
+alter system set db_create_file_dest='/uoradata';
+alter system set db_flashback_retention_target = 2880; # 2 days
+alter system set undo_retention = 2880; # 2 days
+
+alter database open;
+alter database flashback on;
+
+shutdown immediate;
+exit
+sqlplus / as sysdba
+
+startup upgrade;
+alter system set MAX_STRING_SIZE = EXTENDED;
+@/uora/app/oracle/product/19.0.0/dbhome_1/rdbms/admin/utl32k.sql
+shutdown immediate;
+exit
+
+# configure rman
+rman target /
+startup mount;
+
+# display and change rman configuration
+show all;
+
+CONFIGURE RETENTION POLICY TO REDUNDANCY 1;
+CONFIGURE CONTROLFILE AUTOBACKUP ON;
+CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 1 TIMES TO DISK;
+
+# add database to startup configuration
+nano /etc/oratab
+padma:/uora/app/oracle/product/19.0.0/dbhome_1:Y
+
+# as root create the service
+nano /lib/systemd/system/dbora.service
+# copy dbora.service into this file
+
+systemctl daemon-reload
+# to start/stop/autostart service use the commands below
+systemctl start dbora
+systemctl stop dbora
+systemctl enable dbora
+systemctl disable dbora
+systemctl status dbora
+
+reboot
+
+create_tablespaces.sql
+create_db_admin.sql
+
+# as oracle 
+. /home/oracle/scripts/rman_level0.sh
+
+# as oracle add rman scripts to crontab
+crontab -e
+5 4 * * 1,3,5 /home/oracle/scripts/rman_level0.sh
+5 4 * * 0,2,4,6 /home/oracle/scripts/rman_level1.sh
+5 16 * * * /home/oracle/scripts/rman_level1.sh
+0 4 * * * /home/oracle/scripts/cleanup.sh
+
+cd $ORACLE_HOME/network/admin
+nano sqlnet.ora
+# copy contents of oracle/sqlnet.ora
+lsnrctl stop
+lsnrctl start

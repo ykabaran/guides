@@ -1,0 +1,45 @@
+# set ip or add mac to pfsense
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@molly.hlsp.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+hostnamectl set-hostname molly.hlsp.com
+nano /etc/hosts
+
+timedatectl set-timezone Europe/Nicosia
+
+apt update
+apt upgrade
+reboot
+
+ufw enable
+ufw allow ssh
+ufw allow 5672/tcp
+
+# as root
+cd /root
+nano install_rmq.sh
+# copy the contents
+# source: https://www.rabbitmq.com/docs/install-debian
+chmod 744 install_rmq.sh
+. install_rmq.sh
+
+systemctl start rabbitmq-server
+systemctl start rabbitmq-server
+
+rabbitmq-diagnostics status
+
+rabbitmqctl add_vhost hls_general --description "HLS Related General Queues" 
+rabbitmqctl add_user hls_general_change_log_prod ""
+rabbitmqctl add_user hls_general_change_log_cons ""
+rabbitmqctl set_permissions -p hls_general hls_general_change_log_prod "_change_log_" "amq.default|_change_log_" "amq.default|_change_log_"
+rabbitmqctl set_permissions -p hls_general hls_general_change_log_cons "" "" "amq.default|_change_log_"
+
+rabbitmqctl list_queues -p hls_general name arguments messages consumers
+
+rabbitmqctl change_password user_name ""
+rabbitmqctl purge_queue -p vhost_name _queue_name_
+rabbitmqctl delete_queue -p vhost_name _queue_name_

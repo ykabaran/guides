@@ -1,0 +1,30 @@
+host 192.168.1.15
+	networks wan, lan
+	credentials and keys stored in LastPass
+
+	vm 192.168.1.220 padma.hlsp.com
+		hardware 16 vCPU, 24GB RAM, 1TB storage (divided, 60/300/700)
+		os oracle linux 8 U10
+		networks lan
+		packages oracle_db_19c
+		database PADMA
+
+	vm 192.168.1.222 chang.hlsd.com
+		hardware 8 vCPU, 24GB RAM, 120GB storage
+		os ubuntu server 24.04.2
+		networks lan
+		packages nodejs, oracle client
+
+	vm 192.168.1.221 eddie.hlsp.com
+		hardware 4 vCPU, 8GB RAM, 60GB storage
+		os ubuntu server 22.04
+		networks lan
+		packages nginx
+
+	vm 192.168.1.223 molly.hlsd.com
+		hardware 4 vCPU, 8GB RAM, 60GB storage
+		os ubuntu server 22.04
+		networks lan
+		packages rabbitmq
+	
+

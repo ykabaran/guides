@@ -1,0 +1,11 @@
+#Padma HLSP DB
+192.168.1.220 padma.hlsp.com
+
+#Chang HLSP NodeJs
+192.168.1.222 chang.hlsp.com
+
+#Eddie HLSP Nginx
+192.168.1.221 eddie.hlsp.com
+
+#Molly HLSP RabbitMQ
+192.168.1.223 molly.hlsp.com

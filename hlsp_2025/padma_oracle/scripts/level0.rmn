@@ -1,0 +1,14 @@
+run {
+allocate channel ch1 device type disk FORMAT '/uorabackup/rman/backup0_%u_%d_%T_%s_%p.bkp' maxpiecesize 8 G;
+crosscheck backup;
+crosscheck archivelog all;
+delete noprompt expired archivelog all;
+delete noprompt obsolete;
+BACKUP as compressed backupset INCREMENTAL LEVEL 0 TAG=LEVEL_0 DATABASE PLUS ARCHIVELOG;
+backup current controlfile format '/uorabackup/rman/cnt_%u_%d_%T_%s_%p.bkp';
+backup spfile format '/uorabackup/rman/spf_%u_%d_%T_%s_%p.bkp';
+crosscheck backup;
+crosscheck archivelog all;
+delete noprompt expired archivelog all;
+delete noprompt obsolete;
+}

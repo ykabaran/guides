@@ -1,0 +1,92 @@
+# set ip or add mac to pfsense
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@chang.hlsp.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+hostnamectl set-hostname chang.hlsp.com
+nano /etc/hosts
+
+timedatectl set-timezone Europe/Nicosia
+
+apt update
+apt upgrade
+reboot
+
+ufw enable
+ufw allow ssh
+ufw allow 3000:3100/tcp
+
+adduser unodejs
+su - unodejs
+
+# install oracle instant client
+https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
+mkdir -p /opt/oracle
+cd /opt/oracle
+unzip instantclient-basic-linuxx64.zip
+sudo sh -c "echo /opt/oracle/instantclient_23_7 > /etc/ld.so.conf.d/oracle-instantclient.conf"
+sudo ldconfig
+sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /opt/oracle/instantclient_23_7/libaio.so.1
+# for the user who is going to use the client set
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_23_7:$LD_LIBRARY_PATH
+
+# disable coredumps
+# might need to be added to somewhere to be persistent
+ulimit -c 0
+
+# install nvm, check repo for latest version https://github.com/nvm-sh/nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+source .bashrc
+nvm -v
+nvm ls-remote
+nvm install v22.15.0
+node -v
+npm -v
+
+# install global packages
+npm i -g pm2
+npm i -g npm-check-updates
+# update npm if available
+
+# make a folder for apps
+mkdir /var/www/unodejs
+# copy default_config.json here
+# make app folders
+# copy app files package.json, apps/app/(pm2.config.cjs, config.json, run.js) apps/app/private/evault.json
+# start app with pm2
+pm2 start pm2.config.cjs
+# save pm2 state
+pm2 save
+# enable pm2 on startup
+pm2 startup
+
+# updating nodejs
+# stop and remove pm2 processes
+pm2 stop ...
+pm2 remove ...
+pm2 save --force
+pm2 unstartup
+
+nvm install 20.xx.x
+nvm ls
+nvm use 20.xx.x
+nvm alias default 20.xx.x
+
+npm i -g pm2
+npm i -g npm-check-updates
+
+# updating global packages
+ncu -g
+# update corepack, pm2, ncu, vs
+# update pm2 runtime
+pm2 update
+
+# start all apps
+cd /var/www/...
+pm2 start pm2.config.cjs
+
+pm2 save
+pm2 startup

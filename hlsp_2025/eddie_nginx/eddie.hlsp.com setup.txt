@@ -1,0 +1,27 @@
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@eddie.hlsp.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+hostnamectl set-hostname eddie.hlsp.com
+nano /etc/hosts
+
+timedatectl set-timezone Europe/Nicosia
+
+apt update
+apt upgrade
+reboot
+
+ufw enable
+ufw allow ssh
+
+# install nginx
+apt install nginx
+ufw app list
+ufw allow 'Nginx Full'
+systemctl enable nginx
+
+
+

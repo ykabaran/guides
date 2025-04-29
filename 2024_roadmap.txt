@@ -7,7 +7,6 @@
 	// winners list
 
 // moving to production
-	// database, nginx, nodejs, rabbitmq, nat to apm on sven
 	// prepare databases/servers with ip assignments and ssl certs
 	// create db schemas on production
 	// create default permissions/roles/users/currencies
