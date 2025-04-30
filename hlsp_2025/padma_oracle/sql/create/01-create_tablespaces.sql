@@ -16,14 +16,14 @@ ALTER TABLESPACE sysaux
 
 alter database datafile '/uoradata/PADMA/users01.dbf' resize 1G;
 alter database datafile '/uoradata/PADMA/users01.dbf' autoextend off;
-alter database datafile '/uoradata/PADMA/undotbs01.dbf' resize 4G;
+alter database datafile '/uoradata/PADMA/undotbs01.dbf' resize 8G;
 alter database datafile '/uoradata/PADMA/undotbs01.dbf' autoextend off;
 ALTER TABLESPACE undotbs1
-     ADD DATAFILE '/uoradata/PADMA/undotbs02.dbf' SIZE 4G AUTOEXTEND OFF;
+     ADD DATAFILE '/uoradata/PADMA/undotbs02.dbf' SIZE 8G AUTOEXTEND OFF;
 ALTER TABLESPACE undotbs1
-     ADD DATAFILE '/uoradata/PADMA/undotbs03.dbf' SIZE 4G AUTOEXTEND OFF;
+     ADD DATAFILE '/uoradata/PADMA/undotbs03.dbf' SIZE 8G AUTOEXTEND OFF;
 ALTER TABLESPACE undotbs1
-     ADD DATAFILE '/uoradata/PADMA/undotbs04.dbf' SIZE 4G AUTOEXTEND OFF;
+     ADD DATAFILE '/uoradata/PADMA/undotbs04.dbf' SIZE 8G AUTOEXTEND OFF;
 
 alter database add logfile group 4 ('/uoradata/PADMA/redo04.log') size 400M;
 alter database add logfile group 5 ('/uoradata/PADMA/redo05.log') size 400M;
@@ -65,32 +65,3 @@ alter tablespace app_main_index
    add datafile '/uoradata/PADMA/app_main_index05.dbf' size 8G autoextend off;
 alter tablespace app_main_index
    add datafile '/uoradata/PADMA/app_main_index06.dbf' size 8G autoextend off;
-
-select
-   fs.tablespace_name                          "Tablespace",
-   (df.totalspace - fs.freespace)              "Used MB",
-   fs.freespace                                "Free MB",
-   df.totalspace                               "Total MB",
-   df.MaxSpace                               "Max MB",
-   round(100 * (fs.freespace / df.totalspace)) "Curr Pct. Free",
-   round(100 * ((df.MaxSpace - (df.totalspace - fs.freespace)) / df.MaxSpace)) "Max Pct. Free"
-from
-   (select
-      tablespace_name,
-      round(sum(bytes) / 1048576) TotalSpace,
-      round(sum(decode(nvl(maxbytes,0),0, bytes,maxbytes)) / 1048576) MaxSpace
-   from
-      dba_data_files
-   group by
-      tablespace_name
-   ) df,
-   (select
-      tablespace_name,
-      round(sum(bytes) / 1048576) FreeSpace
-   from
-      dba_free_space
-   group by
-      tablespace_name
-   ) fs
-where
-   df.tablespace_name = fs.tablespace_name;

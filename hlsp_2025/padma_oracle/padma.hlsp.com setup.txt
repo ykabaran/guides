@@ -33,7 +33,7 @@ vgcreate vg_oracle_bak /dev/sdc1
 vgs
 pvscan
 lvcreate -n lv_oracle -L 40G vg_oracle
-lvcreate -n lv_oracle_data -L 120G vg_oracle
+lvcreate -n lv_oracle_data -L 200G vg_oracle
 lvcreate -n lv_oracle_fra -L 200G vg_oracle_bak
 lvcreate -n lv_oracle_backup -L 200G vg_oracle_bak
 lvs

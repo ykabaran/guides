@@ -1,19 +1,13 @@
-// game error check job
-	// for all hlbs payments check to see if made before making
-
 // client side
 	// language support tr,en
 	// help menu and text
 	// winners list
 
 // moving to production
-	// prepare databases/servers with ip assignments and ssl certs
-	// create db schemas on production
-	// create default permissions/roles/users/currencies
+	// manually create permissions/roles/users/currencies
 	// manually create users/game_houses/games/configs in the database
 	// deploy games applications
 	// change logs shipped to nancy via rabbitmq?
-	// production elastic stack and apm
 
 // testing
 	// simulate many user spinning the same pool at the same time vs different pools and so on
@@ -25,10 +19,6 @@
 // game error check job
 	// check hlbs payments to see if all have redemptions
 		// if no redemption then refund
-	// check "reserved" prizes
-		// if no redemption then "active" the prize
-		// call subclass's onPrizeCancelled method, if jackpot prize then update the asset data
-		// if "redeemed" then set
 
 // entity_crud_service
 	// add returning support

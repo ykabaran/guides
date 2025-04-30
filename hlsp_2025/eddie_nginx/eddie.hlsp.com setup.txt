@@ -22,6 +22,3 @@ apt install nginx
 ufw app list
 ufw allow 'Nginx Full'
 systemctl enable nginx
-
-
-

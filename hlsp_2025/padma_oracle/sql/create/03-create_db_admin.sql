@@ -34,7 +34,7 @@ create table DB_SYSTEM_LOG (
 partition by range(CREATE_DATE)
 interval (numtodsinterval(7,'day'))
 (partition p0 values less than
-  (to_date('2024-01-01','YYYY-MM-DD'))
+  (to_date('2025-01-01','YYYY-MM-DD'))
 );
 /
 
@@ -52,7 +52,7 @@ create table DDL_HISTORY_LOG (
 partition by range(CREATE_DATE)
 interval (numtodsinterval(7,'day'))
 (partition p0 values less than
-  (to_date('2024-01-01','YYYY-MM-DD'))
+  (to_date('2025-01-01','YYYY-MM-DD'))
 );
 /
 
@@ -61,15 +61,14 @@ create table DB_PARTITION_CLEANUP (
   table_name varchar2(1023),
   table_column varchar2(1023),
   num_days number(16,0),
-  delete_interval varchar2(1023),
   status varchar2(1023) default 'active'
 );
 /
 
-insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
-values ('DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30, '1/24');
-insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days, delete_interval)
-values ('DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200, '1/24');
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days)
+values ('DB_ADMIN', 'DB_SYSTEM_LOG', 'CREATE_DATE', 30);
+insert into DB_PARTITION_CLEANUP (table_owner, table_name, table_column, num_days)
+values ('DB_ADMIN', 'DDL_HISTORY_LOG', 'CREATE_DATE', 1200);
 
 create or replace view VIEW_TABLESPACE_STATUS
 AS select
@@ -316,8 +315,7 @@ AS
     xtable_owner varchar2, 
     xtable_name varchar2,
     xtable_column varchar2,
-    xnum_days number,
-    xdelete_interval varchar2);
+    xnum_days number);
 
   PROCEDURE do_partition_cleanup;
 
@@ -331,8 +329,7 @@ AS
     xtable_owner varchar2,
     xtable_name varchar2,
     xtable_column varchar2,
-    xnum_days number,
-    xdelete_interval varchar2)
+    xnum_days number)
   IS
     partition_date date;
   begin
@@ -346,31 +343,6 @@ AS
         db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleting ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
         execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' MODIFY PARTITION ' || rec.PARTITION_NAME || ' NOLOGGING';
         execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' TRUNCATE PARTITION ' || rec.PARTITION_NAME || ' UPDATE INDEXES';
-        /*
-        execute immediate 'declare
-          xstart_date date;
-          xend_date date;
-          xcurr_date date;
-          delete_interval number := ' || xdelete_interval || ';
-        begin
-          select trunc(min(' || xtable_column || ')), trunc(max(' || xtable_column || ')+1)
-          into xstart_date, xend_date
-          from ' || xtable_owner || '.' || xtable_name || ' partition(' || rec.PARTITION_NAME || ');
-
-          xcurr_date := xstart_date;
-          while xcurr_date <= xend_date
-          loop
-            db_admin.pkg_log.LOG_INFO(''CLEANUP'', ''deleting curent date '' || to_char(xcurr_date, ''YYYY-MM-DD HH24:MI''));
-            DELETE FROM ' || xtable_owner || '.' || xtable_name || ' PARTITION(' || rec.PARTITION_NAME || ') where ' || xtable_column || ' between xcurr_date - delete_interval and xcurr_date;
-            commit;
-
-            xcurr_date := xcurr_date + delete_interval;
-          end loop;
-
-          DELETE FROM ' || xtable_owner || '.' || xtable_name || ' PARTITION(' || rec.PARTITION_NAME || ');
-          commit;
-        end;';
-        */
         execute immediate 'ALTER TABLE ' || xtable_owner || '.' || xtable_name || ' DROP PARTITION ' || rec.PARTITION_NAME;
         db_admin.pkg_log.LOG_INFO('CLEANUP', 'deleted ' || xtable_owner || '.' || xtable_name || '.' || rec.PARTITION_NAME || ' - ' || to_char(partition_date, 'YYYY-MM-DD'));
       end if;
@@ -380,11 +352,11 @@ AS
   PROCEDURE do_partition_cleanup
   IS
   BEGIN
-    for rec in (select table_owner, table_name, table_column, num_days, delete_interval
+    for rec in (select table_owner, table_name, table_column, num_days
                   FROM DB_ADMIN.DB_PARTITION_CLEANUP WHERE status = 'active')
     loop
       begin
-        drop_old_partitions(rec.table_owner, rec.table_name, rec.TABLE_COLUMN,rec.num_days, rec.delete_interval);
+        drop_old_partitions(rec.table_owner, rec.table_name, rec.TABLE_COLUMN,rec.num_days);
       exception when others then
         db_admin.pkg_log.log_error('CLEANUP', rec.table_owner || '.' || rec.table_name);
       end;
@@ -429,7 +401,7 @@ BEGIN
     job_type => 'STORED_PROCEDURE',
     job_action => 'PKG_CLEANUP.DO_INDEX_REBUILD',
     start_date    => TO_DATE(TO_CHAR(TRUNC(SYSDATE + 1), 'YYYY-MM-DD') || ' 03:10', 'YYYY-MM-DD HH24:MI:SS'),
-    repeat_interval  => 'FREQ=DAILY; INTERVAL=1',
+    repeat_interval  => 'FREQ=DAILY; INTERVAL=7',
     auto_drop => FALSE,
     enabled => TRUE);
 END;

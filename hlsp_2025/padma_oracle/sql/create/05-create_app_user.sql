@@ -109,11 +109,14 @@ create role app_user_deleter;
 grant select on app_device to app_user_reader;
 grant select on app_user to app_user_reader;
 grant select on app_session to app_user_reader;
+grant select on app_session_event to app_user_reader;
 
 grant select,insert,update on app_device to app_user_writer;
 grant select,insert,update on app_user to app_user_writer;
 grant select,insert,update on app_session to app_user_writer;
+grant select,insert,update on app_session_event to app_user_writer;
 
 grant select,insert,update,delete on app_device to app_user_deleter;
 grant select,insert,update,delete on app_user to app_user_deleter;
 grant select,insert,update,delete on app_session to app_user_deleter;
+grant select,insert,update,delete on app_session_event to app_user_deleter;
