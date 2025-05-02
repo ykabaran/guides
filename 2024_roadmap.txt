@@ -1,14 +1,15 @@
-// client side
-	// language support tr,en
-	// help menu and text
-	// winners list
 
 // moving to production
 	// manually create permissions/roles/users/currencies
 	// manually create users/game_houses/games/configs in the database
+	// manually create app_table_meta
 	// deploy games applications
-	// change logs shipped to nancy via rabbitmq?
 
+// client side
+	// language support tr,en
+	// help menu and text
+	// winners list
+	
 // testing
 	// simulate many user spinning the same pool at the same time vs different pools and so on
 	// simulate what happens if no available pool/prize
