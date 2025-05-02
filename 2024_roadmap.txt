@@ -1,13 +1,7 @@
 
-// moving to production
-	// manually create permissions/roles/users/currencies
-	// manually create users/game_houses/games/configs in the database
-	// manually create app_table_meta
-	// deploy games applications
-
 // client side
-	// language support tr,en
-	// help menu and text
+	// language support tr,en via url
+	// new slots page
 	// winners list
 	
 // testing
@@ -16,6 +10,9 @@
 	// simulate payment failure
 	// simulate award payment failure
 	// simulate jackpot win with normal/feature
+
+// client side
+	// winners list
 
 // game error check job
 	// check hlbs payments to see if all have redemptions
@@ -26,8 +23,3 @@
 	// add functional update support
 	// add a transactional action that can do insert/update in a transaction, and still create the change logs
 	// rewrite place_bet stuff with transaction support
-
-// client side
-	// language support tr,en via url
-	// new slots page
-	// winners list

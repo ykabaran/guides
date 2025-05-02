@@ -63,7 +63,7 @@ create table game_prize (
   bet_return number(32,0),
   data varchar2(32767) not null,
   redemption_id number(32,0),
-  reserved_used_id number(32,0),
+  reserved_user_id number(32,0),
 
   status varchar2(1023), -- active, disabled, done, cancelled, errored
   version number(16,0),
