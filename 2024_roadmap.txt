@@ -25,3 +25,8 @@
 	// add functional update support
 	// add a transactional action that can do insert/update in a transaction, and still create the change logs
 	// rewrite place_bet stuff with transaction support
+
+// client side
+	// language support tr,en via url
+	// new slots page
+	// winners list
