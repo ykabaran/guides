@@ -2,6 +2,7 @@
 // website needs
 	// new slots page
 	// account details page
+	// make the games reloadable
 
 // admin app
 	// instant game operator service
