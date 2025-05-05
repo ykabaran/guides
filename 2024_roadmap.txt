@@ -5,7 +5,7 @@
 
 // admin app
 	// instant game operator service
-	// search/view/cancel redemption
+	// search redemption
 
 // client side
 	// language support tr,en via url
