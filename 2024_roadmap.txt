@@ -1,7 +1,14 @@
 
+// website needs
+	// new slots page
+	// account details page
+
+// admin app
+	// instant game operator service
+	// search/view/cancel redemption
+
 // client side
 	// language support tr,en via url
-	// new slots page
 	// winners list
 	
 // testing
