@@ -2,16 +2,11 @@
 // data corruption
 	// fix hlbs missing secret_keys
 
-// website needs
-	// account details page
-	// make the games reloadable
-
 // admin app
 	// instant game operator service
 	// search redemption
 
 // client side
-	// language support tr,en via url
 	// winners list
 
 // bet stake changes
@@ -23,9 +18,6 @@
 	// simulate payment failure
 	// simulate award payment failure
 	// simulate jackpot win with normal/feature
-
-// client side
-	// winners list
 
 // game error check job
 	// check hlbs payments to see if all have redemptions
