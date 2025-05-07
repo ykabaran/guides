@@ -1,6 +1,8 @@
 
+// data corruption
+	// fix hlbs missing secret_keys
+
 // website needs
-	// new slots page
 	// account details page
 	// make the games reloadable
 
@@ -13,13 +15,7 @@
 	// winners list
 
 // bet stake changes
-	// virtuals: 10, 20, 50, 100, 200, 500, 1000
 	// okey: yeni grafik lazim
-	// tavla: 50'yi 100 yap
-	// holdem, blackjack: no change
-	// carkifelek, roulette: masa 1: 10, 20, 50, 100, 200, 500, 1000
-	// nicodog, nicohorse, nicocar: 10, 20, 50, 100, 200, 500, 1000, 2000, 5000
-	// slots 3: 2, 5, 20, 50, 100, 200
 	
 // testing
 	// simulate many user spinning the same pool at the same time vs different pools and so on
