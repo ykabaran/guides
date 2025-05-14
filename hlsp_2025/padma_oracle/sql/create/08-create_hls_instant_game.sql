@@ -113,6 +113,7 @@ CREATE UNIQUE INDEX unq_game_prize_redemption_prize ON game_prize_redemption (pr
 CREATE UNIQUE INDEX unq_game_prize_redemption_contract ON game_prize_redemption (contract_id) tablespace app_main_index;
 CREATE INDEX ind_game_prize_redemption_session ON game_prize_redemption (session_id) tablespace app_main_index;
 CREATE INDEX ind_game_prize_redemption_user_create_date ON game_prize_redemption (user_id, create_date) tablespace app_main_index;
+CREATE INDEX ind_game_prize_redemption_game_create_date ON game_prize_redemption (game_id, create_date) tablespace app_main_index;
 CREATE INDEX ind_game_prize_redemption_change_date ON game_prize_redemption (change_date) tablespace app_main_index;
 
 create role hls_instant_game_reader;

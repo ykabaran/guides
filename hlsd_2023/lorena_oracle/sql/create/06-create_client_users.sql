@@ -15,7 +15,8 @@ grant connect,
 		gs_data_writer,
 		hls_sport_writer,
 		hls_game_deleter,
-		hls_instant_game_deleter
+		hls_instant_game_deleter,
+		hls_game_analytics_deleter
 	to app_test_user01;
 
 create user pa_feed_file_creator01 identified by "";
