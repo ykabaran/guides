@@ -13,6 +13,9 @@ create table game_asset (
   asset_type varchar2(1023) not null, -- jackpot, leftover
   currency_id number(32,0) not null, -- from app_core
   asset_value number(32,0) not null, -- integer
+  asset_value_1 number(32,0) not null, -- integer
+  asset_value_2 number(32,0) not null, -- integer
+  asset_value_3 number(32,0) not null, -- integer
 
   data varchar2(32767),
 
@@ -36,6 +39,7 @@ create table game_prize_group (
   game_id number(32,0) not null,
   prize_type varchar2(1023) not null, -- normal_play, no_win_play, prize_win_play, free_spin_play, free_spin_purchase_play
   currency_id number(32,0) not null, -- from app_core
+  bet_option number(32,0) not null, -- integer
   bet_stake number(32,0) not null, -- integer
 
   data varchar2(32767), -- summary data, updated periodically
@@ -64,6 +68,8 @@ create table game_prize (
   data varchar2(32767) not null,
   redemption_id number(32,0),
   reserved_user_id number(32,0),
+  final_bet_stake number(32,0),
+  final_bet_return number(32,0),
 
   status varchar2(1023), -- active, disabled, done, cancelled, errored
   version number(16,0),

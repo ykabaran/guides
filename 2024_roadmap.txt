@@ -1,23 +1,15 @@
 
-// data corruption
-	// fix hlbs missing secret_keys
-
-// admin app
-	// instant game operator service
-	// search redemption
+// games side
+	// jackpot generate and mix-in
+	// maintenance message
+	// minutely/hourly/daily metrics
 
 // client side
 	// winners list
+	// game resumption
 
 // bet stake changes
 	// okey: yeni grafik lazim
-	
-// testing
-	// simulate many user spinning the same pool at the same time vs different pools and so on
-	// simulate what happens if no available pool/prize
-	// simulate payment failure
-	// simulate award payment failure
-	// simulate jackpot win with normal/feature
 
 // game error check job
 	// check hlbs payments to see if all have redemptions
