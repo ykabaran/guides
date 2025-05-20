@@ -8,16 +8,23 @@ alter session set current_schema = hls_game_analytics;
 
 create table game_analytics_minutely (
   id number(32,0),
-  game_id number(32,0) not null,
-  house_id number(32,0) not null,
   start_date number(16,0) not null,
   end_date number(16,0) not null,
+
+  game_id number(32,0) not null,
+  house_id number(32,0) not null,
+  group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
+
   currency_code varchar2(1023) not null,
   bet_option number(32,0) not null,
   prize_type varchar2(1023) not null,
   bet_stake number(32,0) not null,
 
-  data varchar2(32767),
+  user_count number(16,0) not null,
+  total_count number(16,0) not null,
+  total_stake number(32,0) not null,
+  total_return number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),
@@ -36,16 +43,23 @@ CREATE INDEX ind_game_analytics_minutely_start_date ON game_analytics_minutely (
 
 create table game_analytics_hourly (
   id number(32,0),
-  game_id number(32,0) not null,
-  house_id number(32,0) not null,
   start_date number(16,0) not null,
   end_date number(16,0) not null,
+
+  game_id number(32,0) not null,
+  house_id number(32,0) not null,
+  group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
+
   currency_code varchar2(1023) not null,
   bet_option number(32,0) not null,
   prize_type varchar2(1023) not null,
   bet_stake number(32,0) not null,
 
-  data varchar2(32767),
+  user_count number(16,0) not null,
+  total_count number(16,0) not null,
+  total_stake number(32,0) not null,
+  total_return number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),
@@ -64,16 +78,23 @@ CREATE INDEX ind_game_analytics_hourly_start_date ON game_analytics_hourly (star
 
 create table game_analytics_daily (
   id number(32,0),
-  game_id number(32,0) not null,
-  house_id number(32,0) not null,
   start_date number(16,0) not null,
   end_date number(16,0) not null,
+
+  game_id number(32,0) not null,
+  house_id number(32,0) not null,
+  group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
+
   currency_code varchar2(1023) not null,
   bet_option number(32,0) not null,
   prize_type varchar2(1023) not null,
   bet_stake number(32,0) not null,
 
-  data varchar2(32767),
+  user_count number(16,0) not null,
+  total_count number(16,0) not null,
+  total_stake number(32,0) not null,
+  total_return number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),
@@ -93,17 +114,23 @@ CREATE INDEX ind_game_analytics_daily_start_date ON game_analytics_daily (start_
 
 create table game_user_analytics_minutely (
   id number(32,0),
+  start_date number(16,0) not null,
+  end_date number(16,0) not null,
+
   user_id number(32,0) not null,
   game_id number(32,0) not null,
   house_id number(32,0) not null,
-  start_date number(16,0) not null,
-  end_date number(16,0) not null,
+  group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
+
   currency_code varchar2(1023) not null,
   bet_option number(32,0) not null,
   prize_type varchar2(1023) not null,
   bet_stake number(32,0) not null,
 
-  data varchar2(32767),
+  total_count number(16,0) not null,
+  total_stake number(32,0) not null,
+  total_return number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),
@@ -122,17 +149,23 @@ CREATE INDEX ind_game_user_analytics_minutely_start_date ON game_user_analytics_
 
 create table game_user_analytics_hourly (
   id number(32,0),
+  start_date number(16,0) not null,
+  end_date number(16,0) not null,
+
   user_id number(32,0) not null,
   game_id number(32,0) not null,
   house_id number(32,0) not null,
-  start_date number(16,0) not null,
-  end_date number(16,0) not null,
+  group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
+
   currency_code varchar2(1023) not null,
   bet_option number(32,0) not null,
   prize_type varchar2(1023) not null,
   bet_stake number(32,0) not null,
 
-  data varchar2(32767),
+  total_count number(16,0) not null,
+  total_stake number(32,0) not null,
+  total_return number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),
@@ -151,17 +184,23 @@ CREATE INDEX ind_game_user_analytics_hourly_start_date ON game_user_analytics_ho
 
 create table game_user_analytics_daily (
   id number(32,0),
+  start_date number(16,0) not null,
+  end_date number(16,0) not null,
+
   user_id number(32,0) not null,
   game_id number(32,0) not null,
   house_id number(32,0) not null,
-  start_date number(16,0) not null,
-  end_date number(16,0) not null,
+  group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
+
   currency_code varchar2(1023) not null,
   bet_option number(32,0) not null,
   prize_type varchar2(1023) not null,
   bet_stake number(32,0) not null,
 
-  data varchar2(32767),
+  total_count number(16,0) not null,
+  total_stake number(32,0) not null,
+  total_return number(32,0) not null,
 
   status varchar2(1023),
   version number(16,0),

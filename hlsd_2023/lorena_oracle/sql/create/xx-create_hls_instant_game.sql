@@ -64,12 +64,11 @@ create table game_prize (
   id number(32,0),
   game_id number(32,0) not null, -- game
   group_id number(32,0) not null, -- game_prize_group
+  rating varchar2(1023) not null,
   bet_return number(32,0),
   data varchar2(32767) not null,
   redemption_id number(32,0),
   reserved_user_id number(32,0),
-  final_bet_stake number(32,0),
-  final_bet_return number(32,0),
 
   status varchar2(1023), -- active, disabled, done, cancelled, errored
   version number(16,0),
@@ -91,6 +90,7 @@ create table game_prize_redemption (
   id number(32,0),
   game_id number(32,0) not null,
   prize_group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
   prize_id number(32,0),
   app_id number(32,0) not null,
   user_id number(32,0) not null,
