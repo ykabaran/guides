@@ -19,6 +19,16 @@ grant connect,
 		hls_game_analytics_deleter
 	to app_test_user01;
 
+create user hls_admin_app_user identified by "";
+grant connect,
+		app_core_writer,
+		app_user_writer,
+		app_accounting_writer,
+		hls_game_writer,
+		hls_instant_game_writer,
+		hls_game_analytics_writer
+	to hls_admin_app_user;
+
 create user pa_feed_file_creator01 identified by "";
 grant connect, pa_feed_writer to pa_feed_file_creator01;
 

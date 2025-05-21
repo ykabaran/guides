@@ -13,6 +13,9 @@ create table game_asset (
   asset_type varchar2(1023) not null, -- jackpot, leftover
   currency_id number(32,0) not null, -- from app_core
   asset_value number(32,0) not null, -- integer
+  asset_value_1 number(32,0) not null, -- integer
+  asset_value_2 number(32,0) not null, -- integer
+  asset_value_3 number(32,0) not null, -- integer
 
   data varchar2(32767),
 
@@ -36,6 +39,7 @@ create table game_prize_group (
   game_id number(32,0) not null,
   prize_type varchar2(1023) not null, -- normal_play, no_win_play, prize_win_play, free_spin_play, free_spin_purchase_play
   currency_id number(32,0) not null, -- from app_core
+  bet_option number(32,0) not null, -- integer
   bet_stake number(32,0) not null, -- integer
 
   data varchar2(32767), -- summary data, updated periodically
@@ -60,6 +64,7 @@ create table game_prize (
   id number(32,0),
   game_id number(32,0) not null, -- game
   group_id number(32,0) not null, -- game_prize_group
+  rating varchar2(1023) not null,
   bet_return number(32,0),
   data varchar2(32767) not null,
   redemption_id number(32,0),
@@ -84,7 +89,9 @@ CREATE INDEX ind_game_prize_change_date ON game_prize (change_date) tablespace a
 create table game_prize_redemption (
   id number(32,0),
   game_id number(32,0) not null,
+  house_id number(32,0) not null,
   prize_group_id number(32,0) not null,
+  prize_rating varchar2(1023) not null,
   prize_id number(32,0),
   app_id number(32,0) not null,
   user_id number(32,0) not null,

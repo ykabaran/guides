@@ -2,9 +2,9 @@
 // games side
 	// jackpot generate and mix-in
 	// maintenance message
-	// minutely/hourly/daily metrics
 
 // client side
+	// bonanza sweet
 	// winners list
 	// game resumption
 

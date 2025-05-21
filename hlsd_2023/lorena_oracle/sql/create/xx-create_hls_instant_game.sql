@@ -89,6 +89,7 @@ CREATE INDEX ind_game_prize_change_date ON game_prize (change_date) tablespace a
 create table game_prize_redemption (
   id number(32,0),
   game_id number(32,0) not null,
+  house_id number(32,0) not null,
   prize_group_id number(32,0) not null,
   prize_rating varchar2(1023) not null,
   prize_id number(32,0),
