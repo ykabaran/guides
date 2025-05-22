@@ -3,6 +3,10 @@
 	// jackpot generate and mix-in
 	// maintenance message
 
+// games side improvements
+	// session resumption
+	// add active_count/max_prize to prize_group
+
 // client side
 	// bonanza sweet
 	// winners list
