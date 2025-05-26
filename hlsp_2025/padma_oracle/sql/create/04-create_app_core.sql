@@ -37,6 +37,28 @@ as
     end;
 end;
 
+create or replace package pkg_uid
+as
+  function to_int(xuid varchar2) return number;
+
+  function to_string(xuid number) return varchar2;
+end;
+
+create or replace package body pkg_uid
+as
+  function to_int(xuid varchar2) return number
+  is
+  begin
+    return to_number(xuid, 'XXXXXXXXXXXXXXXXXXXXXXXX');
+  end;
+
+  function to_string(xuid number) return varchar2
+  is
+  begin
+    return trim(lower(to_char(xuid, '0XXXXXXXXXXXXXXXXXXXXXXX')));
+  end;
+end;
+
 create table app_table_meta (
   id number(32,0),
   name varchar2(1023),
@@ -135,6 +157,7 @@ ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX
 CREATE UNIQUE INDEX unq_app_secret_name ON app_secret (name) tablespace APP_MAIN_INDEX;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
+GRANT EXECUTE ON pkg_uid TO PUBLIC;
 
 create role app_core_reader;
 create role app_core_writer;

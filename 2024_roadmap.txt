@@ -1,19 +1,21 @@
 
+// video poker
+	// create services with ready subject
+	// generate single spin
+	// generate pool
+	// create database configs
+
 // games side
 	// jackpot generate and mix-in
 	// maintenance message
-
-// games side improvements
-	// session resumption
-	// add active_count/max_prize to prize_group
 
 // client side
 	// bonanza sweet
 	// winners list
 	// game resumption
 
-// bet stake changes
-	// okey: yeni grafik lazim
+// old website
+	// okey bet stake changes: yeni grafik lazim, aykut abi notu var
 
 // game error check job
 	// check hlbs payments to see if all have redemptions
@@ -24,3 +26,9 @@
 	// add functional update support
 	// add a transactional action that can do insert/update in a transaction, and still create the change logs
 	// rewrite place_bet stuff with transaction support
+
+192.168.1.10
+192.168.1.122/110
+78.135.8.27 : 10.10.10.3/10.10.10.1 248
+
+78.135.8.25
