@@ -13,13 +13,14 @@ create table game_analytics_minutely (
 
   game_id number(32,0) not null,
   house_id number(32,0) not null,
-  group_id number(32,0) not null,
-  prize_rating varchar2(1023) not null,
-
   currency_code varchar2(1023) not null,
-  bet_option number(32,0) not null,
-  prize_type varchar2(1023) not null,
-  bet_stake number(32,0) not null,
+
+  group_id number(32,0),
+  bet_option number(32,0),
+  prize_type varchar2(1023),
+  bet_stake number(32,0),
+
+  prize_rating varchar2(1023),
 
   user_count number(16,0) not null,
   total_count number(16,0) not null,
@@ -48,13 +49,14 @@ create table game_analytics_hourly (
 
   game_id number(32,0) not null,
   house_id number(32,0) not null,
-  group_id number(32,0) not null,
-  prize_rating varchar2(1023) not null,
-
   currency_code varchar2(1023) not null,
-  bet_option number(32,0) not null,
-  prize_type varchar2(1023) not null,
-  bet_stake number(32,0) not null,
+
+  group_id number(32,0),
+  bet_option number(32,0),
+  prize_type varchar2(1023),
+  bet_stake number(32,0),
+
+  prize_rating varchar2(1023),
 
   user_count number(16,0) not null,
   total_count number(16,0) not null,
@@ -83,13 +85,14 @@ create table game_analytics_daily (
 
   game_id number(32,0) not null,
   house_id number(32,0) not null,
-  group_id number(32,0) not null,
-  prize_rating varchar2(1023) not null,
-
   currency_code varchar2(1023) not null,
-  bet_option number(32,0) not null,
-  prize_type varchar2(1023) not null,
-  bet_stake number(32,0) not null,
+
+  group_id number(32,0),
+  bet_option number(32,0),
+  prize_type varchar2(1023),
+  bet_stake number(32,0),
+
+  prize_rating varchar2(1023),
 
   user_count number(16,0) not null,
   total_count number(16,0) not null,

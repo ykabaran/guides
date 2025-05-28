@@ -1,4 +1,6 @@
 
+// release bonanza
+
 // video poker
 	// create services with ready subject
 	// generate single spin
@@ -10,7 +12,6 @@
 	// maintenance message
 
 // client side
-	// bonanza sweet
 	// winners list
 	// game resumption
 
