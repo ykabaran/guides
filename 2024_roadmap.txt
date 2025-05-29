@@ -33,3 +33,86 @@
 78.135.8.27 : 10.10.10.3/10.10.10.1 248
 
 78.135.8.25
+
+guardian game
+	avg pay 95% + 1% jackpot = 96%
+	accumulating jackpot, jackpot win chance 1 in a million
+	overdrive mode
+	buy overdrive mode option, price rate 100, avg pay x95
+
+each deck contains the same guardian cards, all guardian cards are the same, 50 damage to player
+each player card has a damage value and a reward value
+	player cards
+		damage (1-20), reward (0-20)
+depending on the bet option different player cards are present in the deck
+	deck 1 - low damage, high pay, price x1
+		13x guardian cards
+		13x damage 10, reward 7x1,4x2,2x5
+		13x damage 5, reward 6x1,4x2,2x5,1x10
+		13x damage 1, reward 6x2,4x5,2x10,1x20
+	deck 2 - medium damage, medium pay, price x1.5
+		13x guardian cards
+		13x damage 15, reward 8x1,4x2,1x5
+		13x damage 5, reward 7x1,4x2,2x5
+		13x damage 1, reward 8x2,2x5,1x10,1x20
+	deck 3 - high damage, low pay, price x2
+		13x guardian cards
+		13x damage 20, reward 13x0
+		13x damage 10, reward 8x2,5x5
+		13x damage 5, reward 6x2,5x5,2x10
+the bet_options also cover user health
+		100, no win rate 48.23%, price x1
+		150, no win rate 20.42%, price x2
+		200, no win rate  5.68%, price x5
+
+chances of ending with health 0
+	100 -> 30.33%
+	150 -> 27.80%
+	200 -> 14.75%
+each deck has a metric of expected % where damage >80 with <=n cards where n=8,7,6
+this corresponds to overdrive chance
+	deck 1: 8-0.5%, 7-x, 6-x
+	deck 2: 8-0.75%, 7-x, 6-x
+	deck 3: 8-1.25%, 7-x, 6-x
+each deck has a metric of expected reward with >=n cards where n=8,7,6
+can be calculated by (0.95 - (overdrive_chance*95)) / (1 - no_win_rate)
+	deck 1: 8-10:0.91, 7-10:x, 6-10:x
+	deck 2: 8-10:0.91, 7-10:x, 6-10:x
+	deck 3: 8-10:0.91, 7-10:x, 6-10:x
+
+game play
+	user selects a play deck
+	10 cards are selected from the deck
+	depending on the cards a battle is performed
+	guardian always has 100 health
+	user can have 100-200
+	each card is an attack card or a guardian card
+	if player_health=0 at any point all the remaining attack cards are nullified
+	if player_health<0 at any point the game ends and no money is won
+	otherwise player survives and keeps the reward
+	if guardian_health<20 and player_health=0, the game goes into overdrive
+	no chance of guardian_health<5 at this point, <1% of all overdrives should have <=10 health
+
+overdrive mode
+	damage range 0 - 21 with 21 damage <1 in a million chance, expected damage <10
+	there are 3 chests to unlock
+		chest 1 has 50, requires 1 purple key
+		chest 2 has 250, requires 2 silver keys
+		chest 3 has 1000, requires 5 gold keys
+	overdrive deck contains
+		13x guardian cards
+		13x safety cards
+		13x reward cards, 4x2,3x5,3x10,3x20
+		5x damage cards, 2x1, 2x2, 1x3
+		8x chest cards, 1xpurple, 2xsilver, 5xgold
+	overdrive starts with 5 rounds
+	in each round 5 cards are selected from the overdrive deck
+		if 3 or more are guardian cards then round is discarded
+		all non-guardian cards take effect
+		if all non-guardian cards are safety then 1 more round is addeed to overdrive for each safety card
+		if the guardian health reaches <0 then the jackpot is won
+		if an unlocked chest's key is reached again, it turns into a reward
+			purple -> x20
+			silver -> x5
+			gold -> x2
+	if at the end of overdrive guardian_health=0, x2 all rewards
