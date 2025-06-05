@@ -1,7 +1,4 @@
 
-// beat the guardian
-	// generate expected value for overdrive
-
 // video poker
 	// generate game play
 	// generate gamble asset
@@ -15,9 +12,6 @@
 // client side
 	// winners list
 	// game resumption
-
-// old website
-	// okey bet stake changes: yeni grafik lazim, aykut abi notu var
 
 // game error check job
 	// check hlbs payments to see if all have redemptions

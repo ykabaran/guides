@@ -14,6 +14,13 @@ grant select on hls_instant_game.GAME_PRIZE to hlbs_app with grant option;
 grant select on hls_instant_game.GAME_PRIZE_group to hlbs_app with grant option;
 grant select on hls_instant_game.GAME_PRIZE_REDEMPTION to hlbs_app with grant option;
 
+grant select on HLS_GAME_ANALYTICS.GAME_ANALYTICS_DAILY to hlbs_app with grant option;
+grant select on HLS_GAME_ANALYTICS.GAME_ANALYTICS_hourly to hlbs_app with grant option;
+grant select on HLS_GAME_ANALYTICS.GAME_ANALYTICS_minutely to hlbs_app with grant option;
+grant select on HLS_GAME_ANALYTICS.GAME_user_ANALYTICS_DAILY to hlbs_app with grant option;
+grant select on HLS_GAME_ANALYTICS.GAME_user_ANALYTICS_hourly to hlbs_app with grant option;
+grant select on HLS_GAME_ANALYTICS.GAME_user_ANALYTICS_minutely to hlbs_app with grant option;
+
 create or replace view view_hlbs_betcard
 as
 (select
@@ -43,3 +50,19 @@ from hls_instant_game.GAME_PRIZE_REDEMPTION r
   left join hls_game.game game on r.game_id = game.ID
   left join app_accounting.APP_CURRENCY currency on g.currency_id = currency.ID
   left join app_user.app_user u on r.user_id = u.id);
+
+create or replace view VIEW_HLBS_BETCARD_HOURLY as
+select
+       app_core.PKG_DATE.TO_DATE(ad.start_date) hour,
+       game.code game_code,
+       to_number(substr(u.USERNAME, 26)) sub_id,
+       sum(ad.total_count) bet_count,
+       sum(ad.total_stake)/(power(10, currency.PRECISION)) total_stake,
+       sum(ad.total_return)/(power(10, currency.PRECISION)) total_return
+    from HLS_GAME_ANALYTICS.GAME_USER_ANALYTICS_hourly ad
+  left join hls_game.game game on game.id = ad.GAME_ID
+    left  join app_accounting.APP_CURRENCY currency on currency.code = ad.CURRENCY_CODE
+    left join app_user.APP_USER u on u.id = ad.USER_ID
+where currency.code = 'TRY' and ad.STATUS = 'active' and ad.HOUSE_ID = 491502415850061455050619022
+group by ad.START_DATE, game.code, currency.code, currency.precision, u.username
+order by ad.start_date desc, sub_id asc, game.code asc;

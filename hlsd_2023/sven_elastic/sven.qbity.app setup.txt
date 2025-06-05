@@ -1,0 +1,251 @@
+ssh-copy-id -i id_rsa root@sven.qbity.app
+
+nano /etc/hosts
+127.0.0.1 sven.qbity.app
+
+timedatectl set-timezone Europe/Nicosia
+
+apt update
+apt upgrade
+reboot
+
+apt install ufw
+ufw allow ssh
+
+ufw allow from 212.175.119.128/25 proto tcp to any port 9200
+ufw allow from 95.0.146.180 proto tcp to any port 9200
+ufw allow from 78.135.9.56 proto tcp to any port 9200
+
+ufw enable
+
+# follow guide
+https://www.elastic.co/docs/deploy-manage/deploy/self-managed/install-elasticsearch-from-archive-on-linux-macos
+
+# install elasticsearch
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+apt-get install apt-transport-https
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" | tee /etc/apt/sources.list.d/elastic-9.x.list
+apt-get update && apt-get install elasticsearch
+# make note of the password
+
+# elasticsearch binaries are available at
+/usr/share/elasticsearch/bin/command --help
+
+# copy the ssl certs to the server
+# make a new folder /opt/certs/star.qbity.app
+# copy the files as server.bundled.crt and server.key
+chmod 640 server.key
+cp server.key server.elasticsearch.key
+chown root:elasticsearch server.elasticsearch.key
+
+nano /etc/elasticsearch/elasticsearch.yml
+ln -s /opt/certs/star.qbity.app /etc/elasticsearch/certs/
+cluster.name: elastic-sven
+network.host: sven.qbity.app
+http.port: 9200
+xpack.security.enabled: true
+xpack.security.enrollment.enabled: true
+xpack.security.http.ssl:
+  enabled: true
+  key: certs/star.qbity.app/server.elasticsearch.key
+  certificate: certs/star.qbity.app/server.bundled.crt
+xpack.security.transport.ssl:
+  enabled: true
+  key: certs/star.qbity.app/server.elasticsearch.key
+  certificate: certs/star.qbity.app/server.bundled.crt
+http.host: 0.0.0.0
+
+systemctl daemon-reload
+systemctl enable elasticsearch
+systemctl start elasticsearch
+
+# check if active
+curl -u elastic https://sven.qbity.app:9200/
+
+# change elastic superuser password
+cd /usr/share/elasticsearch/bin
+./elasticsearch-reset-password -u elastic -i --url=https://sven.qbity.app:9200
+
+# create a service token for kibana
+./elasticsearch-service-tokens create elastic/kibana sven-kibana
+# save the token temporarily
+
+chown root:elasticsearch /etc/elasticsearch/service_tokens
+chmod 660 /etc/elasticsearch/service_tokens
+
+systemctl restart elasticsearch
+
+# install kibana
+apt-get install kibana
+
+cd /usr/share/kibana/bin
+./kibana-keystore add elasticsearch.serviceAccountToken
+# add the saved token here
+# generate encryption keys for kibana
+./kibana-encryption-keys generate
+# put these in kibana.yml also
+
+nano /etc/kibana/kibana.yml
+server.port: 5601
+server.host: 0.0.0.0
+server.publicBaseUrl: "https://sven_kibana.qbity.app"
+server.ssl.enabled: true
+server.ssl.certificate: /etc/kibana/certs/star.qbity.app/server.bundled.crt
+server.ssl.key: /etc/kibana/certs/star.qbity.app/server.kibana.key
+elasticsearch.hosts: ["https://sven.qbity.app:9200"]
+elasticsearch.ssl.verificationMode: full
+xpack.encryptedSavedObjects.encryptionKey: xxx
+xpack.reporting.encryptionKey: xxx
+xpack.security.encryptionKey: xxx
+
+systemctl daemon-reload
+systemctl enable kibana
+systemctl start kibana
+
+# login to kibana with elastic user
+Management -> Fleet -> Settings
+# edit the default output to https://sven.qbity.app:9200
+Add Fleet Server -> Advanced
+policy name: Fleet Server Policy main
+Create Policy
+deployment mode: Production
+name: Sven Fleet Server
+url: https://sven_fleet.qbity.app
+Add host
+Generate Service Token
+# save the token temporarily
+
+cd ~/tmp
+curl -L -O https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-agent-9.0.2-linux-x86_64.tar.gz
+tar xzvf elastic-agent-9.0.2-linux-x86_64.tar.gz
+cd elastic-agent-9.0.2-linux-x86_64
+./elastic-agent install --url=https://sven_fleet.qbity.app \
+  --fleet-server-es=https://sven.qbity.app:9200 \
+  --fleet-server-service-token=AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE3NDkwOTM1MzI4NDA6VWJuWjBpaWJSRUtXNmlIVVZPWklBZw \
+  --fleet-server-policy=fleet-server-policy \
+  --fleet-server-port=8220 \
+  --install-servers
+
+
+# add APM integration
+name: apm-main
+host: 0.0.0.0:8200
+url: https://sven_apm.qbity.app
+advanced -> default environment: production
+enable API key for agent authentication
+set a secret token 32-char alphanum
+add to existing host: Fleet Server policy main
+
+# create agent API keys
+# go to Observability -> Applications in Kibana
+# go to settings on top right
+# go to Agent Keys
+# create a new API key and save
+name: apm-agent-key-1
+
+# setup apm traces lifecycle
+# go to Stack Management -> Index Lifecycle Policies
+# Create new policy
+name: custom-rollover-1d-delete-15d
+hot: 1d, 20GB
+delete: 15d
+# Create new policy
+name: custom-rollover-10d-delete-60d
+hot: 7d, 20GB
+delete: 60d
+
+# go to Index Management -> Index Templates
+# find the traces-apm@template
+# in the details it refers to traces@custom
+# go to that component template
+# if it doesn't exist, create it
+# set the Index settings
+{
+  "number_of_replicas": 0,
+  "lifecycle": {
+    "name": "custom-rollover-1d-delete-15d",
+    "prefer_ilm": true
+  }
+}
+# find logs@custom and synthetics@custom, and do the same
+# find metrics@custom and set the Index settings
+{
+  "number_of_replicas": 0,
+  "lifecycle": {
+    "name": "custom-rollover-10d-delete-60d",
+    "prefer_ilm": true
+  }
+}
+
+# install nginx
+apt install nginx
+ufw app list
+ufw allow 'Nginx Full'
+systemctl enable nginx
+
+cd /etc/nginx/sites-available
+cp default sven_apm.qbity.app
+nano sven_apm.qbity.app
+server {
+        listen 80;
+        server_name sven_apm.qbity.app;
+
+        location / {
+                return 301 https://$host$request_uri;
+        }
+
+}
+server {
+        listen 443 ssl;
+        server_name sven_apm.qbity.app;
+
+        ssl_certificate /opt/certs/star.qbity.app/server.bundled.crt;
+        ssl_certificate_key /opt/certs/star.qbity.app/server.key;
+
+        #
+        # Note: You should disable gzip for SSL traffic.
+        # See: https://bugs.debian.org/773332
+        #
+        gzip off;
+
+        # Read up on ssl_ciphers to ensure a secure configuration.
+        # See: https://bugs.debian.org/765782
+        #
+        ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+        ssl_ciphers         HIGH:!aNULL:!MD5;
+
+        location / {
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_cache_bypass $http_upgrade;
+                proxy_pass http://sven.qbity.app:8200;
+        }
+
+}
+
+cp sven_apm.qbity.app sven_kibana.qbity.app
+# similar except
+server_name sven_kibana.qbity.app;
+proxy_pass http://sven.qbity.app:5601;
+
+cp sven_apm.qbity.app sven_fleet.qbity.app
+# similar except
+server_name sven_fleet.qbity.app;
+proxy_pass http://sven.qbity.app:8220;
+
+# start the apm agent and send the data
+apmAgent = apm.start({
+  serviceName: "my_service",
+  serverUrl: "https://apm.sven.qbity.app",
+  secretToken: "xxx",
+  apiKey: "xxx",
+  verifyServerCert: true,
+  environment: "production",
+  logLevel: "warning",
+  instrument: false, // disable automatic instrumentation, we will do it manually
+  instrumentIncomingHTTPRequests: false, // disable automatic instrumentation of incoming HTTP requests
+});
+
