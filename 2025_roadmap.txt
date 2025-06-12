@@ -1,0 +1,47 @@
+
+// hot bells
+	// add the value of the jackpot prize to asset_value_2 and slowly repay it
+
+// 40 shining crown bell link
+	// https://egt-digital.com/game/40-shining-crown-bell-link/
+	// different pay table, crown instead of clover. rest is same
+
+// 40 super hot
+	// https://egt-digital.com/game/40-super-hot/
+	// single scatter, wild 7
+	// single jackpot on max bet 5x7
+
+// 20 dazzling hot
+	// https://egt-digital.com/game/20-dazzling-hot/
+	// no wild, single scatter
+	// clover chance jackpot feature
+		// player collects chests until one of the jackpots are won
+		// jackpot is triggered randomly after the prev hand is paid
+
+
+// bonanza
+	// make the scatters once per reel
+	// make the items group together more
+
+// video poker
+	// job to take the excess from gamble asset and add to pool
+	// generate pool
+	// create test client that can randomly gamble too
+
+// games side
+	// maintenance message
+	// create a status endpoint in the hls_game.main app
+
+// client side
+	// winners list
+	// game resumption
+
+// game error check job
+	// check hlbs payments to see if all have redemptions
+		// if no redemption then refund
+
+// entity_crud_service
+	// add returning support
+	// add functional update support
+	// add a transactional action that can do insert/update in a transaction, and still create the change logs
+	// rewrite place_bet stuff with transaction support
