@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("custom_keycolor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+205e2a5a2f98e76fee6e266527d1d7455b5a8021")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aaf82df2c7e210bb03ae408c07e2c4f10fc9f3b6")]
 [assembly: System.Reflection.AssemblyProductAttribute("custom_keycolor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("custom_keycolor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
