@@ -98,6 +98,7 @@ create table game_prize_redemption (
   session_id number(32,0) not null,
   contract_id number(32,0),
   trace_data varchar2(32767) not null, -- ip address, user_agent, etc
+  remote_data varchar2(32767), -- transaction ids, balance snapshots, etc
   secret_key varchar2(1023),
   data varchar2(32767) not null, -- any extra game related data
   bet_stake number(32,0) not null,
