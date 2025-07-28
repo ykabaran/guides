@@ -1,6 +1,6 @@
 
-// hot bells
-	// add the value of the jackpot prize to asset_value_2 and slowly repay it
+// slots
+	// group symbols together a little more
 
 // 40 shining crown bell link
 	// https://egt-digital.com/game/40-shining-crown-bell-link/
