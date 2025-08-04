@@ -9,7 +9,7 @@ alter session set current_schema = hls_instant_game;
 create table game_asset (
   id number(32,0),
   house_id number(32,0) not null, -- virtual_game_house
-  game_id number(32,0) not null,
+  name varchar2(1023) not null,
   asset_type varchar2(1023) not null, -- jackpot, leftover
   currency_id number(32,0) not null, -- from app_core
   asset_value number(32,0) not null, -- integer

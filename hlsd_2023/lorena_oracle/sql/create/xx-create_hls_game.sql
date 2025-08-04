@@ -37,6 +37,7 @@ create table virtual_game_house_config (
   id number(32,0),
   house_id number(32,0) not null,
   game_id number(32,0) not null,
+  game_flavor varchar2(1023) not null,
   wallet_id number(32,0) not null, -- must be owned by house's app_id
   data varchar2(32767) not null, -- which prize groups are available, general configurations, etc
 
@@ -46,7 +47,7 @@ create table virtual_game_house_config (
   create_date number(32,0)
 );
 ALTER TABLE virtual_game_house_config ADD CONSTRAINT pk_virtual_game_house_config PRIMARY KEY (id) USING INDEX TABLESPACE app_main_index;
-CREATE UNIQUE INDEX unq_virtual_game_house_config ON virtual_game_house_config (house_id, game_id) TABLESPACE app_main_index;
+CREATE UNIQUE INDEX unq_virtual_game_house_config ON virtual_game_house_config (house_id, game_id, game_flavor) TABLESPACE app_main_index;
 
 create role hls_game_reader;
 create role hls_game_writer;
