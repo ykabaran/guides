@@ -127,7 +127,7 @@ create table game_user_analytics_minutely (
   game_id number(32,0) not null,
   house_id number(32,0) not null,
   group_id number(32,0) not null,
-  game_flavor varchar2(1023)not null,
+  game_flavor varchar2(1023) not null,
   prize_rating varchar2(1023) not null,
 
   currency_code varchar2(1023) not null,
@@ -163,7 +163,7 @@ create table game_user_analytics_hourly (
   game_id number(32,0) not null,
   house_id number(32,0) not null,
   group_id number(32,0) not null,
-  game_flavor varchar2(1023)not null,
+  game_flavor varchar2(1023) not null,
   prize_rating varchar2(1023) not null,
 
   currency_code varchar2(1023) not null,
@@ -199,7 +199,7 @@ create table game_user_analytics_daily (
   game_id number(32,0) not null,
   house_id number(32,0) not null,
   group_id number(32,0) not null,
-  game_flavor varchar2(1023)not null,
+  game_flavor varchar2(1023) not null,
   prize_rating varchar2(1023) not null,
 
   currency_code varchar2(1023) not null,

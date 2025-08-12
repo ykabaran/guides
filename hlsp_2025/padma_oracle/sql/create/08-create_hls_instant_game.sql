@@ -9,7 +9,7 @@ alter session set current_schema = hls_instant_game;
 create table game_asset (
   id number(32,0),
   house_id number(32,0) not null, -- virtual_game_house
-  game_id number(32,0) not null,
+  name varchar2(1023) not null,
   asset_type varchar2(1023) not null, -- jackpot, leftover
   currency_id number(32,0) not null, -- from app_core
   asset_value number(32,0) not null, -- integer
@@ -37,6 +37,7 @@ create table game_prize_group (
   id number(32,0),
   house_id number(32,0) not null, -- virtual_game_house
   game_id number(32,0) not null,
+  game_flavor varchar2(1023) not null,
   prize_type varchar2(1023) not null, -- normal_play, no_win_play, prize_win_play, free_spin_play, free_spin_purchase_play
   currency_id number(32,0) not null, -- from app_core
   bet_option number(32,0) not null, -- integer
@@ -64,6 +65,7 @@ create table game_prize (
   id number(32,0),
   game_id number(32,0) not null, -- game
   group_id number(32,0) not null, -- game_prize_group
+  group_order number(16,0),
   rating varchar2(1023) not null,
   bet_return number(32,0),
   data varchar2(32767) not null,
@@ -90,6 +92,7 @@ create table game_prize_redemption (
   id number(32,0),
   game_id number(32,0) not null,
   house_id number(32,0) not null,
+  game_flavor varchar2(1023),
   prize_group_id number(32,0) not null,
   prize_rating varchar2(1023) not null,
   prize_id number(32,0),

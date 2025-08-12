@@ -16,6 +16,7 @@ create table game_analytics_minutely (
   currency_code varchar2(1023) not null,
 
   group_id number(32,0),
+  game_flavor varchar2(1023),
   bet_option number(32,0),
   prize_type varchar2(1023),
   bet_stake number(32,0),
@@ -52,6 +53,7 @@ create table game_analytics_hourly (
   currency_code varchar2(1023) not null,
 
   group_id number(32,0),
+  game_flavor varchar2(1023),
   bet_option number(32,0),
   prize_type varchar2(1023),
   bet_stake number(32,0),
@@ -88,6 +90,7 @@ create table game_analytics_daily (
   currency_code varchar2(1023) not null,
 
   group_id number(32,0),
+  game_flavor varchar2(1023),
   bet_option number(32,0),
   prize_type varchar2(1023),
   bet_stake number(32,0),
@@ -124,6 +127,7 @@ create table game_user_analytics_minutely (
   game_id number(32,0) not null,
   house_id number(32,0) not null,
   group_id number(32,0) not null,
+  game_flavor varchar2(1023) not null,
   prize_rating varchar2(1023) not null,
 
   currency_code varchar2(1023) not null,
@@ -159,6 +163,7 @@ create table game_user_analytics_hourly (
   game_id number(32,0) not null,
   house_id number(32,0) not null,
   group_id number(32,0) not null,
+  game_flavor varchar2(1023) not null,
   prize_rating varchar2(1023) not null,
 
   currency_code varchar2(1023) not null,
@@ -194,6 +199,7 @@ create table game_user_analytics_daily (
   game_id number(32,0) not null,
   house_id number(32,0) not null,
   group_id number(32,0) not null,
+  game_flavor varchar2(1023) not null,
   prize_rating varchar2(1023) not null,
 
   currency_code varchar2(1023) not null,

@@ -37,6 +37,7 @@ create table virtual_game_house_config (
   id number(32,0),
   house_id number(32,0) not null,
   game_id number(32,0) not null,
+  game_flavor varchar2(1023) not null,
   wallet_id number(32,0) not null, -- must be owned by house's app_id
   data varchar2(32767) not null, -- which prize groups are available, general configurations, etc
 
