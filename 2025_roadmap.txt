@@ -2,10 +2,6 @@
 // slots
 	// group symbols together a little more
 
-// 40 shining crown bell link
-	// https://egt-digital.com/game/40-shining-crown-bell-link/
-	// different pay table, crown instead of clover. rest is same
-
 // 40 super hot
 	// https://egt-digital.com/game/40-super-hot/
 	// single scatter, wild 7
@@ -20,8 +16,15 @@
 
 
 // bonanza
-	// make the scatters once per reel
 	// make the items group together more
+
+// game error check job
+	// check hlbs payments to see if all have redemptions
+		// if no redemption then refund
+
+// client side
+	// winners list
+	// game resumption
 
 // video poker
 	// job to take the excess from gamble asset and add to pool
@@ -31,14 +34,6 @@
 // games side
 	// maintenance message
 	// create a status endpoint in the hls_game.main app
-
-// client side
-	// winners list
-	// game resumption
-
-// game error check job
-	// check hlbs payments to see if all have redemptions
-		// if no redemption then refund
 
 // entity_crud_service
 	// add returning support
