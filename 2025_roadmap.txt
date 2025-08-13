@@ -1,4 +1,8 @@
 
+// general
+	// pool end_dates are null, set these
+	// pools are retiring too early, change this
+
 // slots
 	// group symbols together a little more
 
