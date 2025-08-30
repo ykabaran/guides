@@ -1,15 +1,16 @@
 
-// general
-	// pool end_dates are null, set these
-	// pools are retiring too early, change this
-
-// slots
-	// group symbols together a little more
-
 // 40 super hot
 	// https://egt-digital.com/game/40-super-hot/
 	// single scatter, wild 7
 	// single jackpot on max bet 5x7
+
+// general
+	// pool end_dates are null, set these
+
+// slots
+	// group symbols together a little more
+
+
 
 // 20 dazzling hot
 	// https://egt-digital.com/game/20-dazzling-hot/

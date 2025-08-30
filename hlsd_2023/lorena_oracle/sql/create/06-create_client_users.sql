@@ -16,7 +16,8 @@ grant connect,
 		hls_sport_writer,
 		hls_game_deleter,
 		hls_instant_game_deleter,
-		hls_game_analytics_deleter
+		hls_game_analytics_deleter,
+		hls_rngvideo_game_deleter
 	to app_test_user01;
 
 create user hls_admin_app_user identified by "";
