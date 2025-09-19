@@ -53,6 +53,10 @@ alter tablespace app_main
    add datafile '/uoradata/PADMA/app_main05.dbf' size 8G autoextend off;
 alter tablespace app_main
    add datafile '/uoradata/PADMA/app_main06.dbf' size 8G autoextend off;
+alter tablespace app_main
+   add datafile '/uoradata/PADMA/app_main07.dbf' size 8G autoextend off;
+alter tablespace app_main
+   add datafile '/uoradata/PADMA/app_main08.dbf' size 8G autoextend off;
 create tablespace app_main_index
 	datafile '/uoradata/PADMA/app_main_index01.dbf' size 8G autoextend off;
 alter tablespace app_main_index

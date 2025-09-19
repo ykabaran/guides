@@ -1,24 +1,6 @@
 
-// 40 super hot
-	// https://egt-digital.com/game/40-super-hot/
-	// single scatter, wild 7
-	// single jackpot on max bet 5x7
-
-// general
-	// pool end_dates are null, set these
-
 // slots
 	// group symbols together a little more
-
-
-
-// 20 dazzling hot
-	// https://egt-digital.com/game/20-dazzling-hot/
-	// no wild, single scatter
-	// clover chance jackpot feature
-		// player collects chests until one of the jackpots are won
-		// jackpot is triggered randomly after the prev hand is paid
-
 
 // bonanza
 	// make the items group together more
@@ -31,17 +13,31 @@
 	// winners list
 	// game resumption
 
+// spin the wheel game
+
 // video poker
-	// job to take the excess from gamble asset and add to pool
-	// generate pool
-	// create test client that can randomly gamble too
+	// try multiple times until user win is as close to max win as possible
+	// leftovers go into leftover asset (per bet option)
+	// job takes from leftover asset and creates more prizes in the leftover pool, this pool never detaches
+	// separate gamble asset for each bet stake
 
 // games side
 	// maintenance message
 	// create a status endpoint in the hls_game.main app
 
+// sports betting
+	// refactor gs_main and hls_sport, remove ls_main connections
+	// move schemas to main data center
+	// develop admin to display/adjust matches/bookmakers
+
 // entity_crud_service
 	// add returning support
 	// add functional update support
 	// add a transactional action that can do insert/update in a transaction, and still create the change logs
-	// rewrite place_bet stuff with transaction support
+
+// 20 dazzling hot
+	// https://egt-digital.com/game/20-dazzling-hot/
+	// no wild, single scatter
+	// clover chance jackpot feature
+		// player collects chests until one of the jackpots are won
+		// jackpot is triggered randomly after the prev hand is paid
