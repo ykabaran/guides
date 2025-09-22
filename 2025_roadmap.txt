@@ -1,4 +1,8 @@
 
+// ceyhun
+	// login olmayan shop kullanicilarini enable/disable sansi
+	// shop kullanicisi kupon iptal orani
+	
 // slots
 	// group symbols together a little more
 
