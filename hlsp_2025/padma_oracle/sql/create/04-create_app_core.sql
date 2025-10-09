@@ -42,6 +42,10 @@ as
   function to_int(xuid varchar2) return number;
 
   function to_string(xuid number) return varchar2;
+
+  function new_id return number;
+
+  function new_id_str return varchar2;
 end;
 
 create or replace package body pkg_uid
@@ -56,6 +60,19 @@ as
   is
   begin
     return trim(lower(to_char(xuid, '0XXXXXXXXXXXXXXXXXXXXXXX')));
+  end;
+
+  function new_id return number
+  is
+  begin
+    return TO_INT(new_id_str());
+  end;
+
+  function new_id_str return varchar2
+  is
+  begin
+    return trim(lower(to_char(app_core.PKG_DATE.TO_UNIXMS(sysdate), '0XXXXXXXXXXX')))
+      || trim(lower(to_char(trunc(DBMS_RANDOM.VALUE(0, POWER(2, 48) - 1)), '0XXXXXXXXXXX')));
   end;
 end;
 

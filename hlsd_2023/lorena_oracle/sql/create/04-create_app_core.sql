@@ -1,8 +1,7 @@
 create user app_core identified by ""
   default tablespace APP_CORE
   quota unlimited on APP_CORE
-  quota unlimited on APP_MAIN_INDEX
-  quota unlimited on APP_LOG;
+  quota unlimited on APP_MAIN_INDEX;
 
 grant connect, resource to app_core;
 
@@ -36,6 +35,45 @@ as
     begin
       return date '1970-01-01' + (xunixms/86400000) + nvl(xtz_offset, tz_offset());
     end;
+end;
+
+create or replace package pkg_uid
+as
+  function to_int(xuid varchar2) return number;
+
+  function to_string(xuid number) return varchar2;
+
+  function new_id return number;
+
+  function new_id_str return varchar2;
+end;
+
+create or replace package body pkg_uid
+as
+  function to_int(xuid varchar2) return number
+  is
+  begin
+    return to_number(xuid, 'XXXXXXXXXXXXXXXXXXXXXXXX');
+  end;
+
+  function to_string(xuid number) return varchar2
+  is
+  begin
+    return trim(lower(to_char(xuid, '0XXXXXXXXXXXXXXXXXXXXXXX')));
+  end;
+
+  function new_id return number
+  is
+  begin
+    return TO_INT(new_id_str());
+  end;
+
+  function new_id_str return varchar2
+  is
+  begin
+    return trim(lower(to_char(app_core.PKG_DATE.TO_UNIXMS(sysdate), '0XXXXXXXXXXX')))
+      || trim(lower(to_char(trunc(DBMS_RANDOM.VALUE(0, POWER(2, 48) - 1)), '0XXXXXXXXXXX')));
+  end;
 end;
 
 create table app_table_meta (
@@ -136,6 +174,7 @@ ALTER TABLE app_secret ADD CONSTRAINT pk_app_secret PRIMARY KEY (id) USING INDEX
 CREATE UNIQUE INDEX unq_app_secret_name ON app_secret (name) tablespace APP_MAIN_INDEX;
 
 GRANT EXECUTE ON pkg_date TO PUBLIC;
+GRANT EXECUTE ON pkg_uid TO PUBLIC;
 
 create role app_core_reader;
 create role app_core_writer;
