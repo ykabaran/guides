@@ -1,47 +1,55 @@
 
-// ceyhun
-	// login olmayan shop kullanicilarini enable/disable sansi
-	// shop kullanicisi kupon iptal orani
+shop easy betting system
+	horse and dog racing
+	sports betting
+	new domain that shows all odds
+	customer prepares a temp coupon on their own phone/kiosk
+		customer can set minimum rates for each choice or the total coupon rate
+		if any rates fall below the minimum at the time of payment then the operator is alerted and additional confirmation is required from customer
+	customer is given a 6-digit xxx-xxx numeric code + qr code for depositing bet in the shop
+	shop operator takes the money and finalizes the coupon, gives customer a regular coupon printout or the customer can view the finalized bet on their phone
+		no printout for live betting since the deposit delay will slow things down too much
+	this forms the basis of the new website
+		mobile friendly and without rng games in the beginning
+		at later stages add in the old games
+		then rip from another source and add in live casino games
+	if logged in to the website the users can watch events that they bet on
+		if the user is marked as vip, they can watch all events
 	
-// slots
-	// group symbols together a little more
+slots and bonanza
+	convert to reel logic like in super hot
 
-// bonanza
-	// make the items group together more
+game error check job
+	check hlbs payments to see if all have redemptions
+		if no redemption then refund
 
-// game error check job
-	// check hlbs payments to see if all have redemptions
-		// if no redemption then refund
+client side
+	winners list
+	game resumption
 
-// client side
-	// winners list
-	// game resumption
+spin the wheel game
 
-// spin the wheel game
+video poker
+	leftovers go into leftover asset (per bet option)
+	job takes from leftover asset and creates more prizes in the leftover pool, this pool never detaches
 
-// video poker
-	// try multiple times until user win is as close to max win as possible
-	// leftovers go into leftover asset (per bet option)
-	// job takes from leftover asset and creates more prizes in the leftover pool, this pool never detaches
-	// separate gamble asset for each bet stake
+games side
+	maintenance message
+	create a status endpoint in the hls_game.main app
 
-// games side
-	// maintenance message
-	// create a status endpoint in the hls_game.main app
+sports betting
+	refactor ls_main, gs_main, and hls_sport
+	move schemas to main data center
+	develop admin to display/adjust matches/bookmakers
 
-// sports betting
-	// refactor gs_main and hls_sport, remove ls_main connections
-	// move schemas to main data center
-	// develop admin to display/adjust matches/bookmakers
+entity_crud_service
+	add returning support
+	add functional update support
+	add a transactional action that can do insert/update in a transaction, and still create the change logs
 
-// entity_crud_service
-	// add returning support
-	// add functional update support
-	// add a transactional action that can do insert/update in a transaction, and still create the change logs
-
-// 20 dazzling hot
-	// https://egt-digital.com/game/20-dazzling-hot/
-	// no wild, single scatter
-	// clover chance jackpot feature
-		// player collects chests until one of the jackpots are won
-		// jackpot is triggered randomly after the prev hand is paid
+20 dazzling hot
+	https://egt-digital.com/game/20-dazzling-hot/
+	no wild, single scatter
+	clover chance jackpot feature
+		player collects chests until one of the jackpots are won
+		jackpot is triggered randomly after the prev hand is paid
