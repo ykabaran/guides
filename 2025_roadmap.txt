@@ -6,15 +6,57 @@ shop easy betting system
 	customer prepares a temp coupon on their own phone/kiosk
 		customer can set minimum rates for each choice or the total coupon rate
 		if any rates fall below the minimum at the time of payment then the operator is alerted and additional confirmation is required from customer
-	customer is given a 6-digit xxx-xxx numeric code + qr code for depositing bet in the shop
+	customer is given a 6-digit xxx-xxx numeric code or barcorde or qr code for depositing bet in the shop
 	shop operator takes the money and finalizes the coupon, gives customer a regular coupon printout or the customer can view the finalized bet on their phone
-		no printout for live betting since the deposit delay will slow things down too much
+		no printout option for live betting since the deposit delay will slow things down too much
+		user can check the status of their bet through their phone using the qr code
+		or if the user adds their phone number to the coupon we can send them an approved/rejected coupon link
 	this forms the basis of the new website
 		mobile friendly and without rng games in the beginning
 		at later stages add in the old games
 		then rip from another source and add in live casino games
 	if logged in to the website the users can watch events that they bet on
-		if the user is marked as vip, they can watch all events
+		if the user is marked as vip, they can watch all events, get higher max limits, reduced/no live betting delay, etc
+
+new website ui
+	need db for race betting coupons, single race coupons only, no mixed betting
+	can create temp coupon and pay at a shop or login and pay with account balance
+	temp coupons and secret keys get saved on the device local storage, barcodes/qr codes/numeric codes can be used to pay rejected/cancelled/won coupons
+kiosk ui
+	shows have kiosk users that need to be logged in
+	user can either take a photo of the qr code / numeric code on the screen or print out from kiosk
+	the temp coupon code is then queried and a printout is given to the user even if the coupon isn't finalized
+	if the user entered a phone number then rejections/cancellations/wins are texted/pushed/whatsapped to the user
+	the user can either use the coupon or the text message to get paid
+coupon qr urls
+	https://coupons.nicobet.com/selection?id=xxx-xxx
+		type: sports/racing
+		bet_stake: xxx.xx
+		choices: [{ id: xxxxxx, min_rate: xxxx.xx, must_have: true }]
+		auto_combinations: "S/A5/etc" // sports betting only
+		total_rate: xxxxxx.xx
+		min_rate: xxxxxx.xx
+		must_have_all: true
+		phone?: xxx-xxx-xx-xx
+	https://coupons.nicobet.com/coupon?id=xxx-xxx-xxx-xxx&key=xxx-xxx
+		same as above +
+		place_date
+		accept_date
+		status: "Initializing/Open/Rejected/Lost/Won/Cancelled/Paid back"
+		bet_return: xxxxxx.xx
+
+finish ts conversion (yildiz)
+	hls_game
+
+fix skybet results ocr (ahmed)
+
+beat the guardian (yildiz then osman)
+	balance the game
+	create concept art with ai
+	osman creates the game
+
+improve new admin (yasin)
+
 	
 slots and bonanza
 	convert to reel logic like in super hot
