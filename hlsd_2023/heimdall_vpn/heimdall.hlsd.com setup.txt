@@ -70,11 +70,11 @@ nano server.conf
 	group nogroup
 
 	# add
-	crlverify crl.pem
+	crl-verify crl.pem
 	# change
-	cipher AES-256-CBC
-	# add
-	auth SHA256
+	data-ciphers AES-256-GCM
+	# optionally, add default (SHA1) is enough they say
+	auth SHA512
 
 # add NAT rule to gateway
 

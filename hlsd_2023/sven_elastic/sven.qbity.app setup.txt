@@ -12,9 +12,13 @@ reboot
 apt install ufw
 ufw allow ssh
 
+# hls networks
 ufw allow from 212.175.119.128/25 proto tcp to any port 9200
 ufw allow from 95.0.146.180 proto tcp to any port 9200
+# yildiz home network
 ufw allow from 78.135.9.56 proto tcp to any port 9200
+# ahmed development vps
+ufw allow from 152.42.139.88 proto tcp to any port 9200
 
 ufw enable
 
@@ -116,16 +120,16 @@ Generate Service Token
 # save the token temporarily
 
 cd ~/tmp
-curl -L -O https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-agent-9.0.2-linux-x86_64.tar.gz
-tar xzvf elastic-agent-9.0.2-linux-x86_64.tar.gz
-cd elastic-agent-9.0.2-linux-x86_64
-./elastic-agent install --url=https://sven_fleet.qbity.app \
+curl -L -O https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-agent-9.0.8-linux-x86_64.tar.gz
+tar xzvf elastic-agent-9.0.8-linux-x86_64.tar.gz
+cd elastic-agent-9.0.8-linux-x86_64
+sudo ./elastic-agent install --url=https://sven_fleet.qbity.app:443 \
   --fleet-server-es=https://sven.qbity.app:9200 \
-  --fleet-server-service-token=AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE3NDkwOTM1MzI4NDA6VWJuWjBpaWJSRUtXNmlIVVZPWklBZw \
+  --fleet-server-service-token=**redacted** \
   --fleet-server-policy=fleet-server-policy \
   --fleet-server-port=8220 \
+  --fleet-server-insecure-http \
   --install-servers
-
 
 # add APM integration
 name: apm-main
@@ -248,4 +252,8 @@ apmAgent = apm.start({
   instrument: false, // disable automatic instrumentation, we will do it manually
   instrumentIncomingHTTPRequests: false, // disable automatic instrumentation of incoming HTTP requests
 });
+
+# add any system agents to the fleet through Kibana
+# new agents also need to be added to ufw
+ufw allow from **server_ip_here** proto tcp to any port 9200
 

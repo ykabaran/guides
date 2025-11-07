@@ -1,36 +1,47 @@
-#Adriana VM Host
-192.168.1.254
+# Achilles PFSense
+10.13.30.1 achilles.qbity.app
+
+# Adriana VM Host
 10.13.40.10 adriana.qbity.app
 
-#Achilles PFSense
-10.13.2.1 achilles.qbity.app
 
-#Caesar HLSD CA
-10.13.40.9 caesar.hlsd.com
-
-#Yildiz PC 
+# Yildiz PC 
 10.13.30.11 yildiz.hlsd.com
 
-#Yasin PC	 
+# Yasin PC	 
 10.13.30.12 yasin.hlsd.com
 
-#Zafer PC	 
-10.13.30.13 zafer.hlsd.com
 
-#Heimdall HLSD VPN	
-10.13.40.20 heimdall.hlsd.com
+# Caesar HLSD CA
+10.13.40.9 caesar.hlsd.com
 
-#Lorena HLSD DB
+# Lorena HLSD DB
 10.13.40.30 lorena.hlsd.com
 
-#Victoria HLSD NodeJs
+# Nancy HLSD Log DB
+10.13.40.36 nancy.hlsd.com
+
+# Victoria HLSD NodeJs
 10.13.40.31 victoria.hlsd.com
 
-#John HLSD Nginx
+# John HLSD Nginx
 10.13.40.32 john.hlsd.com
 
-#Nancy HLSD TrueNAS
-10.13.40.33 nancy.hlsd.com
-
-#Bunny HLSD RammitMQ
+# Bunny HLSD RabbitMQ
 10.13.40.34 bunny.hlsd.com
+
+# Kraken HLSD TrueNAS
+10.13.40.33 kraken.hlsd.com
+
+
+# Padma HLSP DB
+192.168.1.220 padma.hlsp.com
+
+# Chang HLSP NodeJs
+192.168.1.222 chang.hlsp.com
+
+# Eddie HLSP Nginx
+192.168.1.221 eddie.hlsp.com
+
+# Molly HLSP RabbitMQ
+192.168.1.223 molly.hlsp.com
