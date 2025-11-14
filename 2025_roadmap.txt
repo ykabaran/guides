@@ -1,4 +1,7 @@
 
+hlts results confirmation
+	use the match and dummy table to compare girls' results with ahmeds'
+
 shop easy betting system
 	horse and dog racing
 	sports betting
@@ -46,6 +49,7 @@ coupon qr urls
 		bet_return: xxxxxx.xx
 
 finish ts conversion (yildiz)
+	docs
 	hls_game
 
 fix skybet results ocr (ahmed)
