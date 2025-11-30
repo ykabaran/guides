@@ -52,9 +52,7 @@ finish ts conversion (yildiz)
 	docs
 	hls_game
 
-fix skybet results ocr (ahmed)
-
-beat the guardian (yildiz then osman)
+beat the guardian (interns and osman)
 	balance the game
 	create concept art with ai
 	osman creates the game
