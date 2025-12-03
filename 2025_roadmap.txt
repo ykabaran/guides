@@ -1,6 +1,40 @@
 
-hlts results confirmation
-	use the match and dummy table to compare girls' results with ahmeds'
+hlts live event betting
+	bet types
+		win bet: who will finish first
+		place bet: first or second, paid with each way odds
+		exacta bet: regular forecast betting
+		trifecta bet: regular tricast betting
+		quinella bet: place on 2 racers to finish first and second (place 2 exacta bets)
+		betting without the favorite?: win or each way bets, settled ignoring the position of the favorite, how to calculate these odds? or scrape from boylesports
+		inside vs outside: bet on trap 1,2,3 vs 4,5,6, can be calculated or scraped
+		odds vs evens: bet on odd vs even numbered traps, can be calculated or scraped
+	non-runner issues
+		if bet placed on trap, pay if substitute wins
+		if bet placed on name, refund
+		if trap didn't run, refund
+		if starting odds changed because of non-runner then pay everyone with new starting odds?
+		if tied, then divide the stake by number of tied racers and pay with normal odds, no refunds
+		if race abandoned/rescheduled refund all bets
+	scrape
+		https://www.boylesports.com/sports/greyhounds
+
+improve new admin
+	talk to ceyhun
+
+implement ahmed's db backup code
+
+fix skybet results ocr (ahmed)
+
+finish ts conversion (yildiz)
+	docs
+	hls_game
+
+beat the guardian (yildiz then osman)
+	balance the game
+	create concept art with ai
+	osman creates the game
+
 
 shop easy betting system
 	horse and dog racing
@@ -47,19 +81,12 @@ coupon qr urls
 		accept_date
 		status: "Initializing/Open/Rejected/Lost/Won/Cancelled/Paid back"
 		bet_return: xxxxxx.xx
+digital coupon
+	a link is given to the customer via sms or whatsapp to view the status of the coupon
+	the customer selects if they prefer a print or digital coupon during bet formation
+	coupons containing live betting options must be digital
+	when the customer cashes in a digital coupon, a coupon is printed for the shop for their records
 
-finish ts conversion (yildiz)
-	docs
-	hls_game
-
-fix skybet results ocr (ahmed)
-
-beat the guardian (yildiz then osman)
-	balance the game
-	create concept art with ai
-	osman creates the game
-
-improve new admin (yasin)
 
 	
 slots and bonanza

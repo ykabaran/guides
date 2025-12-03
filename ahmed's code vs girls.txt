@@ -1,0 +1,25 @@
+auto's code vs manual
+
+13/11/2025
+1 match manual missed but auto didn't
+1 match manual made mistake, auto didn't
+0 matches auto missed, manual didn't
+338 matches manual faster, 79 matches auto faster, on average manual faster by ~7 seconds
+
+14/11/2025
+9 matches manual missed but auto didn't
+2 matches manual made mistake, auto didn't
+0 matches auto missed, manual didn't
+252 matches manual faster, 63 matches auto faster, on average manual faster by ~9 seconds
+
+15/11/2025
+5 matches manual missed but auto didn't
+5 matches manual made mistake, auto didn't
+0 matches auto missed, manual didn't
+389 matches manual faster, 22 matches auto faster, on average manual faster by ~11 seconds
+
+16/11/2025
+3 matches manual missed but auto didn't
+0 matches manual made mistake, auto didn't
+0 matches auto missed, manual didn't
+376 matches manual faster, 47 matches auto faster, on average manual faster by ~11 seconds
