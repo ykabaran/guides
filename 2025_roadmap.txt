@@ -1,4 +1,14 @@
 
+app_tools todos
+	docs
+	file logs: make smaller, cleanup
+	move and merge types
+	work consumer: reduce span creation
+
+gs_main
+	convert to typedoc
+	implement other sports
+
 hlts live event betting
 	bet types
 		win bet: who will finish first
