@@ -1,13 +1,25 @@
 
 app_tools todos
-	docs
-	file logs: make smaller, cleanup
-	move and merge types
+	create entity crud handler
+	get rid of macros?
+	move dependencies to a class method?
+		but then dependencies cannot be determined before class instantiation
+		static methods would involve rewriting the configuration merge with defaults code
+		macros work but are complicated and easy to forget to write
+		
+	app component classes
+	app service descriptors
 	work consumer: reduce span creation
+	exports
+	docs
+	file logs cleanup
+	hls_game
 
 gs_main
 	convert to typedoc
 	implement other sports
+
+implement ahmed's db backup code
 
 hlts live event betting
 	bet types
@@ -31,14 +43,6 @@ hlts live event betting
 
 improve new admin
 	talk to ceyhun
-
-implement ahmed's db backup code
-
-fix skybet results ocr (ahmed)
-
-finish ts conversion (yildiz)
-	docs
-	hls_game
 
 beat the guardian (yildiz then osman)
 	balance the game
