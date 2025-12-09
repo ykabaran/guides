@@ -6,8 +6,8 @@ app_tools todos
 		but then dependencies cannot be determined before class instantiation
 		static methods would involve rewriting the configuration merge with defaults code
 		macros work but are complicated and easy to forget to write
-		
-	app component classes
+
+	rename app component classes?
 	app service descriptors
 	work consumer: reduce span creation
 	exports
@@ -16,8 +16,12 @@ app_tools todos
 	hls_game
 
 gs_main
+	inplay file cache
 	convert to typedoc
 	implement other sports
+
+hls_sport
+	convert to typedoc
 
 implement ahmed's db backup code
 
