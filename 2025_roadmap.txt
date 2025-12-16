@@ -1,12 +1,10 @@
 
 app_tools todos
+	test
 	create entity crud handler
-	get rid of macros?
-	move dependencies to a class method?
-		but then dependencies cannot be determined before class instantiation
-		static methods would involve rewriting the configuration merge with defaults code
-		macros work but are complicated and easy to forget to write
+	entity multiple keys support
 
+	get rid of macros?
 	rename app component classes?
 	app service descriptors
 	work consumer: reduce span creation
