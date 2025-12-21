@@ -1,5 +1,8 @@
+https://github.com/ShadowsLunarfox/kms-server-list
+
 #chage server edition
-DISM /online /set-edition:serverstandard /productkey:N69G4-B89J2-4G8F4-WWYCC-J464C /accepteula
+DISM /online /Set-Edition:ServerStandard /ProductKey:xxxxx-xxxxx-xxxxx-xxxxx-xxxxx /AcceptEula
+#reboot
 
 # change activation server
 slmgr /skms kms.digiboy.ir

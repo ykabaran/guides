@@ -1,17 +1,19 @@
 
 app_tools todos
-	test
 	create entity crud handler
-	entity multiple keys support
+	app service descriptors
+
 
 	get rid of macros?
-	rename app component classes?
-	app service descriptors
-	work consumer: reduce span creation
+	work consumer: reduce span creation?
 	exports
 	docs
-	file logs cleanup
+	file logs daily with cleanup
 	hls_game
+
+app_tools improvements
+	redis instead of memory cache
+	threaded work consumer?
 
 gs_main
 	inplay file cache
