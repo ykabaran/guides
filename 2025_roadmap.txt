@@ -1,6 +1,6 @@
 
 app_tools todos
-	create entity crud handler
+	crud handler permissions
 	app service descriptors
 
 
