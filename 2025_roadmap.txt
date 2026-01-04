@@ -3,13 +3,19 @@ app_tools todos
 	crud handler permissions
 	app service descriptors
 
-
-	get rid of macros?
-	work consumer: reduce span creation?
 	exports
 	docs
-	file logs daily with cleanup
-	hls_game
+	
+	file logs
+		log to /var/log
+		periodic cleanup? built in linux stuff?
+	gs_main
+		convert to ts
+		create live file cache
+		implement all sports like tennis
+	hls_sport
+		ts conversion
+		implement all sports like tennis
 
 app_tools improvements
 	redis instead of memory cache
