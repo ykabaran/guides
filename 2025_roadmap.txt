@@ -1,29 +1,6 @@
 
 new jackpot todos
-	add jackpot table to hlgs
-		name
-		bet stake min/max
-		initial value min/max
-		drop value min
-		added value
-		added value reclaimed
-		current value
-		is_active
-		drop_method manual/auto/schedule
-		can_drop
-	add jackpot rewards table to hlgs
-		jackpot id
-		sub id
-		win data (game_id, cardno)
-		win date
-		win status (pending, finalized)
-	add jackpot_percent, jackpot_name to hlgs_game
-	change insert game transaction to increment jackpot
-	add function to reward jackpot
-		reset jackpot value and insert into rewards table
-		wait for client to say ok (or timeout) to deposit the jackpot to user balance
-	add an additional value to all game bet results to trigger jackpot modal
-	for all bet result codes call jackpot trigger
+	deposit winnings to user balance
 
 hls stream todos
 	update hls.js
@@ -48,10 +25,8 @@ app_tools todos
 		implement all sports like tennis
 
 muhammet new website todos
-	run the project
-	add gitignore files
-	add games router
-	add carkifelek into website
+	games router -> muhammet will do
+	add nicocar/rulet/kazikazan/dealnodeal/nicohorse/nicocar
 
 app_tools improvements
 	redis instead of memory cache
