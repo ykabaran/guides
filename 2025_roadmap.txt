@@ -25,8 +25,9 @@ app_tools todos
 		implement all sports like tennis
 
 muhammet new website todos
-	games router -> muhammet will do
-	add nicocar/rulet/kazikazan/dealnodeal/nicohorse/nicocar
+	blackjack and ratepoker lack alert
+	add new games
+	add okey tavla holdem
 
 app_tools improvements
 	redis instead of memory cache
