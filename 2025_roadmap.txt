@@ -1,10 +1,20 @@
 
+network todos
+	new office vpn cert renewal
+
 new jackpot todos
-	deposit winnings to user balance
+	virtuals jackpot for shops
+		award when bet placed
+		inform when bet placed
+		when coupon resolved check jackpot win and add to winnings
+			global
+			nicodog
+			nicohorse
+			nicocar
+			nicopen2
 
 hls stream todos
-	update hls.js
-	configure hls.js to narrow live edge
+	update yasin's new code to website sanals
 
 app_tools todos
 	crud handler permissions
