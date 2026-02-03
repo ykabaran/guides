@@ -1,6 +1,11 @@
 
 network todos
-	new office vpn cert renewal
+	new office vpn cert renewal!!
+	goalserve inplay file cache sort of done
+	coral scraper to hlts_virtuals
+	double check hlbs to lsports bridge
+	tighten firewall rules
+	move molly
 
 new jackpot todos
 	virtuals jackpot for shops
@@ -13,15 +18,31 @@ new jackpot todos
 			nicocar
 			nicopen2
 
+hlgs nico atlet todos
+	copy nicohorse into new game
+
 hls stream todos
 	update yasin's new code to website sanals
+
+muhammet new website todos
+	blackjack and ratepoker lack alert
+	add okey tavla holdem
+
+
 
 app_tools todos
 	crud handler permissions
 	app service descriptors
+	
+	entity_crud_service
+		add returning support
+		add functional update support
+		add a transactional action that can do insert/update in a transaction, and still create the change logs
 
 	exports
 	docs
+	redis instead of memory cache
+	threaded work consumer?
 
 	file logs
 		log to /var/log
@@ -34,15 +55,6 @@ app_tools todos
 		ts conversion
 		implement all sports like tennis
 
-muhammet new website todos
-	blackjack and ratepoker lack alert
-	add new games
-	add okey tavla holdem
-
-app_tools improvements
-	redis instead of memory cache
-	threaded work consumer?
-
 gs_main
 	inplay file cache
 	convert to typedoc
@@ -52,6 +64,7 @@ hls_sport
 	convert to typedoc
 
 implement ahmed's db backup code
+
 
 hlts live event betting
 	bet types
@@ -72,6 +85,9 @@ hlts live event betting
 		if race abandoned/rescheduled refund all bets
 	scrape
 		https://www.boylesports.com/sports/greyhounds
+
+
+
 
 improve new admin
 	talk to ceyhun
@@ -132,17 +148,6 @@ digital coupon
 	the customer selects if they prefer a print or digital coupon during bet formation
 	coupons containing live betting options must be digital
 	when the customer cashes in a digital coupon, a coupon is printed for the shop for their records
-
-finish ts conversion (yildiz)
-	docs
-	hls_game
-
-beat the guardian (interns and osman)
-	balance the game
-	create concept art with ai
-	osman creates the game
-
-improve new admin (yasin)
 	
 slots and bonanza
 	convert to reel logic like in super hot
@@ -164,16 +169,6 @@ video poker
 games side
 	maintenance message
 	create a status endpoint in the hls_game.main app
-
-sports betting
-	refactor ls_main, gs_main, and hls_sport
-	move schemas to main data center
-	develop admin to display/adjust matches/bookmakers
-
-entity_crud_service
-	add returning support
-	add functional update support
-	add a transactional action that can do insert/update in a transaction, and still create the change logs
 
 20 dazzling hot
 	https://egt-digital.com/game/20-dazzling-hot/
