@@ -2,12 +2,19 @@
 network todos
 	coral scraper to hlts_virtuals
 	double check hlbs to lsports bridge
+	remove yildiz pc from vnc
 	tighten firewall rules
 		hlbs to 587
 		hlts_virtual and yildiz proxy -> 22225/33335
 		lsports web -> 5672
+		give full permission to vpn
+		remove unnecessary permissions from localnetwork
+		remove db access from yildiz network except for yildiz pc muhammet pc yasin pc
 	move molly
 
+hls stream todos
+	update yasin's new code to website sanals
+	
 new jackpot todos
 	virtuals jackpot for shops
 		award when bet placed
@@ -19,15 +26,11 @@ new jackpot todos
 			nicocar
 			nicopen2
 
-hlgs nico atlet todos
-	copy nicohorse into new game
-
-hls stream todos
-	update yasin's new code to website sanals
 
 muhammet new website todos
 	blackjack and ratepoker lack alert
 	add okey tavla holdem
+	virtuals can be updated
 
 
 
