@@ -6,6 +6,7 @@ network todos
 	double check hlbs to lsports bridge
 	tighten firewall rules
 	move molly
+	check sven
 
 new jackpot todos
 	virtuals jackpot for shops
@@ -33,7 +34,7 @@ muhammet new website todos
 app_tools todos
 	crud handler permissions
 	app service descriptors
-	
+
 	entity_crud_service
 		add returning support
 		add functional update support
