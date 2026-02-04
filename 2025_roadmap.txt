@@ -1,7 +1,5 @@
 
 network todos
-	new office vpn cert renewal!!
-	goalserve inplay file cache sort of done
 	coral scraper to hlts_virtuals
 	double check hlbs to lsports bridge
 	tighten firewall rules
@@ -9,7 +7,6 @@ network todos
 		hlts_virtual and yildiz proxy -> 22225/33335
 		lsports web -> 5672
 	move molly
-	check sven
 
 new jackpot todos
 	virtuals jackpot for shops
