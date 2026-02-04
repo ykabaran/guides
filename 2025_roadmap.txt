@@ -1,12 +1,9 @@
 
 network todos
-	new office vpn cert renewal!!
-	goalserve inplay file cache sort of done
 	coral scraper to hlts_virtuals
 	double check hlbs to lsports bridge
 	tighten firewall rules
 	move molly
-	check sven
 
 new jackpot todos
 	virtuals jackpot for shops

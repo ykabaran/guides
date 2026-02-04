@@ -83,9 +83,9 @@ cd /root/ca
 cp server/cn/server.csr csr/cn.csr
 openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/cn.csr -out issued/cn.crt
 cp certs/ca.crt server/ca.crt
-cp issued/cn.crt server/cn/server.crt
+cp issued/cn.crt server/server.crt
 cd server
-openssl pkcs12 -export -out cn.p12 -inkey cn/private.key -in cn/server.crt -certfile ca.crt
+openssl pkcs12 -export -out server.p12 -inkey private.key -in server.crt -certfile ca.crt
 
 # sign client
 cd /root/ca
