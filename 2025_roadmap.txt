@@ -5,6 +5,9 @@ network todos
 	coral scraper to hlts_virtuals
 	double check hlbs to lsports bridge
 	tighten firewall rules
+		hlbs to 587
+		hlts_virtual and yildiz proxy -> 22225/33335
+		lsports web -> 5672
 	move molly
 	check sven
 
