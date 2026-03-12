@@ -1,47 +1,54 @@
-# Achilles PFSense
-10.13.30.1 achilles.qbity.app
 
-# Adriana VM Host
-10.13.40.10 adriana.qbity.app
+10.8.0.13 			achilles2.qbity.app
+10.13.2.10	 		adriana2.qbity.app
 
+10.13.40.1 			achilles.qbity.app
+78.135.35.2 		fortigate.hlsd.com
 
-# Yildiz PC 
-10.13.30.11 yildiz.hlsd.com
+10.13.40.10 		adriana.qbity.app
+10.13.40.9 			caesar.hlsd.com
+10.13.40.34 		bunny.hlsd.com
+10.13.40.32 		john.hlsd.com
+10.13.40.33 		kraken.hlsd.com
+10.13.40.30 		lorena.hlsd.com
+10.13.40.36 		nancy.hlsd.com
+10.13.40.31 		victoria.hlsd.com 
 
-# Yasin PC	 
-10.13.30.12 yasin.hlsd.com
+192.168.192.220 	padma.hlsp.com
+192.168.119.222 	chang.hlsp.com
+192.168.119.181 	eddie.hlsp.com
+192.168.119.208 	molly.hlsp.com
 
+192.168.192.205		db.goalserve.hlsd.com
+192.168.192.206		db.lsports.hlsd.com
+192.168.119.204 	web.goalserve.hlsd.com
+192.168.119.207 	web.lsports.hlsd.com
 
-# Caesar HLSD CA
-10.13.40.9 caesar.hlsd.com
+192.168.192.162		db.hlbs.hlsd.com
+192.168.192.163		db.hlts.hlsd.com
+192.168.192.223		db.hltt.hlsd.com
+192.168.192.164		db.hlgs.hlsd.com
+192.168.192.230		db.hlms.hlsd.com
+192.168.192.133		db.hlgsshop.hlsd.com
 
-# Lorena HLSD DB
-10.13.40.30 lorena.hlsd.com
+192.168.119.15 		master.hlsegitim.com
+192.168.119.17 		www.hlsegitim.com
+192.168.119.16 		files.hlsegitim.com
+192.168.119.18 		elit.hlsegitim.com
+192.168.119.17 		lgl.hlsegitim.com
 
-# Nancy HLSD Log DB
-10.13.40.36 nancy.hlsd.com
-
-# Victoria HLSD NodeJs
-10.13.40.31 victoria.hlsd.com
-
-# John HLSD Nginx
-10.13.40.32 john.hlsd.com
-
-# Bunny HLSD RabbitMQ
-10.13.40.34 bunny.hlsd.com
-
-# Kraken HLSD TrueNAS
-10.13.40.33 kraken.hlsd.com
-
-
-# Padma HLSP DB
-192.168.1.220 padma.hlsp.com
-
-# Chang HLSP NodeJs
-192.168.1.222 chang.hlsp.com
-
-# Eddie HLSP Nginx
-192.168.1.221 eddie.hlsp.com
-
-# Molly HLSP RabbitMQ
-192.168.1.223 molly.hlsp.com
+10.13.30.11 		yildiz.hlsd.com
+10.13.2.11 			yildiz2.hlsd.com
+10.13.30.14 		muhammet.hlsd.com
+10.13.30.12 		yasin.hlsd.com
+10.13.30.16 		osman.hlsd.com
+10.13.25.11 		yildiz01.vpn.hlsd.com
+10.13.25.12 		yildiz02.vpn.hlsd.com
+ 
+192.168.119.121 	web1.nb.hlsd.com
+192.168.119.167 	web2.nb.hlsd.com 
+192.168.119.177 	web3.nb.hlsd.com
+192.168.119.194 	web4.nb.hlsd.com
+192.168.119.200 	web5.nb.hlsd.com
+192.168.119.201 	media.nb.hlsd.com 
+192.168.119.112 	nginx.nb.hlsd.com

@@ -1,38 +1,31 @@
 
-network todos
-	coral scraper to hlts_virtuals
+new jackpot todos
+	test virtuals
+	filter out sports betting functions
+
+sports betting todos
+	finish lsports ts conversion? maybe do this with trade
+	finish hls sport ts conversion
+	fix match mapping
+	
 	double check hlbs to lsports bridge
-	remove yildiz pc from vnc
-	tighten firewall rules
-		hlbs to 587
-		hlts_virtual and yildiz proxy -> 22225/33335
-		lsports web -> 5672
-		give full permission to vpn
-		remove unnecessary permissions from localnetwork
-		remove db access from yildiz network except for yildiz pc muhammet pc yasin pc
-	move molly
+		update hls_sport to ts
+		update hls_sport to hlbs to ts
+		setup and move goalserve db to prod
+		add in other sports
+		add in yasin's scrapers
+
+	coral scraper to hlts_virtuals
 
 hls stream todos
 	update yasin's new code to website sanals
+	deploy bunny to virtual streams
+	deploy bunny to live streams
 	
-new jackpot todos
-	virtuals jackpot for shops
-		award when bet placed
-		inform when bet placed
-		when coupon resolved check jackpot win and add to winnings
-			global
-			nicodog
-			nicohorse
-			nicocar
-			nicopen2
-
-
 muhammet new website todos
-	blackjack and ratepoker lack alert
 	add okey tavla holdem
+	blackjack and ratepoker lack alert
 	virtuals can be updated
-
-
 
 app_tools todos
 	crud handler permissions
@@ -58,14 +51,6 @@ app_tools todos
 	hls_sport
 		ts conversion
 		implement all sports like tennis
-
-gs_main
-	inplay file cache
-	convert to typedoc
-	implement other sports
-
-hls_sport
-	convert to typedoc
 
 implement ahmed's db backup code
 

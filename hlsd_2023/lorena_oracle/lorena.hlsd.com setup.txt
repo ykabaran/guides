@@ -183,6 +183,7 @@ alter system set undo_retention = 2880; # 2 days
 
 alter database open;
 alter database flashback on;
+ALTER DATABASE ENABLE BLOCK CHANGE TRACKING USING FILE '/uorafra/LORENA/rman_bct.chg';
 
 shutdown immediate;
 exit
