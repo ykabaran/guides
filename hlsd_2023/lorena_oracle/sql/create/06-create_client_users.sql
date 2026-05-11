@@ -44,3 +44,6 @@ grant connect, app_core_reader, ls_data_reader, hls_sport_writer, fs_data_reader
 
 create user goalserve_api_user01 identified by "";
 grant connect, goalserve_widget_writer to goalserve_api_user01;
+
+create user ls_app_user01 identified by "";
+grant connect, ls_core_writer to ls_app_user01;

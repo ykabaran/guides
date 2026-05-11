@@ -1,0 +1,54 @@
+c-level
+malta'da biri
+i-tech labs
+
+sarkis gr8 tech
+
+crash games
+ozge egt
+
+
+sarkis ve george ister bu oyunlari
+kibrisda bir sirket kurulacak
+curucao lisansli (b2b lisans) alinacak
+pazarlama sarkis ve geoorge'da
+18% provider'a verilir normalde, bizde 5-7% arasi olacak
+
+
+kafka database
+oyunlarda replay
+global ve instant modlari
+progressive/incremental crash game (instant only)
+	user can choose the increment or increment can be random
+customizations
+	logo integrations
+	scatter integrations
+	css color changes
+balance integrations both client side and backend
+aws kullanalim
+database secelim
+	postgres maybe
+admin tools mustafa'da, both backend and frontend
+galaxy sys incele
+
+
+redis sentinel
+uWebSocket.js
+BullMQ 
+
+
+Internet
+    │
+    ▼
+Cloud Load Balancer (AWS NLB / GCP Network LB / DigitalOcean LB)
+    │         Layer 4 - TCP passthrough, no TLS, no HTTP awareness
+    │
+    ├──▶ nginx instance 1  (TLS termination)
+    │         │
+    │         └──▶ uWS node 1, uWS node 2
+    │
+    └──▶ nginx instance 2  (TLS termination)
+              │
+              └──▶ uWS node 3, uWS node 4
+
+3 Node Redis Sentinel

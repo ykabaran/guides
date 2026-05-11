@@ -1,8 +1,4 @@
 
-new jackpot todos
-	test virtuals
-	filter out sports betting functions
-
 sports betting todos
 	finish lsports ts conversion? maybe do this with trade
 	finish hls sport ts conversion
@@ -18,12 +14,14 @@ sports betting todos
 	coral scraper to hlts_virtuals
 
 hls stream todos
-	update yasin's new code to website sanals
 	deploy bunny to virtual streams
+	modify yasin's new player to support volume and refresh
+	update umedia server to remove media.slothinteractive references
+	double check acl codes
 	deploy bunny to live streams
 	
 muhammet new website todos
-	add okey tavla holdem
+	add okey tavla holdem parent functions
 	blackjack and ratepoker lack alert
 	virtuals can be updated
 
