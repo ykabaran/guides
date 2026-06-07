@@ -43,6 +43,7 @@ CREATE INDEX ind_fixture_change_date ON fixture (change_date) TABLESPACE app_mai
 CREATE TABLE fixture_data (
   id number(32,0),
   fixture_id number(32,0) not null,
+  group_id number(32,0) not null,
   path_id number(32,0) not null,
   value varchar2(1023),
 
