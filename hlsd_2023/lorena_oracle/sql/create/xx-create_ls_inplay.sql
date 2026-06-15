@@ -12,11 +12,14 @@ CREATE TABLE fixture (
   ls_id varchar2(1023) not null,
   fixture_type number(16,0) not null,
   sport_id number(32,0),
-  league_id number(32,0),
   location_id number(32,0),
+  league_id number(32,0),
 
   start_date number(32,0),
-  last_update_ts varchar2(1023),
+  metadata_server_date number(32,0),
+  metadata_last_update_ts varchar2(1023),
+  livescore_server_date number(32,0),
+  livescore_last_update_ts varchar2(1023),
 
   fixture_status number(16,0),
   fixture_name varchar2(1023),
@@ -42,6 +45,7 @@ CREATE INDEX ind_fixture_change_date ON fixture (change_date) TABLESPACE app_mai
 CREATE TABLE fixture_data (
   id number(32,0),
   fixture_id number(32,0) not null,
+  group_id number(32,0) not null,
   path_id number(32,0) not null,
   value varchar2(1023),
 

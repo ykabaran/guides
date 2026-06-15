@@ -16,8 +16,10 @@ CREATE TABLE fixture (
   league_id number(32,0),
 
   start_date number(32,0),
-  server_date number(32,0),
-  last_update_ts varchar2(1023),
+  metadata_server_date number(32,0),
+  metadata_last_update_ts varchar2(1023),
+  livescore_server_date number(32,0),
+  livescore_last_update_ts varchar2(1023),
 
   fixture_status number(16,0),
   fixture_name varchar2(1023),

@@ -40,6 +40,20 @@ rabbitmqctl set_permissions -p hls_general hls_general_change_log_cons "" "" "am
 
 rabbitmqctl list_queues -p hls_general name arguments messages consumers
 
+
+rabbitmqctl add_vhost ls_prematch --description "LSports Prematch Queues" 
+rabbitmqctl add_user ls_prematch_prod "BADqdyTZswn0Prtg5rYyc21JKbjn19h5"
+rabbitmqctl add_user ls_prematch_cons "BUMqtzPcht6WXWHEYgQTUMpHPNGGyes3"
+rabbitmqctl set_permissions -p ls_prematch ls_prematch_prod "_feed_|_replica_feed_|_change_log_" "amq.default|_feed_|_replica_feed_|_change_log_" "amq.default|_feed_|_replica_feed_|_change_log_"
+rabbitmqctl set_permissions -p ls_prematch ls_prematch_cons "" "" "amq.default|_feed_|_replica_feed_|_change_log_"
+rabbitmqctl list_queues -p ls_prematch name arguments messages consumers
+
+rabbitmqctl add_vhost ls_inplay --description "LSports Inplay Queues" 
+rabbitmqctl add_user ls_inplay_prod "dv4q8FhgVCQrVXegnz5JuPvWbfB4UYbH"
+rabbitmqctl add_user ls_inplay_cons "9JgFUe9e6AcfWXayr7xmfHQmKE191dRc"
+rabbitmqctl set_permissions -p ls_inplay ls_inplay_prod "_feed_|_replica_feed_|_change_log_" "amq.default|_feed_|_replica_feed_|_change_log_" "amq.default|_feed_|_replica_feed_|_change_log_"
+rabbitmqctl set_permissions -p ls_inplay ls_inplay_cons "" "" "amq.default|_feed_|_replica_feed_|_change_log_"
+
 rabbitmqctl change_password user_name ""
 rabbitmqctl purge_queue -p vhost_name _queue_name_
 rabbitmqctl delete_queue -p vhost_name _queue_name_
