@@ -40,6 +40,7 @@ lvcreate -n lv_name -l 100%FREE vg_name
 
 # format lv
 mkfs.xfs /dev/vg_name/lv_name
+mkfs.ext4 /dev/vg_name/lv_name
 mkswap /dev/vg_name/lv_name
 
 # change swap

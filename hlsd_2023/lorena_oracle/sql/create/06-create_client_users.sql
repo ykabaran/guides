@@ -46,4 +46,4 @@ create user goalserve_api_user01 identified by "";
 grant connect, goalserve_widget_writer to goalserve_api_user01;
 
 create user ls_app_user01 identified by "";
-grant connect, ls_core_writer to ls_app_user01;
+grant connect, ls_core_writer, ls_prematch_writer, ls_inplay_writer to ls_app_user01;

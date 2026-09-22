@@ -57,3 +57,6 @@ rabbitmqctl set_permissions -p ls_inplay ls_inplay_cons "" "" "amq.default|_feed
 rabbitmqctl change_password user_name ""
 rabbitmqctl purge_queue -p vhost_name _queue_name_
 rabbitmqctl delete_queue -p vhost_name _queue_name_
+
+rabbitmqctl delete_queue -p ls_prematch _feed_
+rabbitmqctl delete_queue -p ls_inplay _feed_

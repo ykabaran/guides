@@ -1,0 +1,40 @@
+cd /root/pki
+mkdir nicowin_san10
+cd nicowin_san10
+openssl genrsa -out private.key 4096
+chmod 400 private.key
+nano openssl.conf
+# OpenSSL configuration file.
+
+[req]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+req_extensions      = v3_req
+prompt              = no
+
+[req_distinguished_name]
+countryName                     = CY
+stateOrProvinceName             = Nicosia
+localityName                    = Nicosia
+0.organizationName              = High Level Software Ltd
+commonName                      = nicosia.win
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = nicosia.win
+DNS.2 = nicobet.win
+DNS.3 = nicobet.co
+DNS.4 = nicobet.club
+DNS.5 = nico.ltd
+DNS.6 = www.nicosia.win
+DNS.7 = www.nicobet.win
+DNS.8 = www.nicobet.co
+DNS.9 = www.nicobet.club
+DNS.10 = www.nico.ltd
+
+openssl req -config openssl.conf -new -sha256 -key private.key -out server.csr
+# submit csr and get them signed, and copy the crt files back here
+
