@@ -140,11 +140,28 @@ pm2 start pm2.config.cjs
 pm2 save
 pm2 startup
 
-# install puppeteer dependencies
-apt install chromium-browser 
-# other dependencies from
-# https://source.chromium.org/chromium/chromium/src/+/main:chrome/installer/linux/debian/dist_package_versions.json
-apt install libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libdrm2 libexpat1 libgbm1 libglib2.0-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libuuid1 libx11-6 libx11-xcb1 libxcb-dri3-0 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxkbcommon0 libxrandr2 libxrender1 libxshmfence1 libxss1 libxtst6
+# install puppeteer
+# before npm i for the project that uses puppeteer
+apt install unzip
+# then you can npm i
+# then run
+node -e "require('puppeteer').executablePath().then(console.log)"
+# then as root:
+cd /etc/apparmor.d
+nano puppeteer-chromium
+# add the following config with the correct puppeteer executable path
+
+abi <abi/4.0>,
+include <tunables/global>
+
+profile puppeteer-chromium /home/unodejs/.cache/puppeteer/chrome/linux-???/chrome-linux64/chrome flags=(unconfined) {
+  userns,
+
+  include if exists <local/puppeteer-chromium>
+}
+
+systemctl reload apparmor
+
 
 database: each server and client individually self-signed and added to each other
 vpn: vpn_ca per server -> server/client.crt
