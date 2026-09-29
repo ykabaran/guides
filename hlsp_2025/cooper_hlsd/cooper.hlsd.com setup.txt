@@ -34,7 +34,7 @@ yasin ALL=(ALL) NOPASSWD:ALL
 su - unodejs
 
 # install nvm, check repo for latest version https://github.com/nvm-sh/nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
 exit
 su - unodejs
 nvm -v

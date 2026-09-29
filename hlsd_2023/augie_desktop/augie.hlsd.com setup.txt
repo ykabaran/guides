@@ -1,0 +1,123 @@
+# add id_rsa and connect ssh
+ssh-copy-id -i id_rsa yildiz@victoria.hlsd.com
+sudo visudo
+yildiz ALL=(ALL) NOPASSWD:ALL
+passwd
+sudo su -
+
+hostnamectl set-hostname augie.hlsd.com
+
+apt update
+apt upgrade
+
+reboot
+
+apt install openssh-server
+apt install curl
+apt install unzip
+
+wget -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+apt install /tmp/google-chrome.deb
+
+google-chrome-stable --version
+
+# go to Settings -> System -> Remote Desktop
+# enable Desktop Sharing and control
+# go so Settings -> System -> Users and enable Automatic Login
+# go to Apps -> Passwords and Keys, right click login and choose Change Password, then enter empty password and approve
+
+ufw enable
+ufw allow ssh
+ufw allow 3389/tcp
+ufw allow 3390/tcp
+
+systemctl enable --now ssh
+systemctl status ssh
+
+adduser uchrome
+# login to GUI with that user and enable Desktop Sharing settings for that user as well (port will be 3390)
+# also disable auto screen lock
+
+# from ssh as uchrome
+mkdir -p ~/.local/share/chrome-proxy-profiles/profile-1
+mkdir -p ~/.local/share/chrome-proxy-profiles/profile-2
+mkdir -p ~/.local/share/chrome-proxy-profiles/profile-3
+
+chmod 700 ~/.local/share/chrome-proxy-profiles
+
+# from uchrome remote desktop, run:
+printf 'WAYLAND_DISPLAY=%s\n' "$WAYLAND_DISPLAY"
+printf 'XDG_RUNTIME_DIR=%s\n' "$XDG_RUNTIME_DIR"
+printf 'DBUS_SESSION_BUS_ADDRESS=%s\n' "$DBUS_SESSION_BUS_ADDRESS"
+id -u
+
+# chrome can be run from uchrome SSH with
+XDG_RUNTIME_DIR=/run/user/1001 \
+WAYLAND_DISPLAY=wayland-0 \
+DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/1001/bus' \
+nohup google-chrome-stable \
+  --ozone-platform=wayland \
+  --user-data-dir="$HOME/.local/share/chrome-proxy-profiles/profile-1" \
+  --no-first-run \
+  --no-default-browser-check \
+  >/dev/null 2>&1 </dev/null &
+
+# to kill all running chrome processes
+pkill -TERM -u "$USER" -f '/chrome'
+
+
+# install nvm, check repo for latest version https://github.com/nvm-sh/nvm
+su - uchrome
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.8/install.sh | bash
+# logout then login again
+nvm -v
+nvm ls-remote
+nvm install v24.21.0
+node -v
+npm -v
+
+# install global packages
+npm i -g pm2
+npm i -g npm-check-updates
+# update npm if available
+
+# make a folder for apps, www should be owned by root, uchrome should be owned by uchrome
+mkdir /var/www/uchrome
+# make app folders
+# copy app files package.json, apps/app/(pm2.config.cjs, config.json, run.js) apps/app/private/evault.json
+# start app with pm2
+pm2 start pm2.config.cjs
+# save pm2 state
+pm2 save
+# enable pm2 on startup
+pm2 startup
+
+
+# install puppeteer
+# before npm i for the project that uses puppeteer
+apt install unzip
+# then you can npm i
+# then run
+node -e "require('puppeteer').executablePath().then(console.log)"
+# then as root:
+cd /etc/apparmor.d
+nano puppeteer-chromium
+# add the following config with the correct puppeteer executable path
+
+abi <abi/4.0>,
+include <tunables/global>
+
+profile puppeteer-chromium /home/unodejs/.cache/puppeteer/chrome/linux-???/chrome-linux64/chrome flags=(unconfined) {
+  userns,
+
+  include if exists <local/puppeteer-chromium>
+}
+
+systemctl reload apparmor
+
+
+# install mouse emulation tools
+apt install ydotool python3-opencv python3-pip gnome-screenshot
+usermod -aG input uchrome
+systemctl --user enable --now ydotool.service
+reboot
