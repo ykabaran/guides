@@ -1,0 +1,33 @@
+# copy the following files to /root/
+update_ssl_certificates.sh
+update_ssl_certificates.conf
+run_logged.sh
+update_ssl_certificates.logrotate
+notify_discord.sh
+discord_webhooks
+	ssl_alerts.txt
+
+# create the ssl certs folders under /root/
+ssl
+	domain_com
+		server.crt (optional)
+		chain.crt (optional)
+		bundle.crt
+		server.key
+
+# set permissions
+chmod 750 update_ssl_certificates.sh
+chmod 750 run_logged.sh
+chmod 750 notify_discord.sh
+chmod 700 discord_webhooks
+chmod 600 discord_webhooks/ssl_alerts.txt
+chmod 700 ssl
+chmod 644 update_ssl_certificates.conf
+chmod 644 update_ssl_certificates.logrotate
+
+# install logrotate
+cp /root/update_ssl_certificates.logrotate /etc/logrotate.d/update_ssl_certificates
+
+# setup cron
+crontab -e
+6 5 * * * /root/run_logged.sh /var/log/ssl-renewals/update_ssl_certificates.log /root/update_ssl_certificates.sh

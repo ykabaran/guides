@@ -39,17 +39,13 @@ ufw app list
 ufw allow 'Nginx Full'
 systemctl enable nginx
 
-# create sites available and rev proxy http /pa_feed/* to victoria.hlsd.com:3032/
-nano /etc/nginx/sites-enabled/default
-location /pa_datafeed {
-  rewrite /pa_datafeed/(.*) /$1 break;
-  proxy_pass http://victoria.hlsd.com:3032;
-  proxy_http_version 1.1;
-  proxy_set_header Upgrade $http_upgrade;
-  proxy_set_header Connection 'upgrade';
-  proxy_set_header Host $host;
-  proxy_cache_bypass $http_upgrade;
-}
-
-
-
+# move the ssl_renewals/update_ssl_certificates.sh and run_logged.sh and update_ssl_certificates.logrotate files to /root
+sudo su -
+cd /root
+chmod 750 run_logged.sh
+chmod 750 update_ssl_certificates.sh
+cp update_ssl_certificates.logrotate /etc/logrotate.d/update_ssl_certificates
+crontab -e
+6 5 * * * /root/run_logged.sh /var/log/ssl-renewals/update_ssl_certificates.log /root/update_ssl_certificates.sh
+# to view logs
+tail -n 100 /var/log/ssl-renewals/update_ssl_certificates.log

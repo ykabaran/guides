@@ -1,0 +1,24 @@
+cd /root/pki
+mkdir star_nbmedia_live
+cd star_nbmedia_live
+openssl genrsa -out private.key 4096
+chmod 400 private.key
+nano openssl.conf
+# OpenSSL configuration file.
+
+[req]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+prompt              = no
+
+[req_distinguished_name]
+countryName                     = CY
+stateOrProvinceName             = Nicosia
+localityName                    = Nicosia
+0.organizationName              = High Level Software Ltd
+commonName                      = *.nbmedia.live
+
+
+openssl req -config openssl.conf -new -sha256 -key private.key -out server.csr
+

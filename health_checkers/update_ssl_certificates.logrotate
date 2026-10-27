@@ -1,0 +1,13 @@
+# Install this file as /etc/logrotate.d/update_ssl_certificates
+#
+# The active log is rotated at approximately 1 MiB. Keeping nine rotated
+# files plus the active file bounds uncompressed storage to approximately
+# 10 MiB; gzip compression normally makes actual usage substantially lower.
+/var/log/ssl-renewals/update_ssl_certificates.log {
+    size 1M
+    rotate 9
+    compress
+    missingok
+    notifempty
+    create 0640 root root
+}

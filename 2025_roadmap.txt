@@ -1,43 +1,25 @@
+goalserve todos
+	mapping bugs
+	update ts version to prod
+	move everything out of lorena
 
 sports betting todos
-	finish lsports ts conversion? maybe do this with trade
-	finish hls sport ts conversion
-	fix match mapping
-	
-	double check hlbs to lsports bridge
-		update hls_sport to ts
-		update hls_sport to hlbs to ts
-		setup and move goalserve db to prod
-		add in other sports
-		add in yasin's scrapers
-
-	coral scraper to hlts_virtuals
+	finish goalserve ts conversion
+		exclude inplay mapping functions and implement them yourself
 
 hls stream todos
-	deploy bunny to virtual streams
 	modify yasin's new player to support volume and refresh
-	update umedia server to remove media.slothinteractive references
-	double check acl codes
-	deploy bunny to live streams
-	
-muhammet new website todos
-	add okey tavla holdem parent functions
-	blackjack and ratepoker lack alert
-	virtuals can be updated
 
 app_tools todos
-	crud handler permissions
-	app service descriptors
+	redo permissions
+	remove schemas/macros/service descriptors
 
 	entity_crud_service
 		add returning support
 		add functional update support
 		add a transactional action that can do insert/update in a transaction, and still create the change logs
 
-	exports
 	docs
-	redis instead of memory cache
-	threaded work consumer?
 
 	file logs
 		log to /var/log
@@ -49,8 +31,6 @@ app_tools todos
 	hls_sport
 		ts conversion
 		implement all sports like tennis
-
-implement ahmed's db backup code
 
 
 hlts live event betting
@@ -73,11 +53,6 @@ hlts live event betting
 	scrape
 		https://www.boylesports.com/sports/greyhounds
 
-
-
-
-improve new admin
-	talk to ceyhun
 
 beat the guardian (yildiz then osman)
 	balance the game
