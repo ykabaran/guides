@@ -12,13 +12,10 @@ reboot
 apt install ufw
 ufw allow ssh
 
-# hls networks
-ufw allow from 212.175.119.128/25 proto tcp to any port 9200
-ufw allow from 95.0.146.180 proto tcp to any port 9200
+# hls office network
+ufw allow from 78.135.35.114 proto tcp to any port 9200
 # yildiz home network
 ufw allow from 78.135.9.56 proto tcp to any port 9200
-# ahmed development vps
-ufw allow from 152.42.139.88 proto tcp to any port 9200
 
 ufw enable
 
@@ -93,9 +90,6 @@ nano /etc/kibana/kibana.yml
 server.port: 5601
 server.host: 0.0.0.0
 server.publicBaseUrl: "https://sven_kibana.qbity.app"
-server.ssl.enabled: true
-server.ssl.certificate: /etc/kibana/certs/star.qbity.app/server.bundled.crt
-server.ssl.key: /etc/kibana/certs/star.qbity.app/server.kibana.key
 elasticsearch.hosts: ["https://sven.qbity.app:9200"]
 elasticsearch.ssl.verificationMode: full
 xpack.encryptedSavedObjects.encryptionKey: xxx
@@ -243,7 +237,7 @@ proxy_pass http://sven.qbity.app:8220;
 # start the apm agent and send the data
 apmAgent = apm.start({
   serviceName: "my_service",
-  serverUrl: "https://apm.sven.qbity.app",
+  serverUrl: "https://sven_apm.qbity.app",
   secretToken: "xxx",
   apiKey: "xxx",
   verifyServerCert: true,

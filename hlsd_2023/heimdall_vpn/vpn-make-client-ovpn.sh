@@ -1,15 +1,14 @@
 #!/bin/bash
 # First argument: Client identifier
 
-cat vpn-client.conf \
+cat vpn-client-openvpn.conf \
     <(echo -e '<ca>') \
-    inter_ca.cert.pem \
-    ca.cert.pem \
+    ca.crt \
     <(echo -e '</ca>\n<cert>') \
-    ${1}.cert.pem \
+    ${1}/client.crt \
     <(echo -e '</cert>\n<key>') \
-    ${1}.key.pem \
+    ${1}/private.key \
     <(echo -e '</key>\n<tls-crypt>') \
     ta.key \
     <(echo -e '</tls-crypt>') \
-    > ${1}.ovpn
+    > issued/${1}.ovpn

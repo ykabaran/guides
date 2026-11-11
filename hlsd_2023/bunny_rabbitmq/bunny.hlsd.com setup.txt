@@ -24,10 +24,10 @@ nano install_rmq.sh
 # copy the contents
 # source: https://www.rabbitmq.com/install-debian.html#apt-cloudsmith
 chmod 744 install_rmq.sh
-. install_rmq.sh
+./install_rmq.sh
 
-systemctl start rabbitmq-server start
-systemctl start rabbitmq-server enable
+systemctl start rabbitmq-server
+systemctl enable rabbitmq-server
 
 ufw allow 5672/tcp
 
@@ -67,9 +67,16 @@ rabbitmqctl add_user hls_sport_change_log_cons ""
 rabbitmqctl set_permissions -p hls_sport hls_sport_change_log_prod "_change_log_" "amq.default|_change_log_" "amq.default|_change_log_"
 rabbitmqctl set_permissions -p hls_sport hls_sport_change_log_cons "" "" "amq.default|_change_log_"
 
+rabbitmqctl add_vhost app_test --description "Testing Related Queues" 
+rabbitmqctl add_user app_test_01_prod ""
+rabbitmqctl add_user app_test_01_cons ""
+rabbitmqctl set_permissions -p app_test app_test_01_prod "_test_01_" "amq.default|_test_01_" "amq.default|_test_01_"
+rabbitmqctl set_permissions -p app_test app_test_01_cons "" "" "amq.default|_test_01_"
+
 rabbitmqctl list_queues -p lsports name arguments messages consumers
 rabbitmqctl list_queues -p goalserve name arguments messages consumers
 rabbitmqctl list_queues -p hls_sport name arguments messages consumers
+rabbitmqctl list_queues -p app_test name arguments messages consumers
 
 rabbitmqctl change_password user_name ""
 rabbitmqctl purge_queue -p vhost_name _queue_name_

@@ -1,0 +1,167 @@
+# as root
+# find interface name
+ip a
+
+# check ip forward
+sysctl net.ipv4.ip_forward
+# enable if needed
+cat > /etc/sysctl.d/99-forward-netns.conf <<'EOF'
+net.ipv4.ip_forward=1
+EOF
+
+sysctl --system
+
+nano /etc/ufw/before.rules
+# add nat rule to before rules. if *nat already exists add to it, otherwise place before *filter
+*nat
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -s 10.28.10.0/30 -o ens224 -j MASQUERADE
+COMMIT
+
+ufw reload
+
+nano /usr/local/sbin/setup-frankfurt-netns.sh
+#!/bin/bash
+set -e
+
+NS="frankfurt"
+HOST_IF="veth-fra-h"
+NS_IF="veth-fra-n"
+
+# Create namespace if missing
+if ! ip netns list | grep -q "^${NS} "; then
+    ip netns add "$NS"
+fi
+
+# Create veth pair if missing
+if ! ip link show "$HOST_IF" >/dev/null 2>&1; then
+    ip link add "$HOST_IF" type veth peer name "$NS_IF"
+    ip link set "$NS_IF" netns "$NS"
+fi
+
+# Configure host side
+ip addr replace 10.28.10.1/30 dev "$HOST_IF"
+ip link set "$HOST_IF" up
+
+# Configure namespace side
+ip -n "$NS" addr replace 10.28.10.2/30 dev "$NS_IF"
+ip -n "$NS" link set "$NS_IF" up
+ip -n "$NS" link set lo up
+
+# Configure namespace gateway
+ip -n "$NS" route replace default via 10.28.10.1
+
+# Enable below line if you dont want fallback routes to active in case of VPN disconnection
+#ip -n "$NS" route replace blackhole 159.223.234.216/32 metric 100
+
+echo "Frankfurt namespace configured"
+
+chmod 755 /usr/local/sbin/setup-frankfurt-netns.sh
+
+/usr/local/sbin/setup-frankfurt-netns.sh
+
+nano /etc/systemd/system/frankfurt-netns.service
+[Unit]
+Description=Frankfurt Network Namespace
+Wants=network-online.target
+After=network-online.target
+Before=frankfurt-openvpn.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/setup-frankfurt-netns.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
+systemctl daemon-reload
+systemctl enable --now frankfurt-netns.service
+
+# enable forwarding with ufw
+ufw route allow \
+  in on veth-fra-h \
+  out on ens224 \
+  from 10.28.10.0/30 \
+  to any
+
+ufw reload
+
+nano /etc/systemd/system/frankfurt-openvpn.service
+[Unit]
+Description=OpenVPN Client inside Frankfurt Namespace
+Requires=frankfurt-netns.service
+After=frankfurt-netns.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/ip netns exec frankfurt /usr/sbin/openvpn --config /etc/openvpn/vpnfra.conf
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+systemctl daemon-reload
+systemctl enable --now frankfurt-openvpn.service
+
+# test internet
+ip netns exec frankfurt ping -c 3 1.1.1.1
+# test local, change ip and port if needed
+ip netns exec frankfurt nc -vz 192.168.x.x 5672
+
+# prevent fallback route in case of vpn disconnection
+ip -n frankfurt route add blackhole 159.223.234.216/32 metric 100
+
+iperf3 -c ams.lsports.hlsd.com -R -t 30 -i 1
+ip netns exec frankfurt iperf3 -c ams.lsports.hlsd.com -R -t 30 -i 1
+
+nano /usr/local/sbin/start-xxx-fra
+#!/bin/bash
+set -e
+
+exec /usr/sbin/ip netns exec frankfurt \
+    /usr/sbin/runuser -l unodejs -s /bin/bash -c '
+        cd /var/www/unodejs/xxx/apps/xxx_fra
+
+        export NVM_DIR="$HOME/.nvm"
+        [ ! -s "$NVM_DIR/nvm.sh" ] || . "$NVM_DIR/nvm.sh"
+
+        export UV_THREADPOOL_SIZE=8
+
+        exec node --max-old-space-size=4000 ./run.js
+    '
+
+chmod 755 /usr/local/sbin/start-xxx-fra
+
+visudo -f /etc/sudoers.d/xxx-fra
+unodejs ALL=(root) NOPASSWD: /usr/local/sbin/start-xxx-fra ""
+
+# test run
+sudo -n /usr/local/sbin/start-xxx-fra
+
+# if the app is listening on an http server
+apt install socat
+
+# change 3000 to the port you need, different ports can also be used
+# socat can be bound to specific interface with
+# TCP4-LISTEN:3000,bind=192.168.1.xxx,reuseaddr,fork TCP4:10.28.10.2:3000
+nano /etc/systemd/system/socat-proxy-frankfurt-3000.service
+[Unit]
+Description=Frankfurt Port 3000 Forward
+Requires=frankfurt-netns.service
+After=frankfurt-netns.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/socat TCP4-LISTEN:3000,reuseaddr,fork TCP4:10.28.10.2:3000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl restart socat-proxy-frankfurt-3027.service
+sudo systemctl enable socat-proxy-frankfurt-3027.service

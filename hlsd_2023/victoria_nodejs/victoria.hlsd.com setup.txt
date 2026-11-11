@@ -81,8 +81,8 @@ unzip instantclient-basic-linuxx64.zip
 sudo sh -c "echo /opt/oracle/instantclient_23_6 > /etc/ld.so.conf.d/oracle-instantclient.conf"
 sudo ldconfig
 # for the user who is going to use the client set
-export LD_LIBRARY_PATH=/opt/oracle/instantclient_19_18:$LD_LIBRARY_PATH
-sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /opt/oracle/instantclient_23_6/libaio.so.1
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8:$LD_LIBRARY_PATH
+sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /opt/oracle/instantclient_21_8/libaio.so.1
 
 # install nvm, check repo for latest version https://github.com/nvm-sh/nvm
 add user unodejs
@@ -174,3 +174,27 @@ web_server_client:
 	root_web_chained_ca -> client.crt
 nginx_server:
 	hlsi.dev globally signed crt
+
+
+# install filebeat
+(
+  set -e
+
+  arch="$(dpkg --print-architecture)"
+  case "$arch" in
+    amd64|arm64) ;;
+    *) echo "Unsupported architecture: $arch"; exit 1 ;;
+  esac
+
+  mkdir -p ~/filebeat-setup
+  cd ~/filebeat-setup
+
+  package="filebeat-9.5.5-${arch}.deb"
+  base_url="https://artifacts.elastic.co/downloads/beats/filebeat"
+
+  curl -fSLO "${base_url}/${package}"
+  curl -fSLO "${base_url}/${package}.sha512"
+
+  sha512sum -c "${package}.sha512"
+  sudo dpkg -i "$package"
+)

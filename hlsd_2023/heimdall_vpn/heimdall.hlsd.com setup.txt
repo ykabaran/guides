@@ -23,93 +23,76 @@ apt install openvpn
 cd /root
 mkdir pki
 cd pki
-mkdir server client
-cd server
+mkdir ca server client
+cd ca
+mkdir certs private csr newcerts issued
+chmod 700 private
+touch index.txt
+echo 1000 > serial
+echo 1000 > crlnumber
 nano openssl.conf
-# copy heimdall.hlsd.com-openssl.conf file here
+# copy ca-openssl.conf file here
+openssl genrsa -aes256 -out private/ca.key 4096
+chmod 400 private/ca.key
+openssl req -config openssl.conf -key private/ca.key -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.crt
 
-openssl genrsa -out server.key.pem 4096
-openssl req -config openssl.conf -new -sha256 -key server.key.pem -out server.csr
+# verify
+openssl x509 -noout -text -in certs/ca.crt
 
-# copy the csr to ca.vpn.hlsd.com /root/inter_ca_vpn/csr/heimdall.hlsd.com.csr
-openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/heimdall.hlsd.com.csr -out issued/heimdall.hlsd.com.cert.pem
-# copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, issued/heimdall.hlsd.com.cert.pem into /root/pki/server
+cd ../server
+nano openssl.conf
+# copy vpn-server-openssl.conf file here
+
+openssl genrsa -out server.key 4096
+openssl req -config openssl.conf -new -sha256 -key server.key -out server.csr
+cp server.csr ../ca/csr/server.vpn.heimdall.hlsd.com.csr
+cd ../ca
+openssl ca -config openssl.conf -extensions server_cert -days 3750 -notext -md sha256 -in csr/server.vpn.heimdall.hlsd.com.csr -out issued/server.vpn.heimdall.hlsd.com.crt
+openssl ca -config openssl.conf -gencrl -out crl.pem
+cp certs/ca.crt crl.pem ../server/
+cp issued/server.vpn.heimdall.hlsd.com.crt ../server/server.crt
 
 cd /etc/openvpn
-cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf ./
-cp /root/pki/server/server.key.pem ./
-cp /root/pki/server/ca.cert.pem ./
-cp /root/pki/server/inter_ca.cert.pem ./
-cp /root/pki/server/inter_ca.crl.pem ./crl.pem
-cp /root/pki/server/server.cert.pem ./
+cp /root/pki/server/server.key /root/pki/server/ca.crt /root/pki/server/crl.pem /root/pki/server/server.crt ./
 mkdir ccd
 
-openssl dhparam -out dh.pem 2048
 openvpn --genkey secret ta.key
-cat inter_ca.cert.pem ca.cert.pem > ca-chained.cert.pem
 
 nano server.conf
-	port 13020
-	# set ca,cert,key,dh paths
-
-	# comment tls-auth and add
-	tls-crypt ta.key
-
-	# uncomment
-	topology subnet
-
-	server 10.13.25.0 255.255.255.0
-	push "route 10.13.2.0 255.255.255.0"
-	push "route 10.13.30.0 255.255.255.0"
-	push "route 10.13.40.0 255.255.255.0"
-
-	# uncomment, don't use compression
-	client-config-dir ccd 
-	client-to-client
-	user nobody
-	group nogroup
-
-	# add
-	crl-verify crl.pem
-	# change
-	data-ciphers AES-256-GCM
-	# optionally, add default (SHA1) is enough they say
-	auth SHA512
+# copy vpn-server-openvpn.conf file here
+nano /usr/share/doc/openvpn/examples/sample-config-files/server.conf
+# compare to see if any options look wrong
 
 # add NAT rule to gateway
+# check the make sure WAN network adapter is eth0
 
-nano /etc/sysctl.conf
-	# uncomment
-	net.ipv4.ip_forward = 1
-sysctl -p /etc/sysctl.conf
+echo 'net.ipv4.ip_forward=1' | tee /etc/sysctl.d/99-vpn-forward.conf
+sysctl --system
 
-nano /etc/default/ufw
-	# change
-	DEFAULT_FORWARD_POLICY="ACCEPT"
+ufw allow 10178/udp
+ufw route allow \
+  in on tun0 \
+  out on eth0 \
+  from 10.8.0.0/24 \
+  to any
 
 nano /etc/ufw/before.rules
-	# add at the end after COMMIT, make sure no /r/n are present
-	# nat Table rules
-	*nat
-	-F
-	:POSTROUTING ACCEPT [0:0]
-	 
-	# Forward traffic from tun0 through ens160.
-	-A POSTROUTING -s 10.13.25.0/24 -o ens160 -j MASQUERADE
-	 
-	# don't delete the 'COMMIT' line or these nat table rules won't be processed
-	COMMIT
+# add before existing *filter section, make sure no /r/n are present
+*nat
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
+COMMIT
 
 ufw reload
 
 cd /root/pki/client
-cp /root/pki/server/inter_ca.cert.pem ./
-cp /root/pki/server/ca.cert.pem ./
+mkdir issued
+cp /root/pki/server/ca.crt ./
 cp /etc/openvpn/ta.key ./
 
 # copy these files
 nano vpn-client-openssl.conf
-nano vpn-client.conf
+nano vpn-client-openvpn.conf
 nano vpn-make-client-csr.sh
 nano vpn-make-client-ovpn.sh
 
@@ -117,51 +100,32 @@ chmod u+x vpn-make-client-csr.sh
 chmod u+x vpn-make-client-ovpn.sh
 
 # make client csrs
-./vpn-make-client-csr.sh yildiz01.vpn.hlsd.com
-./vpn-make-client-csr.sh yildiz02.vpn.hlsd.com
-./vpn-make-client-csr.sh yildiz03.vpn.hlsd.com
-./vpn-make-client-csr.sh aykut01.vpn.hlsd.com
-./vpn-make-client-csr.sh aykut02.vpn.hlsd.com
-./vpn-make-client-csr.sh aykut03.vpn.hlsd.com
-./vpn-make-client-csr.sh zafer01.vpn.hlsd.com
-./vpn-make-client-csr.sh yasin01.vpn.hlsd.com
+./vpn-make-client-csr.sh yildiz.heimdall.hlsd.com
 
-# get csrs signed with ca.vpn.hlsd.com /root/inter_ca_vpn/csr/
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz01.vpn.hlsd.com.csr -out issued/yildiz01.vpn.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz02.vpn.hlsd.com.csr -out issued/yildiz02.vpn.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz03.vpn.hlsd.com.csr -out issued/yildiz03.vpn.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/aykut01.vpn.hlsd.com.csr -out issued/aykut01.vpn.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/aykut02.vpn.hlsd.com.csr -out issued/aykut02.vpn.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/aykut03.vpn.hlsd.com.csr -out issued/aykut03.vpn.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/zafer01.vpn.hlsd.com.csr -out issued/zafer01.vpn.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yasin01.vpn.hlsd.com.csr -out issued/yasin01.vpn.hlsd.com.cert.pem
+# get csrs signed with ca
+cp yildiz.vpn.heimdall.hlsd.com/client.csr ../ca/csr/yildiz.vpn.heimdall.hlsd.com.csr
+
+cd ../ca
+openssl ca -config openssl.conf -extensions client_cert -days 3750 -notext -md sha256 -in csr/yildiz.vpn.heimdall.hlsd.com.csr -out issued/yildiz.vpn.heimdall.hlsd.com.crt
 
 # revoke one just in case
-openssl ca -config openssl.conf -revoke issued/yildiz03.vpn.hlsd.com.cert.pem
-mv issued/yildiz03.vpn.hlsd.com.cert.pem revoked/20231213_yildiz03.vpn.hlsd.com.cert.pem
+openssl ca -config openssl.conf -revoke issued/revoked.vpn.heimdall.hlsd.com.crt
+mv issued/revoked.vpn.heimdall.hlsd.com.cert.pem revoked/20261104_revoked.vpn.heimdall.hlsd.com.crt
+
 openssl ca -config openssl.conf -gencrl -out crl.pem
+cp crl.pem ../server/
+cp crl.pem /root/pki/server/server.crt /etc/openvpn/
 
 # copy the signed certs back together with crl
+cp issued/yildiz.vpn.heimdall.hlsd.com.crt ../client/yildiz.vpn.heimdall.hlsd.com/client.crt
+
 # make client ovpns
-./vpn-make-client-ovpn.sh yildiz01.vpn.hlsd.com
-./vpn-make-client-ovpn.sh yildiz02.vpn.hlsd.com
-./vpn-make-client-ovpn.sh yildiz03.vpn.hlsd.com
-./vpn-make-client-ovpn.sh aykut01.vpn.hlsd.com
-./vpn-make-client-ovpn.sh aykut02.vpn.hlsd.com
-./vpn-make-client-ovpn.sh aykut03.vpn.hlsd.com
-./vpn-make-client-ovpn.sh zafer01.vpn.hlsd.com
-./vpn-make-client-ovpn.sh yasin01.vpn.hlsd.com
+cd ../client
+./vpn-make-client-ovpn.sh yildiz.vpn.heimdall.hlsd.com
 
 cd /etc/openvpn/ccd
 # set client ips
-echo "ifconfig-push 10.13.25.11 255.255.255.0" > yildiz01.vpn.hlsd.com
-echo "ifconfig-push 10.13.25.12 255.255.255.0" > yildiz02.vpn.hlsd.com
-echo "ifconfig-push 10.13.25.13 255.255.255.0" > yildiz03.vpn.hlsd.com
-echo "ifconfig-push 10.13.25.21 255.255.255.0" > aykut01.vpn.hlsd.com
-echo "ifconfig-push 10.13.25.22 255.255.255.0" > aykut02.vpn.hlsd.com
-echo "ifconfig-push 10.13.25.23 255.255.255.0" > aykut03.vpn.hlsd.com
-echo "ifconfig-push 10.13.25.31 255.255.255.0" > zafer01.vpn.hlsd.com
-echo "ifconfig-push 10.13.25.41 255.255.255.0" > yasin01.vpn.hlsd.com
+echo "ifconfig-push 10.8.0.11 255.255.255.0" > yildiz.vpn.heimdall.hlsd.com
 
 systemctl start openvpn@server
 systemctl enable openvpn@server
