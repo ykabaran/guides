@@ -1,0 +1,34 @@
+services:
+  ome:
+    image: ovenmedialabs/ovenmediaengine:0.21.0
+    restart: unless-stopped
+    # Linux host networking also makes the host's WireGuard interface available.
+    network_mode: host
+    environment:
+      OME_HOST_IP: ${OME_HOST_IP:?Set OME_HOST_IP in .env}
+      OME_TLS_DOMAIN: ${OME_TLS_DOMAIN:?Set OME_TLS_DOMAIN in .env}
+      OME_ORIGIN_RTSP: ${OME_ORIGIN_RTSP:?Set OME_ORIGIN_RTSP in .env}
+      OME_SIGNING_SECRET: ${OME_SIGNING_SECRET:?Set OME_SIGNING_SECRET in .env}
+    volumes:
+      - type: bind
+        source: ./Server.xml
+        target: /opt/ovenmediaengine/bin/origin_conf/Server.xml
+        read_only: true
+        bind:
+          create_host_path: false
+      # Mount the whole tree, because live/ contains links into archive/.
+      - type: bind
+        source: /etc/letsencrypt
+        target: /etc/letsencrypt
+        read_only: true
+        bind:
+          create_host_path: false
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"

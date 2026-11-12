@@ -35,6 +35,7 @@ openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sh
 
 # install nginx
 apt install nginx
+# optional apt install nginx-module-njs
 ufw app list
 ufw allow 'Nginx Full'
 systemctl enable nginx

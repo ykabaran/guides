@@ -1,0 +1,10 @@
+[Interface]
+Address = 10.77.0.2/32
+PrivateKey = REPLACE_WITH_ORIGIN_PRIVATE_KEY
+
+[Peer]
+PublicKey = REPLACE_WITH_HETZNER_PUBLIC_KEY
+Endpoint = REPLACE_WITH_HETZNER_PUBLIC_IPV4:51820
+AllowedIPs = 10.77.0.1/32
+# Keeps a NAT mapping open when the origin is behind a router.
+PersistentKeepalive = 25
