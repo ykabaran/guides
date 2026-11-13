@@ -1,0 +1,4 @@
+.env
+*.key
+wg0.conf
+origin.conf

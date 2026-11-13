@@ -1,0 +1,8 @@
+[Interface]
+Address = 10.77.0.1/32
+ListenPort = 51820
+PrivateKey = REPLACE_WITH_HETZNER_PRIVATE_KEY
+
+[Peer]
+PublicKey = REPLACE_WITH_ORIGIN_PUBLIC_KEY
+AllowedIPs = 10.77.0.2/32
