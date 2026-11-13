@@ -1,7 +1,7 @@
 # set ip or add mac to pfsense
 # add id_rsa and connect ssh
 ssh-copy-id -i id_rsa yildiz@victoria.hlsd.com
-sudo visudo
+sudo visudo -f /etc/sudoers.d/yildiz
 yildiz ALL=(ALL) NOPASSWD:ALL
 passwd
 sudo su -
