@@ -14,6 +14,7 @@ sudo visudo -f /etc/sudoers.d/yildiz
 yildiz ALL=(ALL) NOPASSWD:ALL
 passwd
 sudo su -
+echo -e 'export VISUAL=nano\nexport EDITOR=nano' | sudo tee /etc/profile.d/nano-editor.sh
 
 # increase swap to RAM size, if less, use ol_sage, extend if needed
 lvcreate -n lv_swap -L 16G ol_sage
@@ -88,11 +89,9 @@ nano /etc/hosts
 
 dnf update -y
 reboot
-#### continue from here ####
 
 # install prereqs and update
 dnf install -y oracle-ai-database-preinstall-26ai
-
 
 # setup misc
 passwd oracle
@@ -100,75 +99,103 @@ passwd oracle
 
 nano /etc/selinux/config
 SELINUX=permissive
+# also apply immediately without reboot
+setenforce 0
 
+firewall-cmd --permanent --zone=public --add-service=ssh
 firewall-cmd --permanent --zone=public --add-port=1521/tcp
 firewall-cmd --permanent --zone=public --add-port=2484/tcp
 firewall-cmd --reload
 firewall-cmd --list-all
 
+# check the kernel version, use the latest non uek kernel
+# as root
+grubby --info=ALL
+grubby --set-default /boot/vmlinuz-5.14.0-687.66.1.el9_8.x86_64
+grubby --default-kernel
 reboot
+uname -r
+# make sure the version matches and all 4 mounts are present
+
+# copy the sage-26ai.zip to /home/oracle with oracle:oinstall permissions
+# as oracle
+unzip -n sage-26ai.zip -d sage-26ai
+# as root
+cd /home/oracle/sage-26ai
 
 # transfer permissions to oracle
-chown -R oracle:oinstall /uora /uoradata /uorafra /uorabackup
-chmod -R 775 /uora /uoradata /uorafra /uorabackup
+(
+    set -e
+    for mount in /uora /uoradata /uorafra /uorabackup; do
+        mountpoint -q "$mount" || { echo "Missing mount: $mount" >&2; exit 1; }
+    done
+    sudo install -d -o oracle -g oinstall -m 0755 \
+        /uora/app /uora/app/oracle /uora/app/oracle/product/23.0.0/dbhome_1
+    sudo install -d -o oracle -g oinstall -m 0775 /uora/app/oraInventory
+    sudo install -d -o oracle -g oinstall -m 0750 /uoradata /uorafra /uorabackup
+    sudo install -d -o oracle -g oinstall -m 0700 \
+        /uorabackup/rman /uorabackup/logs /home/oracle/scripts
+    sudo install -o oracle -g oinstall -m 0700 \
+        scripts/start_all.sh scripts/stop_all.sh scripts/rman_*.sh /home/oracle/scripts/
+    sudo install -o oracle -g oinstall -m 0600 \
+        scripts/setEnv.sh scripts/*.rmn scripts/login.sql rman-config.rmn /home/oracle/scripts/
+)
 
-# create the folders and scripts as oracle
-su - oracle
-mkdir -p /uora/app/oracle/product/23.0.0/dbhome_1
-mkdir /uorabackup/rman
-mkdir /uorabackup/logs
-mkdir /home/oracle/scripts
-
-# copy contents of lorena_oracle to /home/oracle
-chown -R oracle:oinstall /home/oracle/scripts
-
-chmod u+x /home/oracle/scripts/*.sh
-echo ". /home/oracle/scripts/setEnv.sh" >> /home/oracle/.bash_profile
+# append the contents of bash_profile.addition to oracle user
+nano /home/oracle/.bash_profile
 
 # transfer LINUX.X64_2326100_db_home.zip to /home/oracle/ with oracle:oinstall permissions
+# as oracle
+# check db_home file hash
+sha256sum -c <<'EOF'
+2a5d2583df076209e624dff750829f9a562473c27c8f926d546cf9ad2a1a2efd  LINUX.X64_2326100_db_home.zip
+EOF
+# extract the file
+cd $ORACLE_HOME
+unzip -q /home/oracle/LINUX.X64_2326100_db_home.zip
 
 # login to oracle with gui
 cd $ORACLE_HOME
-unzip -oq /home/oracle/LINUX.X64_2326100_db_home.zip
-
-export CV_ASSUME_DISTID=OEL7.6
 ./runInstaller
 	software only
 	single instance
 	enterprise edition
 	/uora/app/oracle
+	/uora/app/oraInventory, group oinstall
 	manually run root scripts
 	install
 
 # when prompted run the scripts as root from ssh
 /uora/app/oraInventory/orainstRoot.sh
-/uora/app/oracle/product/19.0.0/dbhome_1/root.sh
+/uora/app/oracle/product/23.0.0/dbhome_1/root.sh
 
-# continue as oracle user
-lsnrctl start
+# continue as oracle user in gui
+netca
+	Listener configuration
+	Add
+	name LISTENER
+	protocol TCP
+	port 1521
+
 dbca
-	advanced
-	single instance
+	Create a database
+	Advanced configuration
+	Oracle Single Instance Database. Use the General Purpose or Transaction Processing template.
 	general purpose
-	global name and SID: lorena
-	don't create as container
-	use following for the database storage attributes
-	set to /uoradata
-	don't use OMF
-	specify FRA as to /uorafra
-	180GB (about twice as big as the data)
-	enable archiving
-	don't create new listener
+	Global database name sage, SID sage. Create a container database with one PDB. sagepdb as its name.
+	Use following for the database storage attributes, then File System. Set Database files location to /uoradata and enable Use Oracle-Managed Files (OMF)
+	Check Specify Fast Recovery Area and set the location to /uorafra, 50GB as size, and Enable archiving
+	Select the LISTENER we created on TCP 1521
 	don't vault
 	don't label security
-	memory -> use automatic shared memory management, 80%
+	memory -> use automatic shared memory management, 65%
 	sizing -> nothing
-	character sets -> UTF8 (national set as well)
+	character sets -> Use AL32UTF8 for the database character set, AL16UTF16 for the national character set
 	connection mode -> dedicated
 	samples schemas -> no
 	don't configure enterprise manager
 	don't register to cloud
-	same password to rule them all
+	separate 24 character alphanum passwords
 	create database
 	install
 
@@ -180,152 +207,84 @@ passwd oracle
 # something strong
 
 su - oracle
-
 sqlplus / as sysdba
-startup mount
-show parameter target; # for memory parameters
-show parameter db_recovery_file_dest; # for fra parameters
-alter system set db_create_file_dest='/uoradata';
-alter system set db_flashback_retention_target = 2880; # 2 days
-alter system set undo_retention = 2880; # 2 days
+ALTER DATABASE FORCE LOGGING;
+ALTER PLUGGABLE DATABASE sagepdb SAVE STATE;
 
-alter database open;
-alter database flashback on;
-ALTER DATABASE ENABLE BLOCK CHANGE TRACKING USING FILE '/uorafra/LORENA/rman_bct.chg';
+ALTER SESSION SET CONTAINER = sagepdb;
+SHOW PARAMETER max_string_size
 
-shutdown immediate;
-exit
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+ALTER PLUGGABLE DATABASE sagepdb CLOSE IMMEDIATE;
+ALTER PLUGGABLE DATABASE sagepdb OPEN UPGRADE;
+
+ALTER SESSION SET CONTAINER = sagepdb;
+SHOW CON_NAME
+ALTER SYSTEM SET max_string_size = EXTENDED SCOPE=BOTH;
+@?/rdbms/admin/utl32k.sql
+
+ALTER SESSION SET CONTAINER = CDB$ROOT;
+ALTER PLUGGABLE DATABASE sagepdb CLOSE IMMEDIATE;
+ALTER PLUGGABLE DATABASE sagepdb OPEN READ WRITE;
+ALTER PLUGGABLE DATABASE sagepdb SAVE STATE;
+
+ALTER SESSION SET CONTAINER = sagepdb;
+@?/rdbms/admin/utlrp.sql
+SHOW PARAMETER max_string_size
+
+ALTER DATABASE ENABLE BLOCK CHANGE TRACKING;
+SELECT status, filename FROM v$block_change_tracking;
+
+ALTER DATABASE FLASHBACK ON;
+
+# configure oracle as a service
+# as root
+cd /home/oracle/sage-26ai
+install -o root -g root -m 0644 systemd/oracle-sage{,-listener}.service /etc/systemd/system/
+systemd-analyze verify /etc/systemd/system/oracle-sage{,-listener}.service
+systemctl daemon-reload
+
+# as oracle
 sqlplus / as sysdba
-
-startup upgrade;
-alter system set MAX_STRING_SIZE = EXTENDED;
-@/uora/app/oracle/product/19.0.0/dbhome_1/rdbms/admin/utl32k.sql
-shutdown immediate;
+SHUTDOWN IMMEDIATE
 exit
+lsnrctl stop LISTENER
+
+# as root
+systemctl start oracle-sage.service
+systemctl status oracle-sage.service oracle-sage-listener.service --no-pager
+systemctl enable oracle-sage.service
+
+# check if running
+# as oracle
+sqlplus / as sysdba
+SHOW PDBS
 
 # configure rman
+rman target / nocatalog
+@/home/oracle/scripts/rman-config.rmn
+# or just SHOW ALL;
+# verify controlfile autobackup on
+# run a level 0 backup
+"$HOME/scripts/rman_level0.sh"
+
 rman target /
-startup mount;
+LIST BACKUP SUMMARY;
+LIST BACKUP OF ARCHIVELOG ALL;
+LIST BACKUP OF CONTROLFILE;
+LIST BACKUP OF SPFILE;
+RESTORE DATABASE VALIDATE;
 
-# display and change rman configuration
-show all;
-
-CONFIGURE RETENTION POLICY TO REDUNDANCY 1;
-CONFIGURE CONTROLFILE AUTOBACKUP ON;
-CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 1 TIMES TO DISK;
-
-# add database to startup configuration
-nano /etc/oratab
-lorena:/uora/app/oracle/product/19.0.0/dbhome_1:Y
-
-# as root create the service
-nano /lib/systemd/system/dbora.service
-# copy dbora.service into this file
-
-systemctl daemon-reload
-# to start/stop/autostart service use the commands below
-systemctl start dbora
-systemctl stop dbora
-systemctl enable dbora
-systemctl disable dbora
-systemctl status dbora
-
-reboot
-
-create_tablespaces.sql
-create_db_admin.sql
-create_app_core.sql
-# TODO done up to here, rest is pending
-create_app_log.sql
-create...sql
-
-# as oracle 
-. /home/oracle/scripts/rman_level0.sh
 
 # as oracle add rman scripts to crontab
 crontab -e
-5 4 * * 1,3,5 /home/oracle/scripts/rman_level0.sh
-5 4 * * 0,2,4,6 /home/oracle/scripts/rman_level1.sh
-5 16 * * * /home/oracle/scripts/rman_level1.sh
-0 4 * * * /home/oracle/scripts/cleanup.sh
+# copy contents of oracle.crontab here
 
-# as root
-cd /root
-mkdir pki
-cd pki
-mkdir server client
-cd server
-nano openssl.conf
-# copy lorena.hlsd.com-openssl.conf file here
+# TODO done up to here, rest is pending
+create_tablespaces.sql
+create_db_admin.sql
+create_app_core.sql
+create_app_log.sql
+create...sql
 
-openssl genrsa -out server.key.pem 4096
-openssl req -config openssl.conf -new -sha256 -key server.key.pem -out server.csr
 
-# copy the csr to ca.db.hlsd.com /root/inter_ca_db/csr/lorena.hlsd.com.csr
-openssl ca -config openssl.conf -extensions server_cert -days 375 -notext -md sha256 -in csr/lorena.hlsd.com.csr -out issued/lorena.hlsd.com.cert.pem
-# copy certs/ca.cert.pem, certs/inter_ca.cert.pem, crl.pem, issued/lorena.hlsd.com.cert.pem into /root/pki/server
-
-# create server certificate and p12 package
-cd /root/pki/server
-cat inter_ca.cert.pem ca.cert.pem > ca-chained.cert.pem
-
-openssl pkcs12 -export -out wallet.p12 -inkey server.key.pem -in server.cert.pem -certfile ca-chained.cert.pem
-
-# copy wallet source p12
-mkdir /uora/app/wallet
-cp /root/pki/server/wallet.p12 /uora/app/wallet/ewallet.p12
-chown -R oracle:oinstall /uora/app/wallet
-
-su - oracle
-cd /uora/app/wallet
-orapki wallet display -wallet /uora/app/wallet/
-orapki wallet create -wallet /uora/app/wallet/ -auto_login_local
-orapki wallet display -wallet /uora/app/wallet/
-
-cd $ORACLE_HOME/network/admin
-nano sqlnet.ora
-# copy contents of oracle/sqlnet.ora
-nano listener.ora
-# copy contents of oracle/listener.ora
-lsnrctl stop
-
-# change database to IPC
-sqlplus / as sysdba
-alter system set local_listener='(ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1))' SCOPE=BOTH;
-alter system register;
-exit
-
-lsnrctl start
-
-# return to root
-# create client ssl certificates
-cd /root/pki/client
-cp /root/pki/server/inter_ca.cert.pem ./
-cp /root/pki/server/ca.cert.pem ./
-
-# copy these files
-nano db-client-openssl.conf
-nano db-make-client-csr.sh
-
-chmod u+x db-make-client-csr.sh
-
-# make client csrs
-./db-make-client-csr.sh yildiz01.db.hlsd.com
-./db-make-client-csr.sh yildiz02.db.hlsd.com
-
-# get csrs signed with ca.db.hlsd.com /root/inter_ca_db/csr/
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz01.db.hlsd.com.csr -out issued/yildiz01.db.hlsd.com.cert.pem
-openssl ca -config openssl.conf -extensions client_cert -days 375 -notext -md sha256 -in csr/yildiz02.db.hlsd.com.csr -out issued/yildiz02.db.hlsd.com.cert.pem
-
-# copy the signed certs back, then make pkcs12s
-cat inter_ca.cert.pem ca.cert.pem > ca-chained.cert.pem
-openssl pkcs12 -export -out yildiz01.db.hlsd.com.wallet.p12 -inkey yildiz01.db.hlsd.com.key.pem -in yildiz01.db.hlsd.com.cert.pem -certfile ca-chained.cert.pem
-openssl pkcs12 -export -out yildiz02.db.hlsd.comwallet.p12 -inkey yildiz02.db.hlsd.com.key.pem -in yildiz02.db.hlsd.com.cert.pem -certfile ca-chained.cert.pem
-
-# copy the pkcs to client, rename to ewallet.p12
-# client must have oracle client (not instant) for orapki
-orapki wallet display -wallet C:\dev\oracle_wallet\yildiz01_db_hlsd_com
-orapki wallet create -wallet C:\dev\oracle_wallet\yildiz01_db_hlsd_com -auto_login_local
-orapki wallet display -wallet C:\dev\oracle_wallet\yildiz01_db_hlsd_com
-
-# NOT WORKING YET!
