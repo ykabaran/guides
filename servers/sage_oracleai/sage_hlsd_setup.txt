@@ -280,11 +280,4 @@ RESTORE DATABASE VALIDATE;
 crontab -e
 # copy contents of oracle.crontab here
 
-# TODO done up to here, rest is pending
-create_tablespaces.sql
-create_db_admin.sql
-create_app_core.sql
-create_app_log.sql
-create...sql
-
-
+# setup the database by running the sqls
